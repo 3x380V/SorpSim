@@ -5,10 +5,10 @@ activated cooling and heating technologies.
 
 # Installing and Running
 
-Look on the releases tab to download the latest released binaries. You can use
-the self-extracting installer or the archive file appropriate for your system.
-Run the installer or extract the files to the folder of your choice, then run
-the executable (SorpSim).
+Look on the [releases](./releases) tab to download the latest released binaries.
+You can use the self-extracting installer or the archive file appropriate for
+your system. Run the installer or extract the files to the folder of your
+choice, then run the executable (SorpSim).
 
 # Building
 
@@ -58,4 +58,6 @@ Refer to advice in the Qwt install directions.
 
 # Contributing
 
-No guidance offered at this time, but please share your changes!
+Note from nfette: No guidance offered at this time, but please share your
+changes! But you can [read the documentation](http://www.public.asu.edu/~nfette/SorpSim/)
+
