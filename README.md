@@ -3,6 +3,11 @@
 This is a Sorption system simulation tool to evaluate different thermally
 activated cooling and heating technologies.
 
+# Getting started
+
+* To download installer see the Releases link on Github
+* Documentation [read the documentation](http://www.public.asu.edu/~nfette/SorpSim/latest/)
+
 # Installing and Running
 
 Look on the [releases](https://github.com/nfette/SorpSim/releases)
@@ -10,6 +15,7 @@ tab to download the latest released binaries.
 You can use the self-extracting installer or the archive file appropriate for
 your system. Run the installer or extract the files to the folder of your
 choice, then run the executable (SorpSim).
+(I may need someone to build the project on Mac OS.)
 
 # Building
 
@@ -64,6 +70,4 @@ Refer to advice in the Qwt install directions.
 
 # Contributing
 
-Note from nfette: No guidance offered at this time, but please share your
-changes! But you can [read the documentation](http://www.public.asu.edu/~nfette/SorpSim/)
-
+Please get in touch with the other authors and see if there are things to do.
