@@ -304,6 +304,13 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
         ui->selectButton->setEnabled(true);
         displayComponent(localid);
     }
+    else if( str == QString("EvapCooler_adiabatic"))
+    {
+        localid = 151;
+        localusp = 3;
+        ui->selectButton->setEnabled(true);
+        displayComponent(localid);
+    }
     else if( str == QString("Dehum_a_counter-flow"))
     {
         localid = 161;
@@ -336,6 +343,13 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
     {
         localid = 164;
         localusp = 4;
+        ui->selectButton->setEnabled(true);
+        displayComponent(localid);
+    }
+    else if(str == QString("Dehum_c_HMX"))
+    {
+        localid = 170;
+        localusp = 6;
         ui->selectButton->setEnabled(true);
         displayComponent(localid);
     }
@@ -592,6 +606,8 @@ void TreeDialog::setTree()
 
 //    item = addTreeRoot("Desiccant Wheel");
 
+    item = addTreeRoot("Evaporative_cooler");
+    addTreeChild(item,"EvapCooler_adiabatic");
 
     item = addTreeRoot("EFF Model-Liquid Desiccant");
     addTreeChild(item,"Eff_adiabatic_dehum");
@@ -635,6 +651,7 @@ void TreeDialog::setTree()
     addTreeChild(subItem,"Reg_h_cross-flow_2");
     addTreeChild(subItem,"Reg_h_cross-flow_3");
 
+    item = addTreeRoot("Dehum_c_HMX");
     ///to add new component, either start a new root, or expand an
     /// existing root
 

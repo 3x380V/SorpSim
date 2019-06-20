@@ -5593,6 +5593,216 @@ eqb14(
   statement_400:;
 }
 
+//C*********************************************************************
+double
+cpftx15(
+        common& cmn,
+        double const& t,
+        double const& x)
+{
+    //C*********************************************************************
+    //C******   SUBROUTINE CALCULATES SPECIFIC HEAT IN BTU/LB-F OF   *******
+    //C*** Ionic Liquid in semi-open system AS A FUNCTION OF TEMP     ******
+    //C******  IN DEG F AND CONC IN PERCENTS                      **********
+    //C*********************************************************************
+
+    double tc = (t-32)/1.8;
+    double tk = tc + 273.15;
+    //value at 90% & 25C
+    double cp = 1.98;
+    cp = cp * 0.239;//convert from kJ/kg-C to BTU/lb-F
+
+    return cp;
+}
+
+double muft15(double t){
+    double tc = (t-32)/1.8;
+    double tk = tc + 273.15;
+    //vaule at 90% IL & 25C
+    double mu_il = 53.0e-3; //
+    return mu_il;
+}
+
+double kft15(double t){
+    double tc = (t-32)/1.8;
+    double tk = tc + 273.15;
+    //vaule at 90% IL & 25C
+    double k_il = 0.21e-3;
+    return k_il;
+}
+
+double prft15(common& cmn,
+              double const& t,
+              double const& x){
+    double tc = (t-32)/1.8;
+    double tk = tc + 273.15;
+    //vaule at 90% IL & 25C
+    double pr = cpftx15(cmn,tk,x) * muft15(tk) / kft15(tk);
+    return pr;
+}
+
+double dftx15(double t, double c){
+    double tc = (t-32)/1.8;
+    double tk = tc + 273.15;
+    //vaule at 90% IL & 25C
+    double rho_il = 1.21e3;
+    return rho_il;
+}
+
+double tfpx15(common&cmn,
+              double p,
+              double x){
+
+    x/=100;
+    p *= 6.89476*1000;
+    //p=700-30000pa
+    if (p < 200) { p = 200; }
+    if (p > 30000) { p = 30000; }
+
+    double ts_f1 = (3.16414566e1+2.03448672e-3*(p)-3.99941017e4/(p)-2.49157252e-8*(p)*(p));
+    double ts_f2 = (1.15822381  +2.38886600e-2*(p)+6.09585171e4/(p)-2.17907426e-6*(p)*(p))*x;
+    double ts_f3 = (            -7.97557356e-2*(p)-9.31099373e4/(p)+7.67446744e-6*(p)*(p))*x*x;
+    double ts_f4 = (            +6.71889075e-2*(p)+7.41481133e4/(p)-6.35538209e-6*(p)*(p))*x*x*x;
+    double ts_f = ts_f1 + ts_f2 + ts_f3 + ts_f4 + 273.15;
+
+    //t=22.5-67.5C
+
+//    qDebug()<<"p"<<p<<"x"<<x<<"ts_f"<<ts_f-273;
+
+    if (ts_f - 273.15 < 22.5) { ts_f = 295.65; }
+
+    if (ts_f - 273.15 > 67.5) { ts_f = 340.65; }
+
+    return (ts_f-273.15)*1.8+32;
+}
+
+//C*********************************************************************IMPLEMENT!!!!!
+double
+pftx15(
+       common& cmn,
+       double const& t,
+       double const& x)
+{
+    //C*********************************************************************
+    //C******   SUBROUTINE CALCULATES EQUILIBRIUM VAPOR PRESSURE OF       **
+    //C*** Ionic Liquid in semi-open system AS A FUNCTION OF TEMP     ******
+    //C******  IN DEG F AND CONC IN PERCENTS                      **********
+    //C*********************************************************************
+
+    double tc = (t-32)/1.8;
+    double xx = x/100;
+    double tk = tc + 273.15;
+
+    //t=22.5-67.5C
+    if (tk - 273.15 < 22.5) {tk= 295.65;}
+    if (tk - 273.15 > 67.5) { tk = 340.65; }
+
+    double ps_f1=( 3.78644690e4-1.21432240e3*(tk - 273.15) -3.70765820e5/ (tk - 273.15) +1.70234570e1*(tk - 273.15)*(tk - 273.15));
+    double ps_f2=(-3.24858700e4+1.08829190e3*(tk - 273.15) +2.98630630e5/ (tk - 273.15) -1.82623380e1*(tk - 273.15)*(tk - 273.15))*xx;
+    double ps_f3=(             -4.15490123e2*(tk - 273.15) +1.27479820e5/ (tk - 273.15) +1.88953260e1*(tk - 273.15)*(tk - 273.15))*xx*xx;
+    double ps_f4=(             +3.65882280e2*(tk - 273.15) -1.12248760e5/ (tk - 273.15) -1.56571400e1*(tk - 273.15)*(tk - 273.15))*xx*xx*xx;
+    double ps_f = ps_f1 + ps_f2 + ps_f3 + ps_f4;
+
+    double p = ps_f/1000 / 6.89476;//convert Pa to psia
+
+    return p;
+}
+
+//C*********************************************************************
+void
+wftx15(
+       common& cmn,
+       double& w,
+       double const& t,
+       double const& x)
+{
+    //C*********************************************************************
+    //C******   SUBROUTINE CALCULATES EQUILIBRIUM AIR HUMIDITY RATIO OF   **
+    //C*** Ionic Liquid in semi-open system AS A FUNCTION OF TEMP     ******
+    //C******  IN DEG F AND CONC IN PERCENTS                      **********
+    //C*********************************************************************
+    //C      IMPLICIT REAL*8(A-H,O-Z)
+    double psat = pftx15(cmn,t,x)*6.89476;
+    w = 0.622 * (psat / (101.3 - psat));
+}
+
+//C*********************************************************************
+void
+hftx15(
+       common& cmn,
+       double& hs,
+       double const& t,
+       double const& x)
+{
+    //C*********************************************************************
+    //C******       SUBROUTINE CALCULATES ENTHALPY IN BTU/LB OF   **********
+    //C*** Ionic Liquid in semi-open system AS A FUNCTION OF TEMP     ******
+    //C******  IN DEG F AND CONC IN PERCENTS                      **********
+    //C*********************************************************************
+
+    double tc = (t-32)/1.8;
+    double xx = x/100;
+
+    //vaule at 90% IL & 25C
+    double  h_il = cpftx15(cmn,tc,xx) * tc;
+
+    qDebug()<<"15 t"<<tc<<"x"<<xx<<"h"<<h_il;
+
+    hs =h_il/ 2.326;//convert to BTU/lb
+}
+
+//C*********************************************************************
+void
+eqb15(
+  common& cmn,
+  double const& pi,
+  double const& xi,
+  double& tio1,
+  double& hout,
+  int const& k,
+  int const& kent)
+{
+  int idummy = fem::int0;
+  //C*********************************************************************
+  //C      SUBROUTINE  EQB15  (PI, XI,   TIO1, HOUT,K,KENT )
+  //C*********************************************************************
+  //C**  SUBROUTINE WHICH CALCULATES, FOR IL used in semi-open system   ***
+  //C******   THE TEMP IN DEG F AND THE ENTHALPY IN BTU/LB         ********
+  //C******   AS A FUNCTION OF PRESS IN PSIA AND CONC IN WT%      ********
+  //C******************             OR              ***********************
+  //C******   THE PRESS IN PSIA AND THE ENTHALPY IN BTU/LB         ********
+  //C******   AS A FUNCTION OF TEMP IN DEG   AND CONC IN WT%       ********
+  //C******                                                ********
+  //C******   BUT IF PRESS.LE.0.0 THEN IT CALCULATES THE           ********
+  //C******    ENTHALPY ONLY AS A FUNCTION OF TEMP AND CONC       ********
+  //C******     based on paper by Dini and Worek
+  //C******     ********************************************      ********
+  //C******  WHEN KENT = 0   NO OUTPUT ENTHALPIES                 ********
+  //C******  WHEN KENT = 1   TEMP WITH OUTPUT ENTHALPIES           ********
+  //C******  WHEN KENT = 4   PRESS WITH OUTPUT ENTHALPIES          ********
+  //C*********************************************************************
+  //C      IMPLICIT REAL*8(A-H,O-Z)
+  idummy = k;
+  if (pi <= 0.0f) {
+    goto statement_9;
+  }
+  tio1=tfpx15(cmn,pi,xi);
+  statement_9:
+  if (kent == 0) {
+    goto statement_400;
+  }
+  switch (kent) {
+    case 1: goto statement_1;
+    case 2: goto statement_2;
+    default: break;
+  }
+  statement_1:
+  hftx15(cmn,hout, tio1, xi);
+  goto statement_400;
+  statement_2:
+  dftx15(tio1, xi);
+  statement_400:;
+}
 
 
 void
@@ -5611,13 +5821,13 @@ eqb(
   //C***********************************************************************
   //C      IMPLICIT REAL*8(A-H,O-Z)
   //C
-  if (kk > 11&&kk!=14) {
+  if (kk > 11&&kk!=14&&kk!=15) {
     nr = kk;
   }
-  if (kk > 11&&kk!=14) {
+  if (kk > 11&&kk!=14&&kk!=15) {
     tables(cmn, nr);
   }
-  if (kk > 11&&kk!=14) {
+  if (kk > 11&&kk!=14&&kk!=15) {
     goto statement_22;
   }
   switch (kk) {
@@ -5633,6 +5843,7 @@ eqb(
     case 10: goto statement_20;
     case 11: goto statement_21;
     case 14: goto statement_22;
+    case 15: goto statement_23;
     default: break;
   }
   statement_11:
@@ -5670,6 +5881,9 @@ eqb(
   goto statement_101;
   statement_22:
   eqb14(cmn, pp, cc, tt, hh, klv, kent);
+  goto statement_101;
+  statement_23:
+  eqb15(cmn, pp, cc, tt, hh, klv, kent);
   goto statement_101;
   statement_101:;
 }
@@ -7682,8 +7896,7 @@ mix(
   nlin++;
   line(nlin) = 1;
   eName = "Salt Mass Balance: F"+sp1+"*C"+sp1+" + F"+sp2+"*C"+sp2+" = F"+sp3+"*C"+sp3;
-  fun(nlin) = (f(i1) * c(i1) + f(i2) * c(i2) - f(
-    i3) * c(i3)) / cmn.fxc;
+  fun(nlin) = (f(i1) * c(i1) + f(i2) * c(i2) - f(i3) * c(i3)) / cmn.fxc;
   afun(nlin) = eName.toStdString();
   iaf(nlin) = iunit;
   statement_40:
@@ -9288,7 +9501,7 @@ struct evpclr_save
   {}
 };
 
-//C*********************************************************************
+//*************new adiabatic evap cooler function*******************
 void
 evpclr(
   common& cmn,
@@ -9296,7 +9509,6 @@ evpclr(
   int const& i1,
   int const& i2,
   int const& i3,
-  int const& i4,
   arr_ref<double> fun,
   int const& jflag,
   int& ialter)
@@ -9327,7 +9539,7 @@ evpclr(
   double& ctt = cmn.ctt;
   //
   common_variant afdata(cmn.common_afdata, sve.afdata_bindings);
-  str_arr_ref<1> anfun(sve.anfun, dimension(5));
+  str_arr_ref<1> anfun(sve.anfun, dimension(2));
   if (is_called_first_time) {
     using fem::mbr; // member of variant common or equivalence
     {
@@ -9339,11 +9551,8 @@ evpclr(
   if (is_called_first_time) {
     {
       static const char* values[] = {
-        " WATER MASS BALANCE,EVP COOL NO.",
-          " ENERGY BALANCE,    EVP COOL NO.",
-          " SATURATION,        EVP COOL NO.",
-          " HEAT TRANSFER,     EVP COOL NO.",
-          " MASS TRANSFER,     EVP COOL NO."
+        " MASS BALANCE",
+          " ADIABATIC",
       };
       fem::data_of_type_str(FEM_VALUES_AND_SIZE),
         anfun;
@@ -9356,9 +9565,6 @@ evpclr(
   //C      IMPLICIT REAL*8(A-H,O-Z)
   //C*********************************************************************
   q(iunit) = 0.e0;
-  if (iht(iunit) == 6) {
-    return;
-  }
   switch (jflag) {
     case 1: goto statement_100;
     case 2: goto statement_200;
@@ -9369,32 +9575,15 @@ evpclr(
   }
   statement_100:
   if (cmn.icount != 1) {
-    goto statement_200;
+    return;
   }
   lin++;
-  nonlin += 2;
-  if (i4 == i2) {
-    goto statement_200;
-  }
-  if (icfix(i2) == icfix(i4) && icfix(i2) != 1) {
-    goto statement_200;
-  }
-  if (itfix(i2) == itfix(i4) && itfix(i2) != 1) {
-    goto statement_200;
-  }
-  nonlin += 2;
+  nonlin++;
   statement_200:
   icab = 0;
   cons(cmn, i2, i1, icab);
-  if (i4 == i2) {
-    goto statement_220;
-  }
-  cons(cmn, i4, i2, icab);
-  goto statement_230;
-  statement_220:
-  icab++;
   statement_230:
-  if (icab == 2) {
+  if (icab == 1) {
     goto statement_300;
   }
   ialter = 1;
@@ -9404,76 +9593,25 @@ evpclr(
     return;
   }
   statement_400:
-  nlin++;
+  QString eName;
+//  qDebug()<<f(i1)<<f(i2)<<c(i3)<<c(i2);
+  double h_air = h(i2) * 2.326;//convert BTU/lb to kJ/kg
+  double omega_sat = 2.24748601E-03+1.50188547E-04*h_air+1.35778795E-06*pow(h_air,2)-3.52162680E-09*pow(h_air,3);
+  nlin ++;
   line(nlin) = 1;
-  fun(nlin) = (f(i1) * (c(i1) - c(i2)) + f(i3) * 1.e2) / cmn.fxc;
-  afun(nlin) = anfun(1);
+  eName = "Water Content Balance";
+  fun(nlin) = (f(i2) * (c(i2) - c(i3)) + f(i1)) / cmn.fxc;
+  if((f(i2)*c(i2)+f(i1))/f(i2)>omega_sat){
+      //saturation
+      fun(nlin) = f(i2)*(c(i3)-omega_sat)/cmn.fxc;
+  }
+  afun(nlin) = eName.toStdString();
   iaf(nlin) = iunit;
   nnl++;
-  fun(nnl) = (f(i1) * (h(i1) - h(i2)) + f(i3) * h(i3)) / cmn.fcpt;
-  afun(nnl) = anfun(2);
+  eName = "Adiabatic Condition";
+  fun(nnl) = (f(i2) * (h(i2) - h(i3))) / cmn.fcpt;
+  afun(nnl) = eName.toStdString();
   iaf(nnl) = iunit;
-  nnl++;
-  pft3(cmn, pv4, t(i4));
-  c4e = 6.22e01 * pv4 / (p(i4) - pv4);
-  fun(nnl) = (c4e - c(i4)) / ctt;
-  afun(nnl) = anfun(3);
-  iaf(nnl) = iunit;
-  if (i4 == i2) {
-    goto statement_500;
-  }
-  if (icfix(i2) == icfix(i4) && icfix(i2) != 1) {
-    goto statement_500;
-  }
-  if (itfix(i2) == itfix(i4) && itfix(i2) != 1) {
-    goto statement_500;
-  }
-  nnl++;
-  switch (iht(iunit)) {
-    case 1: goto statement_411;
-    case 2: goto statement_411;
-    case 3: goto statement_413;
-    case 4: goto statement_414;
-    case 5: goto statement_411;
-    default: break;
-  }
-  statement_411:
-  if(printOut)
-      write(6, "(3x,'CANNOT USE THIS HEAT TRANSFER METHOD',/)");
-  goto statement_420;
-  statement_413:
-  fun(nnl) = (t(i1) - t(i2) + (t(i4) - t(i1)) * ht(iunit)) / txn;
-  goto statement_420;
-  statement_414:
-  fun(nnl) = (t(i2) - t(i4) - ht(iunit)) / txn;
-  statement_420:
-  afun(nnl) = anfun(4);
-  iaf(nnl) = iunit;
-  nnl++;
-  switch (iht(iunit)) {
-    case 1: goto statement_431;
-    case 2: goto statement_431;
-    case 3: goto statement_433;
-    case 4: goto statement_434;
-    case 5: goto statement_431;
-    default: break;
-  }
-  statement_431:
-  if(printOut)
-      write(6, "(3x,'CANNOT USE THIS MASS TRANSFER METHOD',/)");
-  goto statement_440;
-  statement_433:
-  fun(nnl) = (c(i2) - c(i1) + (c(i1) - c(i4)) * devl(iunit)) / ctt;
-  goto statement_440;
-  statement_434:
-  fun(nnl) = (c(i2) - c(i4) + devl(iunit)) / ctt;
-  statement_440:
-  afun(nnl) = anfun(5);
-  iaf(nnl) = iunit;
-  statement_500:
-  eff(iunit) = (t(i1) - t(i2)) / (t(i1) - t(i4));
-  cat(iunit) = t(i2) - t(i4);
-  //C  must also print the mass transfer parameters?
 }
 
 
@@ -10291,7 +10429,16 @@ conditioner_cooled(
   int spai,spao,spso,spsi,spci,spco;
   QString eName;
   double tsi, xsi,msi,hsi,tai,wai,ma,hai,tso,xso,mso,hso,tao,wao,hao,mc,hci,hco,tci,tco;
-  if(idunit(iunit) == 171)
+  if(idunit(iunit) == 170)
+  {
+      spsi = i1;
+      spai = i2;
+      spso = i5;
+      spao = i6;
+      spci = i3;
+      spco = i4;
+  }
+  else if(idunit(iunit) == 171)
   {
       spsi = i1;
       spai = i6;
@@ -10408,29 +10555,18 @@ conditioner_cooled(
       nonlin+=6;
   }
   //C*********************************************************************
-  //C****   IDUNIT=103 - ADIABATIC MODE, NO EXTERNAL HEAT TRANSFER   *****
-  //C****   IDUNIT=102 - EXTERNAL COOLING MODE                       *****
   //C*********************************************************************
   statement_200:
   icab = 0;
-  if(idunit(iunit)==171||idunit(iunit)==174||idunit(iunit)==178)
-  {
-      cons(cmn,i4,i1,icab);
-      cons(cmn,i3,i5,icab);
+  if(idunit(iunit)==170){
+      cons(cmn, i3, i4, icab);
   }
-  else if(idunit(iunit)==172||idunit(iunit)==175||idunit(iunit)==177)
-  {
-      cons(cmn,i3,i1,icab);
-      cons(cmn,i4,i5,icab);
+  else{
+      cons(cmn,i2,i3,icab);
   }
-  else if(idunit(iunit)==173||idunit(iunit)==176||idunit(iunit)==179)
-  {
-      cons(cmn,i3,i1,icab);
-      cons(cmn,i3,i5,icab);
-  }
-  cons(cmn,i3,i4,icab);
-  if (icab == 3)
+  if (icab == 1){
     goto statement_300;
+  }
   ialter = 1;
   goto statement_200;
   statement_300:
@@ -10438,7 +10574,78 @@ conditioner_cooled(
     return;
   }
   statement_400:
-  if(idunit(iunit)==171)//counter_1
+  if(idunit(iunit)==170)//HMX model
+  {
+      //convert humidity ratio to rel hum
+      double ttao, wwao, ttso, xxso, ttco, mmso, ps;
+
+      qDebug()<<"start HMX calculation!";
+
+      F3hx hmx;
+
+      //convert lb/min to kg/s
+      hmx.mfcf_dev = mc / 132.28;
+      hmx.mffa_dev = ma / 132.28;
+      hmx.mfpf_dev = msi / 132.28;
+
+      //convert to K and kPa
+      hmx.t_fa = (tai-32)/1.8+273.15;
+      hmx.t_pf = (tsi-32)/1.8+273.15;
+      hmx.t_cf = (tci-32)/1.8+273.15;
+
+      hmx.ilfr_pf = xsi/100;
+      hmx.p_pf = 101325;
+      hmx.p_fa = 101325;
+
+      pft3(cmn,ps,tai);//psi
+      ps*=6.9;//kPa
+
+      hmx.rh_fa = (wai*101.3/(0.622+wai))/ps;
+
+      hmx.calc();
+
+      ttao = (hmx.tfa_out-273.15)*1.8+32;
+      ttso = (hmx.tpf_out-273.15)*1.8+32;
+      ttco = (hmx.tcf_out-273.15)*1.8+32;
+      xxso = hmx.ilfrpf_out*100;
+
+      wwao = hmx.humidfa_out;
+      mmso = msi*xsi/xxso;
+
+      //replace x[n] with calculation results from HMX
+      nnl++;
+      eName = "Air Outlet Temperature Convergance";
+      fun(nnl) = (ttao - tao)/txn;
+      afun(nnl) = eName.toStdString();
+      iaf(nnl) = iunit;
+      nnl++;
+      eName = "Solution Outlet Temperature Convergance";
+      fun(nnl) = (ttso - tso)/txn;
+      afun(nnl) = eName.toStdString();
+      iaf(nnl) = iunit;
+      nnl++;
+      eName = "Air Outlet Humidity Ratio Convergance";
+      fun(nnl) = wwao - wao;
+      afun(nnl) = eName.toStdString();
+      iaf(nnl) = iunit;
+      nnl++;
+      eName = "Solution Outlet Concentration Convergance";
+      fun(nnl) = xxso - xso;
+      afun(nnl) = eName.toStdString();
+      iaf(nnl) = iunit;
+      nnl++;
+      eName = "Solution Outlet Mass Convergance";
+      fun(nnl) = (mmso - mso)/fmax;
+      afun(nnl) = eName.toStdString();
+      iaf(nnl) = iunit;
+      nnl++;
+      eName = "Coolant Outlet Temperature Convergance";
+      fun(nnl) = (ttco - tco)/txn;
+      afun(nnl) = eName.toStdString();
+      iaf(nnl) = iunit;
+  }
+
+  else if(idunit(iunit)==171)//counter_1
   {
   //    using NTU-Le finite difference method
       double NTUa = inputs.ntua[iunit];
@@ -14493,8 +14700,7 @@ fcn1(
       fun, jjf, ialter);
     goto statement_500;
     statement_150:
-    evpclr(cmn, iunit, isp(i, 1), isp(i, 2), isp(i, 3), isp(i, 4),
-      fun, jjf, ialter);
+    evpclr(cmn, iunit, isp(i, 1), isp(i, 2), isp(i, 3), fun, jjf, ialter);
     goto statement_500;
     statement_160:
     conditioner_adiabatic(cmn, iunit, isp(i,1),isp(i,2),isp(i,3),isp(i,4),fun,jjf,ialter);
@@ -17755,7 +17961,14 @@ program_sorpsimEngine(
   //C***********************************************************************
   copn = 0.0f;
   copd = 0.0f;
+
+  //currently go around COP calculation (icop segmentation problem)
+  outputs.capacity = 0;
+  outputs.cop = 0;
+  goto statement_420;
+
   FEM_DO_SAFE(nunit, 1, nunits) {
+      qDebug()<<nunit<<icop(nunit);
     if (icop(nunit) == 1) {
       copn += q(nunit);
     }
@@ -17889,6 +18102,7 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
     double h = 0, cvap = 0, hvap = 0, cliq = 0, hsol = 0, to = 0;
     double cpvap = 0, cout = 0, ts = 0;
 
+
     if (www == 1.e0) {
       goto statement_10;
     }
@@ -17896,7 +18110,7 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
       goto statement_30;
     }
 //    if (www == 0.e0 || ccc == 0.e0) {//too strict for all-variable scenario
-    if (www <1e-3 || (ccc <1e-3&&kkk<12)) {
+    if (www <1e-3 || (ccc <1e-3&&(kkk<12||kkk==14||kkk==15))) {
       goto statement_30;
     }
 
@@ -17917,6 +18131,7 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
     statement_30:
 //    qDebug()<<i<<"t"<<ttt;
     eqb(cmn, pdum, ccc, ttt, hsol, 1, 1, kkk);
+//    qDebug()<<"kkk"<<kkk;
     if (www == 0.e0) {
       goto statement_20;
     }
@@ -17928,8 +18143,9 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
     //C---  Vapor with any Concentration  or  Vap-Liq Mix with Conc=0  -----
     statement_10:
 //    qDebug()<<"as if pure vapor";
-    if (kkk > 11) {
-      goto statement_17;
+
+    if (kkk > 11&&kkk!=14&&kkk!=15) {
+      goto statement_19;
     }
     switch (kkk) {
       case 1: goto statement_11;
@@ -17943,6 +18159,9 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
       case 9: goto statement_11;
       case 10: goto statement_15;
       case 11: goto statement_16;
+      case 14: goto statement_11;
+      case 15: goto statement_11;
+
       default: break;
     }
     statement_11:
@@ -17966,14 +18185,14 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
     statement_16:
     eqb11(cmn, ppp, ccc, ttt, hvap, 2, 1);
     goto statement_20;
-    statement_17:
+    statement_19:
     eqb(cmn, ppp, ttt, ts, hvap, 2, 1, kkk);
     goto statement_20;
     //C---  END OF Vapor with any Concentration  ---------------------------
     //C---  END OF Vapor-Liquid Mixture with Conc=0  -----------------------
     statement_20:
     h = www * hvap + (1.e0 - www) * hsol;
-//    qDebug()<<"hsol="<<hsol<<"hvap="<<hvap<<"h="<<h(i);
+//    qDebug()<<"hsol="<<hsol<<"hvap="<<hvap<<"h="<<h;
     return h;
 }
 
