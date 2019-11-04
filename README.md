@@ -75,3 +75,10 @@ Refer to advice in the Qwt install directions.
 
 Please get in touch with the other authors and see if there are things to do.
 
+## Major Contributors
+* Zhiyao Yang, https://github.com/zhiyaoyang, yang573@purdue.edu
+* Dr. Ming Qu, mqu@purdue.edu
+* Dr. Omar Abdelaziz, https://github.com/oabdelaziz
+* Dr. Kyle R. Gluesenkamp, gluesenkampk@ornl.gov
+* Xin Tang
+* Nicolas Fette, https://github.com/nfette
