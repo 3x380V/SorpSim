@@ -127,7 +127,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
                 setAxisTitle(xBottom,"Solution Temprature   T(℃)");
                 setAxisTitle(yLeft,"Saturated Water Temperature   T(℃)");
 
-
                 QwtPlotCurve * duhring_curve[28];
                 QPolygonF duhring_points[28];
 
@@ -217,7 +216,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
                         }
                         duhring_curve[i]->setSamples(duhring_points[i]);
                     }
-
                 }
 
                 //add the crystallization curve
@@ -270,10 +268,8 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
 
                 duhring_curve[27]->setSamples(duhring_points[27]);
 
-
                 m_picker->setEnabled(false);
                 DistancePicker * duhring_picker= new DistancePicker(canvas());
-
 
                 int MarkerLabel[7]={1,5,10,50,100,200,1000};
                 double MarkerPos[7]={6.1651,31.9467,44.8407,80.2484,98.4565,118.9317,179.9};
@@ -294,7 +290,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
                     d_marker[i]->setLabelAlignment(Qt::AlignTop|Qt::AlignRight);
                     d_marker[i]->attach( this );
                 }
-
 
                 ///////////////marker
                 QwtPlotMarker * duhring_marker;
@@ -324,8 +319,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
 //                setTitle("Duhring Chart(IP)");
                 setAxisTitle(xBottom,"Solution Temprature   T(℉)");
                 setAxisTitle(yLeft,"Saturated Water Temperature   T(℉)");
-
-
 
                 QwtPlotCurve * duhring_curve[28];
                 QPolygonF duhring_points[28];
@@ -416,7 +409,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
                         }
                         duhring_curve[i]->setSamples(duhring_points[i]);
                     }
-
                 }
 
                 //add the crystallization curve
@@ -473,7 +465,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
                 m_picker->setEnabled(false);
                 DistancePicker_IP * duhring_picker= new DistancePicker_IP(canvas());
 
-
                 int MarkerLabel[7]={5,10,50,100,500,1000,7500};
                 double MarkerPos[7]={32.8,50.6,98.8,123,189.7,224.045,356};
 
@@ -518,7 +509,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
                     info_text.setText(info[i]);
                     duhring_marker->setLabel(info_text);
                 }
-
             }
         }
         else if(subType=="Clapeyron")
@@ -556,7 +546,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
 
                     }
                     curve[i]->setSamples(points[i]);
-
                 }
 
                 QwtPlotCurve *curve_water=new QwtPlotCurve("Pure Water");
@@ -623,7 +612,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
 
                     }
                     curve[i]->setSamples(points[i]);
-
                 }
 
                 QwtPlotCurve *curve_duhr3=new QwtPlotCurve("Pure Water");
@@ -663,7 +651,6 @@ Plot::Plot(QString fluid, QString subType, QString unitSystem)
         qDebug()<<"no LiCl data yet";
         close();
     }
-
 }
 
 Plot::Plot(QMultiMap<double, double> data, QStringList xValues, int curveCount, int *axis_info, QStringList axis_name)
@@ -833,7 +820,6 @@ void Plot::setupNewPropertyCurve(QString title, bool isDuhring)
             thePoints.append(QString::number(addvaluelist.at(i).index));
             theMarkers.append(marker);
         }
-
     }
     else
     {
@@ -848,7 +834,6 @@ void Plot::setupNewPropertyCurve(QString title, bool isDuhring)
                 y=pow(10,(7.05-1596.49/Tref-104095.5/pow(Tref,2)));
                 points<< QPointF( -1/(tsol+273.15),y );
 
-
                 marker=new QwtPlotMarker;
                 marker->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,QColor(Qt::red ), QColor( Qt::red ), QSize( 12,12) ) );
                 marker->attach(this);
@@ -860,7 +845,6 @@ void Plot::setupNewPropertyCurve(QString title, bool isDuhring)
             }
             else
             {
-
                 pt = 1 - (tsol + 273.15) / 647.35;
                 y= 227.98*100*exp((-7.855823 * pt + 1.83991 * pow(pt, 1.5) - 11.7811 * pow(pt,3) + 22.6705 * pow(pt, 3.5) - 15.9393 * pow(pt, 4) + 1.77516 * pow(pt ,7.5)) / (1 - pt));
                 points<< QPointF( -1/(tsol+273.15),y );
@@ -874,7 +858,6 @@ void Plot::setupNewPropertyCurve(QString title, bool isDuhring)
                 text.setText(marker->title().text());
                 marker->setLabel(text);
             }
-
             thePoints.append(QString::number(addvaluelist.at(i).index));
             theMarkers.append(marker);
         }

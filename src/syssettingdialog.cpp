@@ -13,19 +13,17 @@
 
 */
 
-
+#include <QDebug>
+#include <QLayout>
+#include <QMessageBox>
+#include <QObject>
+#include <QTableWidget>
 
 #include "syssettingdialog.h"
 #include "ui_syssettingdialog.h"
-#include <QTableWidget>
 #include "mainwindow.h"
 #include "dataComm.h"
-#include <QMessageBox>
-#include <QDebug>
 #include "link.h"
-#include "node.h"
-#include <QObject>
-#include <QLayout>
 
 extern globalparameter globalpara;
 extern unit * dummy;
@@ -92,7 +90,6 @@ sysSettingDialog::sysSettingDialog(QWidget *parent) :
         }
     }
 
-
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -104,83 +101,51 @@ sysSettingDialog::sysSettingDialog(QWidget *parent) :
         ui->radioButton->setChecked(true);
     else
         ui->radioButton_2->setChecked(true);
-    switch(globalpara.unitindex_temperature)
-    {
+    switch(globalpara.unitindex_temperature) {
     case 0:
-    {
         ui->radioButton_4->setChecked(true);
         break;
-    }
     case 1:
-    {
         ui->radioButton_3->setChecked(true);
         break;
-    }
     case 2:
-    {
         ui->radioButton_4->setChecked(true);
         break;
-    }
     case 3:
-    {
         ui->radioButton_3->setChecked(true);
         break;
     }
-    }
-    switch (globalpara.unitindex_pressure)
-    {
+    switch (globalpara.unitindex_pressure) {
     case 2:
-    {
         ui->radioButton_5->setChecked(true);
         break;
-    }
     case 5:
-    {
         ui->radioButton_6->setChecked(true);
         break;
-    }
     case 0:
-    {
         ui->radioButton_7->setChecked(true);
         break;
-    }
     case 3:
-    {
         ui->radioButton_8->setChecked(true);
         break;
-    }
     case 8:
-    {
         ui->radioButton_5->setChecked(true);
         break;
-    }
     case 9:
-    {
         ui->radioButton_6->setChecked(true);
         break;
-    }
     case 4:
-    {
         ui->radioButton_7->setChecked(true);
         break;
     }
-    }
-    switch(globalpara.unitindex_heat_trans_rate)
-    {
+    switch(globalpara.unitindex_heat_trans_rate) {
     case 0:
-    {
         ui->radioButton_10->setChecked(true);
         break;
-    }
     case 2:
-    {
         ui->radioButton_9->setChecked(true);
         break;
     }
-    }
-
-
-
 }
 
 sysSettingDialog::~sysSettingDialog()
@@ -217,7 +182,6 @@ void sysSettingDialog::on_okButton_clicked()
                 if(globalpara.fluidInventory.at(j).split(",").first() == item)
                     globalpara.fluids<<globalpara.fluidInventory.at(j).split(",").last().toInt();
         }
-
         acp = true;
     }
 
@@ -268,7 +232,6 @@ void sysSettingDialog::on_okButton_clicked()
 //            text.append("\nAnd fluid needs to be assigned for "+sps.join(",")+".");
 //        setBox.setText(text);
 //        setBox.exec();
-
         accept();
     }
 }
@@ -320,7 +283,6 @@ void sysSettingDialog::setIP(bool setip)
 
 void sysSettingDialog::setUnitSystem()
 {
-
     if (ui->radioButton->isChecked())
     {
         //unit system
@@ -377,7 +339,6 @@ void sysSettingDialog::setUnitSystem()
         globalpara.unitindex_enthalpy=0;
         globalpara.unitname_concentration="kg/kg";
     }
-
     else if (ui->radioButton_2->isChecked())
     {
         //unit system

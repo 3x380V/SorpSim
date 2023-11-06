@@ -47,14 +47,14 @@ curvesetting::curvesetting(QList<QwtPlotCurve *> * curvelist, Plot *plot, QWidge
     ui->lineEdit_legendcol->setValidator(regExpValidator);
     ui->lineEdit_legendsize->setValidator(regExpValidator);
 
-//value set
+    //value set
     curvelistset=curvelist;
     set_plot=plot;
     ui->lineEdit_Title->setText(set_plot->title().text());
     QString col=QString::number(set_plot->internalLegend->maxColumns());
     QString size=QString::number(set_plot->internalLegend->font().pointSize());
 
-//initialize legend
+    //initialize legend
     if (set_plot->externalLegend!=NULL)
     {
         ui->checkBox_legend->setChecked(true);
@@ -115,7 +115,7 @@ curvesetting::curvesetting(QList<QwtPlotCurve *> * curvelist, Plot *plot, QWidge
         on_checkBox_legend_clicked();
         set_plot->internalLegend->setVisible(false);
     }
-// color combo
+    // color combo
     QStringList colorNames = QColor::colorNames();
     for (int i = 0; i < colorNames.size(); ++i)
     {
@@ -131,8 +131,8 @@ curvesetting::curvesetting(QList<QwtPlotCurve *> * curvelist, Plot *plot, QWidge
     }
 
     setLists();
-//initialization
 
+    //initialization
     ui->lineEdit_legendcol->setText(col);
 
     ui->lineEdit_legendsize->setText(size);
@@ -556,67 +556,59 @@ void curvesetting::on_deleteCurveButton_clicked()
         globalpara.reportError("Fail to open case file for overlay setting.",this);
         return;
     }
-    else
+    if(!doc.setContent(&file))
     {
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document for overlay setting.",this);
-            file.close();
-            return;
-        }
-        else
-        {
-            plotData = doc.elementsByTagName("plotData").at(0).toElement();
+        globalpara.reportError("Fail to load xml document for overlay setting.",this);
+        file.close();
+        return;
+    }
+    plotData = doc.elementsByTagName("plotData").at(0).toElement();
 
-            // FIXED: <plotData> children need valid XML tag names and title, eg
-            // <plotData>
-            //   <plot title="plot_1" plotType="property">
-            //     <curveList/>
-            //   </plot>
-            // </plotData>
-            //currentPlot = plotData.elementsByTagName(set_plot->title().text().replace(" ","")).at(0).toElement();
-            QMap<QString, QDomElement> plotsByTitle;
-            QDomNodeList plots = plotData.elementsByTagName("plot");
-            for (int i = 0; i < plots.length(); i++)
-            {
-                QDomElement node = plots.at(i).toElement();
-                QString nodeTitle = node.attribute("title");
-                plotsByTitle.insert(nodeTitle, node);
-            }
-            if (!plotsByTitle.contains(plotTitle))
-            {
-                qDebug() << "Delete curve: Specified <plot> not found in XML <plotData>. We shouldn't even be here.";
-                file.close();
-                return;
-            }
-            currentPlot = plotsByTitle.value(plotTitle);
+    // FIXED: <plotData> children need valid XML tag names and title, eg
+    // <plotData>
+    //   <plot title="plot_1" plotType="property">
+    //     <curveList/>
+    //   </plot>
+    // </plotData>
+    //currentPlot = plotData.elementsByTagName(set_plot->title().text().replace(" ","")).at(0).toElement();
+    QMap<QString, QDomElement> plotsByTitle;
+    QDomNodeList plots = plotData.elementsByTagName("plot");
+    for (int i = 0; i < plots.length(); i++)
+    {
+        QDomElement node = plots.at(i).toElement();
+        QString nodeTitle = node.attribute("title");
+        plotsByTitle.insert(nodeTitle, node);
+    }
+    if (!plotsByTitle.contains(plotTitle))
+    {
+        qDebug() << "Delete curve: Specified <plot> not found in XML <plotData>. We shouldn't even be here.";
+        file.close();
+        return;
+    }
+    currentPlot = plotsByTitle.value(plotTitle);
 
-            // <curveList>
-            QDomElement curveListNode = currentPlot.elementsByTagName("curveList").at(0).toElement();
-            // <curve>
-            QDomNodeList curves = curveListNode.elementsByTagName("curve");
-            bool found = false;
-            for (int i = 0; i < curves.count(); ++i)
-            {
-                QDomElement thisCurve = curves.at(i).toElement();
-                if (thisCurve.attribute("title") == delCurveName)
-                {
-                    qDebug()<<"Delete curve:revoming curve"<<delCurveName;
-                    curveListNode.removeChild(thisCurve);
-                    found = true;
-                }
-            }
-            // TODO: update the indicated attribute <plot yAxisName="{}"/>
-            // Otherwise the curve will be re-created when the plot is reloaded.
-            if (!found) {
-                qDebug() << "Failed to find in XML any <curve> with title" << delCurveName << ".";
-            }
-            file.resize(0);
-            doc.save(stream,4);
-            file.close();
-            return;
+    // <curveList>
+    QDomElement curveListNode = currentPlot.elementsByTagName("curveList").at(0).toElement();
+    // <curve>
+    QDomNodeList curves = curveListNode.elementsByTagName("curve");
+    bool found = false;
+    for (int i = 0; i < curves.count(); ++i)
+    {
+        QDomElement thisCurve = curves.at(i).toElement();
+        if (thisCurve.attribute("title") == delCurveName)
+        {
+            qDebug()<<"Delete curve:revoming curve"<<delCurveName;
+            curveListNode.removeChild(thisCurve);
+            found = true;
         }
     }
+    // TODO: update the indicated attribute <plot yAxisName="{}"/>
+    // Otherwise the curve will be re-created when the plot is reloaded.
+    if (!found)
+        qDebug() << "Failed to find in XML any <curve> with title" << delCurveName << ".";
+    file.resize(0);
+    doc.save(stream,4);
+    file.close();
 }
 
 /// \todo find a better way to flag specialized plots, eg. subclass the plot
@@ -627,7 +619,6 @@ void curvesetting::setLists()
     disconnect(ui->listWidget,SIGNAL(itemChanged(QListWidgetItem*)),this,SLOT(curveToggled(QListWidgetItem*)));
     disconnect(ui->bgList,SIGNAL(itemChanged(QListWidgetItem*)),this,SLOT(bgCurveToggled(QListWidgetItem*)));
     //background list and curve list widget
-//    QwtPlotCurve* thisCurve;
     // TODO: find a better way to flag specialized plots
     if(curvelistset->count()>=28)//duhring
     {
@@ -698,7 +689,6 @@ void curvesetting::setLists()
             else
                 ui->listWidget->item(i)->setCheckState(Qt::Unchecked);
         }
-
     }
     else
     {

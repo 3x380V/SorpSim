@@ -13,11 +13,11 @@
 
 */
 
+#include <QCloseEvent>
+#include <QLayout>
 
 #include "startdialog.h"
 #include "ui_startdialog.h"
-#include <QCloseEvent>
-#include <QLayout>
 #include "dataComm.h"
 #include "mainwindow.h"
 #include "sorputils.h"
@@ -86,7 +86,6 @@ startDialog::startDialog(QWidget *parent) :
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
     setWindowModality(Qt::ApplicationModal);
-
 }
 
 startDialog::~startDialog()
@@ -134,60 +133,44 @@ bool startDialog::loadRecentFiles()
     QDomDocument doc;
     if(!ofile.open(QIODevice::ReadOnly|QIODevice::Text))
         return false;
-    else
+    if(!doc.setContent(&ofile))
     {
-        if(!doc.setContent(&ofile))
-        {
-            ofile.close();
-            return false;
-        }
+        ofile.close();
+        return false;
     }
 
     QDomElement recentFiles = doc.elementsByTagName("recentFiles").at(0).toElement();
     int fileCount = recentFiles.childNodes().count();
-
     if(fileCount==0)
         return false;
-    else
+
+    QStringList fileList;
+    globalpara.recentFileList.clear();
+    for(int i = 0; i < fileCount;i++)
     {
-        QStringList fileList;
-        globalpara.recentFileList.clear();
-        for(int i = 0; i < fileCount;i++)
-        {
-            QDomElement currentFile = recentFiles.childNodes().at(fileCount - 1 - i).toElement();
-            fileList<<currentFile.attribute("fileDir");
-            fileList.removeDuplicates();
-        }
-        foreach(QString fileName,fileList)
-            globalpara.recentFileList.append(fileName);
-
-        return true;
+        QDomElement currentFile = recentFiles.childNodes().at(fileCount - 1 - i).toElement();
+        fileList<<currentFile.attribute("fileDir");
+        fileList.removeDuplicates();
     }
+    foreach(QString fileName,fileList)
+        globalpara.recentFileList.append(fileName);
 
+    return true;
 }
 
 void startDialog::on_nextButton_clicked()
 {
     if(ui->tabWidget->currentIndex()==0)//newTab
     {
-         QString newString = ui->templateList->currentItem()->text();
-         if(newString == "Blank project")
-         {
-             globalpara.startOption="new";
-             accept();
-         }
-         else
-         {
-             globalpara.startOption="template@@"+newString;
-             accept();
-         }
+        QString newString = ui->templateList->currentItem()->text();
+        if(newString == "Blank project")
+            globalpara.startOption="new";
+        else
+            globalpara.startOption="template@@"+newString;
     }
     else//openTab
-    {
-
         globalpara.startOption = "recent@@"+globalpara.recentFileList.at(ui->recentList->currentRow());
-        accept();
-    }
+    accept();
 }
 
 void startDialog::on_openButton_clicked()
@@ -217,15 +200,10 @@ void startDialog::on_templateList_doubleClicked(const QModelIndex &index)
 {
     QString newString = ui->templateList->item(index.row())->text();
     if(newString == "Blank project")
-    {
         globalpara.startOption="new";
-        accept();
-    }
     else
-    {
         globalpara.startOption="template@@"+newString;
-        accept();
-    }
+    accept();
 }
 
 void startDialog::on_recentList_doubleClicked(const QModelIndex &index)

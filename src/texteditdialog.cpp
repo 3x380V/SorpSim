@@ -13,7 +13,6 @@
 
 */
 
-
 #include "texteditdialog.h"
 #include "ui_texteditdialog.h"
 #include "mainwindow.h"
@@ -62,7 +61,6 @@ textedit::textedit(QWidget *parent, SimpleTextItem * textitem):
     ui->checkBox_underline->setChecked(textitem->font().underline());
 }
 
-
 textedit::~textedit()
 {
     delete ui;
@@ -70,7 +68,6 @@ textedit::~textedit()
 
 void textedit::on_buttonBox_accepted()
 {
-
     QFont font;
     font.setBold(ui->checkBox_bold->isChecked());
     font.setItalic(ui->checkBox_italic->isChecked());
@@ -84,7 +81,6 @@ void textedit::on_buttonBox_accepted()
 
 bool textedit::event(QEvent *e)
 {
-
     if(e->type()==QEvent::ActivationChange)
     {
         if(qApp->activeWindow()==this)

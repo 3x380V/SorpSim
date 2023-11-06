@@ -13,15 +13,6 @@
 
 */
 
-#include "tableselectparadialog.h"
-#include "ui_tableselectparadialog.h"
-#include "mainwindow.h"
-#include "tabledialog.h"
-#include "dataComm.h"
-#include "myscene.h"
-#include "unit.h"
-#include "sorputils.h"
-
 #include <QDebug>
 #include <QLabel>
 #include <QLayout>
@@ -30,6 +21,15 @@
 #include <QRegularExpression>
 #include <QStatusBar>
 #include <QStringList>
+
+#include "tableselectparadialog.h"
+#include "ui_tableselectparadialog.h"
+#include "mainwindow.h"
+#include "tabledialog.h"
+#include "dataComm.h"
+#include "myscene.h"
+#include "unit.h"
+#include "sorputils.h"
 
 extern int sceneActionIndex;
 extern bool istableinput;
@@ -135,8 +135,8 @@ bool tableSelectParaDialog::setupXml()
 
     if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
     {
-        return false;
         globalpara.reportError("Fail to open case file for table.",this);
+        return false;
     }
 
     QDomDocument doc;
@@ -146,105 +146,97 @@ bool tableSelectParaDialog::setupXml()
         file.close();
         return false;
     }
-    else
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    //check if the table name is already used, if not, create the new element
+    //if(!tableData.elementsByTagName(tableName).isEmpty())
+    if (tablesByTitle.contains(tableName))
     {
-        QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-        auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-        //check if the table name is already used, if not, create the new element
-        //if(!tableData.elementsByTagName(tableName).isEmpty())
-        if (tablesByTitle.contains(tableName))
+        QMessageBox * existBox = new QMessageBox;
+        existBox->setWindowTitle("Warning");
+        existBox->setText("This table name is already used.");
+        existBox->exec();
+        file.close();
+        return false;
+    }
+    QDomElement newTable = doc.createElement("table");
+    newTable.setAttribute("title", tableName);
+    newTable.setAttribute("runs",runs);
+    newTable.setAttribute("tUnit",globalpara.unitindex_temperature);
+    newTable.setAttribute("pUnit",globalpara.unitindex_pressure);
+    newTable.setAttribute("fUnit",globalpara.unitindex_massflow);
+    newTable.setAttribute("hUnit",globalpara.unitindex_enthalpy);
+    newTable.setAttribute("qUnit",globalpara.unitindex_heat_trans_rate);
+    newTable.setAttribute("uaUnit",globalpara.unitindex_UA);
+    tableData.appendChild(newTable);
+    QDomElement tableHeader = doc.createElement("header");
+    QDomText header = doc.createTextNode(inputH.join(";")+";"+outputH.join(";"));
+    tableHeader.appendChild(header);
+    newTable.appendChild(tableHeader);
+    QDomElement tableInput = doc.createElement("inputEntries");
+    QDomText inputs = doc.createTextNode(inputEntries.join(";"));
+    QDomElement tableOutput = doc.createElement("outputEntries");
+    QDomText outputs = doc.createTextNode(outputEntries.join(";"));
+    tableInput.appendChild(inputs);
+    tableOutput.appendChild(outputs);
+    newTable.appendChild(tableInput);
+    newTable.appendChild(tableOutput);
+
+    for(int i = 0; i< runs; i++)
+    {
+        QDomElement newRun = doc.createElement("Run");
+        newRun.setAttribute("No.",QString::number(i));
+        newTable.appendChild(newRun);
+        for(int j = 0; j < inputEntries.count();j++)
         {
-            QMessageBox * existBox = new QMessageBox;
-            existBox->setWindowTitle("Warning");
-            existBox->setText("This table name is already used.");
-            existBox->exec();
-            file.close();
-            return false;
+            QDomElement newInput = doc.createElement("Input");
+            newInput.setAttribute("type",translateInput(j,1));
+
+            QDomElement newIndex = doc.createElement("index");
+            QDomText theIndex = doc.createTextNode(translateInput(j,2));
+            newIndex.appendChild(theIndex);
+            newInput.appendChild(newIndex);
+
+            QDomElement newPara = doc.createElement("parameter");
+            QDomText thePara = doc.createTextNode(translateInput(j,3));
+            newPara.appendChild(thePara);
+            newInput.appendChild(newPara);
+
+            QDomElement newValue = doc.createElement("value");
+            QDomText theValue= doc.createTextNode("0");
+            newValue.appendChild(theValue);
+            newInput.appendChild(newValue);
+
+            newRun.appendChild(newInput);
         }
-        else
+
+        for(int j = 0; j < outputEntries.count();j++)
         {
-            QDomElement newTable = doc.createElement("table");
-            newTable.setAttribute("title", tableName);
-            newTable.setAttribute("runs",runs);
-            newTable.setAttribute("tUnit",globalpara.unitindex_temperature);
-            newTable.setAttribute("pUnit",globalpara.unitindex_pressure);
-            newTable.setAttribute("fUnit",globalpara.unitindex_massflow);
-            newTable.setAttribute("hUnit",globalpara.unitindex_enthalpy);
-            newTable.setAttribute("qUnit",globalpara.unitindex_heat_trans_rate);
-            newTable.setAttribute("uaUnit",globalpara.unitindex_UA);
-            tableData.appendChild(newTable);
-            QDomElement tableHeader = doc.createElement("header");
-            QDomText header = doc.createTextNode(inputH.join(";")+";"+outputH.join(";"));
-            tableHeader.appendChild(header);
-            newTable.appendChild(tableHeader);
-            QDomElement tableInput = doc.createElement("inputEntries");
-            QDomText inputs = doc.createTextNode(inputEntries.join(";"));
-            QDomElement tableOutput = doc.createElement("outputEntries");
-            QDomText outputs = doc.createTextNode(outputEntries.join(";"));
-            tableInput.appendChild(inputs);
-            tableOutput.appendChild(outputs);
-            newTable.appendChild(tableInput);
-            newTable.appendChild(tableOutput);
+            QDomElement newOutput = doc.createElement("Output");
+            newOutput.setAttribute("type",translateOutput(j,1));
 
+            QDomElement newIndex = doc.createElement("index");
+            QDomText theIndex = doc.createTextNode(translateOutput(j,2));
+            newIndex.appendChild(theIndex);
+            newOutput.appendChild(newIndex);
 
-            for(int i = 0; i< runs; i++)
-            {
-                QDomElement newRun = doc.createElement("Run");
-                newRun.setAttribute("No.",QString::number(i));
-                newTable.appendChild(newRun);
-                for(int j = 0; j < inputEntries.count();j++)
-                {
-                    QDomElement newInput = doc.createElement("Input");
-                    newInput.setAttribute("type",translateInput(j,1));
+            QDomElement newPara = doc.createElement("parameter");
+            QDomText thePara = doc.createTextNode(translateOutput(j,3));
+            newPara.appendChild(thePara);
+            newOutput.appendChild(newPara);
 
-                    QDomElement newIndex = doc.createElement("index");
-                    QDomText theIndex = doc.createTextNode(translateInput(j,2));
-                    newIndex.appendChild(theIndex);
-                    newInput.appendChild(newIndex);
+            QDomElement newValue = doc.createElement("value");
+            QDomText theValue = doc.createTextNode("0");
+            newValue.appendChild(theValue);
+            newOutput.appendChild(newValue);
 
-                    QDomElement newPara = doc.createElement("parameter");
-                    QDomText thePara = doc.createTextNode(translateInput(j,3));
-                    newPara.appendChild(thePara);
-                    newInput.appendChild(newPara);
-
-                    QDomElement newValue = doc.createElement("value");
-                    QDomText theValue= doc.createTextNode("0");
-                    newValue.appendChild(theValue);
-                    newInput.appendChild(newValue);
-
-                    newRun.appendChild(newInput);
-                }
-
-                for(int j = 0; j < outputEntries.count();j++)
-                {
-                    QDomElement newOutput = doc.createElement("Output");
-                    newOutput.setAttribute("type",translateOutput(j,1));
-
-                    QDomElement newIndex = doc.createElement("index");
-                    QDomText theIndex = doc.createTextNode(translateOutput(j,2));
-                    newIndex.appendChild(theIndex);
-                    newOutput.appendChild(newIndex);
-
-                    QDomElement newPara = doc.createElement("parameter");
-                    QDomText thePara = doc.createTextNode(translateOutput(j,3));
-                    newPara.appendChild(thePara);
-                    newOutput.appendChild(newPara);
-
-                    QDomElement newValue = doc.createElement("value");
-                    QDomText theValue = doc.createTextNode("0");
-                    newValue.appendChild(theValue);
-                    newOutput.appendChild(newValue);
-
-                    newRun.appendChild(newOutput);
-                }
-            }
-            file.resize(0);
-            doc.save(stream,4);
-            file.close();
-            return true;
-
+            newRun.appendChild(newOutput);
         }
     }
+    file.resize(0);
+    doc.save(stream,4);
+    file.close();
+    return true;
 }
 
 QString tableSelectParaDialog::translateInput(int index, int item)
@@ -258,62 +250,36 @@ QString tableSelectParaDialog::translateInput(int index, int item)
 
     if(QString(infoTemp.at(0))=="U")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "unit";
-        }
-        case(2):
-        {
-            if(!infoTemp.at(2).isDigit())//possibly there are more than 9 units
-                return infoTemp.at(1);
-            else
+        case 2:
+            if(infoTemp.at(2).isDigit())//possibly there are more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2));
-        }
-        case(3):
-        {
-            if(!infoTemp.at(2).isDigit())
-                return QString(infoTemp.at(2))+QString(infoTemp.at(3));
-            else
+            return infoTemp.at(1);
+        case 3:
+            if(infoTemp.at(2).isDigit())
                 return QString(infoTemp.at(3))+QString(infoTemp.at(4));
-        }
+            return QString(infoTemp.at(2))+QString(infoTemp.at(3));
         }
     }
-    else if(QString(infoTemp.at(0)) == "P")
+    if(QString(infoTemp.at(0)) == "P")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "sp";
-        }
-        case(2):
-        {
-            if(!infoTemp.at(2).isDigit()){//possibly there are more than 9 units
-                return QString(infoTemp.at(1))+" "+QString(infoTemp.at(3));
-            }
-            else{
+        case 2:
+            if(infoTemp.at(2).isDigit()) //possibly there are more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2))+" "+QString(infoTemp.at(4));
-            }
-        }
-        case(3):
-        {
-            if(!infoTemp.at(2).isDigit()){
-                return infoTemp.at(4);
-            }
-            else{
+            return QString(infoTemp.at(1))+" "+QString(infoTemp.at(3));
+        case 3:
+            if(infoTemp.at(2).isDigit())
                 return infoTemp.at(5);
-            }
+            return infoTemp.at(4);
         }
-        }
-
     }
-    else
-    {
-        return "error";
-        qDebug()<<"error at the"+QString::number(index)+"th entry";
-    }
+    qDebug()<<"error at the"+QString::number(index)+"th entry";
+    return "error";
 }
 
 QString tableSelectParaDialog::translateOutput(int index, int item)
@@ -331,13 +297,13 @@ QString tableSelectParaDialog::translateOutput(int index, int item)
         case 1:
             return "unit";
         case 2:
-            if(!infoTemp.at(2).isDigit())//possibly there are more than 9 units
-                return infoTemp.at(1);
-            return QString(infoTemp.at(1))+QString(infoTemp.at(2));
+            if(infoTemp.at(2).isDigit()) //possibly there are more than 9 units
+                return QString(infoTemp.at(1))+QString(infoTemp.at(2));
+            return infoTemp.at(1);
         case 3:
-            if(!infoTemp.at(2).isDigit())
-                return QString(infoTemp.at(2))+QString(infoTemp.at(3));
-            return QString(infoTemp.at(3))+QString(infoTemp.at(4));
+            if(infoTemp.at(2).isDigit())
+                return QString(infoTemp.at(3))+QString(infoTemp.at(4));
+            return QString(infoTemp.at(2))+QString(infoTemp.at(3));
         }
     }
     else if(QString(infoTemp.at(0)) == "P")
@@ -346,16 +312,14 @@ QString tableSelectParaDialog::translateOutput(int index, int item)
         case 1:
             return "sp";
         case 2:
-            if(!infoTemp.at(2).isDigit())//in case there're more than 9 units
-                return QString(infoTemp.at(1))+" "+QString(infoTemp.at(3));
-            else
+            if(infoTemp.at(2).isDigit()) //in case there're more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2))+" "+QString(infoTemp.at(4));
+            return QString(infoTemp.at(1))+" "+QString(infoTemp.at(3));
         case 3:
-            if(!infoTemp.at(2).isDigit())
-                return infoTemp.at(4);
-            return infoTemp.at(5);
+            if(infoTemp.at(2).isDigit())
+                return infoTemp.at(5);
+            return infoTemp.at(4);
         }
-
     }
     else if(QString(infoTemp.at(0))=="S")
     {
@@ -429,25 +393,19 @@ bool tableSelectParaDialog::tableNameUsed(QString name)//true means there has be
         globalpara.reportError("Fail to open case file to check if the table name is used.",this);
         return true;
     }
-    else
+    QDomDocument doc;
+    if(!doc.setContent(&file))
     {
-        QDomDocument doc;
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document to check if the table name is used.",this);
-            file.close();
-            // TODO: `return true` is not a good way to handle the error.
-            return true;
-        }
-        else
-        {
-            QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-            auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-            //if(!tableData.elementsByTagName(tableName).isEmpty())
-            file.close();
-            return tablesByTitle.contains(name);
-        }
+        globalpara.reportError("Fail to load xml document to check if the table name is used.",this);
+        file.close();
+        // TODO: `return true` is not a good way to handle the error.
+        return true;
     }
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    //if(!tableData.elementsByTagName(tableName).isEmpty())
+    file.close();
+    return tablesByTitle.contains(name);
 }
 
 void tableSelectParaDialog::on_addOutputButton_clicked()
@@ -522,7 +480,6 @@ void tableSelectParaDialog::on_CapacityButton_clicked()
         else
             globalpara.reportError("There is not enough heat duties of components added as system output in the system!\n(Hint: there must be at least one numerator \nfrom component setting for COP calculation.)",this);
     }
-
 }
 
 void tableSelectParaDialog::on_cancelButton_clicked()
@@ -550,60 +507,58 @@ QString tableSelectParaDialog::addUnit(QString string)
     {
         if(list[list.count()-3] == QString("H"))//HT:heat transfer
             return (globalpara.unitname_heatquantity);
-        else if(list[list.count()-3] == QString("W"))//WT: wetness level
+        if(list[list.count()-3] == QString("W"))//WT: wetness level
             return " ";
-        else if(list[list.count()-3] == QString("N"))// NT: NTU value
+        if(list[list.count()-3] == QString("N"))// NT: NTU value
             return " ";
-        else//T: temperature
-            return (globalpara.unitname_temperature);
+        //T: temperature
+        return (globalpara.unitname_temperature);
     }
-    else if(list[list.count()-2]==QString("P"))//P: pressure
+    if(list[list.count()-2]==QString("P"))//P: pressure
         return (globalpara.unitname_pressure);
-    else if(list[list.count()-2]==QString("F"))
+    if(list[list.count()-2]==QString("F"))
     {
         if(list[list.count()-3]!=QString("E"))//F: mass flow rate
             return (globalpara.unitname_massflow);
-        else//EF: effectiveness
-            return " ";
+        //EF: effectiveness
+        return " ";
     }
-    else if(list[list.count()-2] == QString("H"))//H: enthalpy
+    if(list[list.count()-2] == QString("H"))//H: enthalpy
         return (globalpara.unitname_enthalpy);
-    else if(list[list.count()-2] == QString("A"))
+    if(list[list.count()-2] == QString("A"))
     {
         if(list[list.count()-3]==QString("U"))//UA: ua value
             return (globalpara.unitname_UAvalue);
-        else if(list[list.count()-3]==QString("C"))//CA: cat value
+        if(list[list.count()-3]==QString("C"))//CA: cat value
             return (globalpara.unitname_temperature);
-        else if(list[list.count()-3]==QString("S"))//SA: system capacity
+        if(list[list.count()-3]==QString("S"))//SA: system capacity
             return (globalpara.unitname_heatquantity);
-        else if(list[list.count()-3]==QString("N"))//NA: NTUa
+        if(list[list.count()-3]==QString("N"))//NA: NTUa
             return " ";
     }
-    else if(list[list.count()-2] == QString("M"))
+    if(list[list.count()-2] == QString("M"))
     {
         if(list[list.count()-3]==QString("N"))//NM: NTUm
             return " ";
-        else//LM: LMTD value
-            return (globalpara.unitname_temperature);
+        //LM: LMTD value
+        return (globalpara.unitname_temperature);
     }
-    else if(list[list.count()-2] == QString("R"))
+    if(list[list.count()-2] == QString("R"))
     {
         if(list[list.count()-3]==QString("M"))//MR:moisture removal rate
             return (globalpara.unitname_massflow);
     }
-    else if(list[list.count()-2] == QString("E"))
+    if(list[list.count()-2] == QString("E"))
     {
         if(list[list.count()-3]==QString("M"))//ME:water evaporation rate
             return (globalpara.unitname_massflow);
-        else if(list[list.count()-3] == QString("H"))//HE: humidity efficiency
+        if(list[list.count()-3] == QString("H"))//HE: humidity efficiency
             return " ";
     }
-    else if(list[list.count()-2]==QString("C")||list[list.count()-2]==QString("W"))
+    if(list[list.count()-2]==QString("C")||list[list.count()-2]==QString("W"))
         return (globalpara.unitname_concentration);
-        //NW: NTUw,
-        return " ";
-
-
+    //NW: NTUw,
+    return " ";
 }
 
 bool tableSelectParaDialog::event(QEvent *e)

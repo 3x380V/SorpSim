@@ -39,7 +39,6 @@ int htValueEdited;
 int pinchValueEdited;
 int copValueEdited;
 
-
 editUnitDialog::editUnitDialog(unit* myUnit, QWidget *parent):
 QDialog(parent),ui(new Ui::editUnitDialog)
 {
@@ -70,83 +69,63 @@ QDialog(parent),ui(new Ui::editUnitDialog)
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
-    switch(tempUnit->iht)
-    {
-    case(0):
-    {
+    switch(tempUnit->iht) {
+    case 0:
         ui->HeatSpecifiedButton->setChecked(true);
         ui->methodValueUnit->setText(globalpara.unitname_heatquantity);
         break;
-    }case(1):
-    {
+    case 1:
         ui->UAButton->setChecked(true);
         ui->methodValueUnit->setText(globalpara.unitname_UAvalue);
         break;
-    }case(2):
-    {
+    case 2:
         ui->NTUButton->setChecked(true);
         ui->methodValueUnit->setText("");
         break;
-    }case(3):
-    {
+    case 3:
         ui->EFFButton->setChecked(true);
         ui->methodValueUnit->setText("");
         break;
-    }case(4):
-    {
+    case 4:
         ui->CATButton->setChecked(true);
         ui->methodValueUnit->setText(globalpara.unitname_temperature);
         break;
-    }case(5):
-    {
+    case 5:
         ui->LMTDButton->setChecked(true);
         ui->methodValueUnit->setText(globalpara.unitname_temperature);
         break;
-    }case(6):
-    {
+    case 6:
         ui->skipMethodButton->setChecked(true);
         break;
     }
-    }
 
     ui->htLineEdit->setText(QString::number(tempUnit->ht,'g',4));
-    switch(tempUnit->ipinch)
-    {
-    case(-1):
-    {
+    switch(tempUnit->ipinch) {
+    case -1:
         ui->ColdEndButton->setChecked(true);
         break;
-    }case(1):
-    {
+    case 1:
         ui->HotEndButton->setChecked(true);
         break;
-    }case(0):
-    {
+    case 0:
         ui->progDecideButton->setChecked(true);
         break;
-    }
     }
 
     ui->devlLineEdit->setText(QString::number(tempUnit->devl));
     ui->devgLineEdit->setText(QString::number(tempUnit->devg));
 
-    switch(tempUnit->icop)
-    {
-    case(-1):
-    {
+    switch(tempUnit->icop) {
+    case -1:
         ui->DenominatorButton->setChecked(true);
         break;
-    }case(1):
-    {
+    case 1:
         ui->NumeratorButton->setChecked(true);
         break;
-    }case(0):
-    {
+    case 0:
         ui->NeitherButton->setChecked(true);
         break;
     }
-    }
-
 
     if(int(tempUnit->idunit/10)==16)
     {
@@ -238,12 +217,9 @@ void editUnitDialog::on_OKButton_clicked()
     else if(ui->DenominatorButton->isChecked())
         tempUnit->icop = -1;
 
-
-
     if(!ui->mergeBox->isHidden())
     {
         Node*insideNode, *outNode = tempUnit->myNodes[tempUnit->mergedOutPoint-1];
-        unit*head;
         for(int i = 0; i < tempUnit->usp;i++)
         {
             if(tempUnit->myNodes[i]->isinside)
@@ -260,7 +236,6 @@ void editUnitDialog::on_OKButton_clicked()
             Node::mergeInsidePoint(insideNode,outNode);
 
             tempUnit->insideMerged=true;
-
         }
         else if(!ui->mergeYesButton->isChecked()&&insideNode->insideLinked)
         {
@@ -272,7 +247,6 @@ void editUnitDialog::on_OKButton_clicked()
             tempUnit->insideMerged=false;
         }
     }
-
 
     QDialog::accept();
 }

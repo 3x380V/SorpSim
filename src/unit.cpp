@@ -13,16 +13,14 @@
 
 */
 
+#include <QDebug>
+#include <QStyle>
+#include <QStyleOptionGraphicsItem>
 
 #include "unit.h"
-#include "myscene.h"
-#include <QDebug>
-#include <QStyleOptionGraphicsItem>
-#include <QStyle>
 #include "packings.h"
 #include "coils.h"
 #include "dataComm.h"
-#include "mainwindow.h"
 
 extern qreal mousex;
 extern qreal mousey;
@@ -33,29 +31,22 @@ unit::unit()
     utext = new QGraphicsSimpleTextItem(this);
     setZValue(2);
     next = NULL;
-
-
 }
 
 // TODO: determine if we need to delete inside links
 unit::~unit()
 {
     for(int i = 0; i < usp; i++)
-    {
         delete myNodes[i];
-    }
     for(int i = 0; i< 6; i++)
         delete myArrow[i];
-
 }
-
 
 void unit::paint(QPainter *painter,
                  const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
 
 }
-
 
 QPointF unit::getPos()
 {
@@ -64,7 +55,6 @@ QPointF unit::getPos()
 
 QRectF unit::boundingRect() const
 {
-
     qreal x1 = mousex-60, x2 = mousey-60, x3 = mousex+60 ,x4= mousey+60;
     QPointF p1 = QPointF(x1,x2);
     QPointF p2 = QPointF(x3,x4);
@@ -73,344 +63,231 @@ QRectF unit::boundingRect() const
     rect.setBottomRight(p2);
 
     return rect;
-
 }
 
 void unit::initialize()
 {
-    switch(idunit)
-    {
+    switch(idunit) {
     case(11):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(12):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(13):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(21):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(22):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(23):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(31):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(32):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(33):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(41):
-    {
         usp = 5;
         mergedOutPoint = 1;
         break;
-    }
     case(42):
-    {
         usp = 5;
         mergedOutPoint = 1;
         break;
-    }
     case(51):
-    {
         usp = 5;
         mergedOutPoint = 1;
         break;
-    }
     case(52):
-    {
         usp = 5;
         mergedOutPoint = 1;
         break;
-    }
     case(61):
-    {
         usp = 2;
         mergedOutPoint = 0;
         break;
-    }
     case(62):
-    {
         usp = 2;
         mergedOutPoint = 0;
         break;
-    }
     case(63):
-    {
         usp = 3;
         mergedOutPoint = 0;
         break;
-    }
     case(71):
-    {
         usp = 3;
         mergedOutPoint = 0;
         break;
-    }
     case(72):
-    {
         usp = 3;
         mergedOutPoint = 0;
         break;
-    }
     case(81):
-    {
         usp = 3;
         mergedOutPoint = 0;
         break;
-    }
     case(82):
-    {
         usp = 3;
         mergedOutPoint = 0;
         break;
-    }
     case(91):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(92):
-    {
         usp = 6;
         mergedOutPoint = 1;
         break;
-    }
     case(93):
-    {
         usp = 7;
         mergedOutPoint = 1;
         break;
-    }
     case(101):
-    {
         usp = 7;
         mergedOutPoint = 1;
         break;
-    }
     case(102):
-    {
         usp = 7;
         mergedOutPoint = 1;
         break;
-    }
     case(103):
-    {
         usp = 5;
         mergedOutPoint = 0;
         break;
-    }
     case(111):
-    {
         usp = 3;
         mergedOutPoint = 2;
         break;
-    }
     case(121):
-    {
         usp = 3;
         mergedOutPoint = 2;
         break;
-    }
     case(131):
-    {
         usp = 5;
         mergedOutPoint = 0;
         break;
-    }
     case(161):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(162):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(163):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(164):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(171):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(172):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(173):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(174):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(175):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(176):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(177):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(178):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(179):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(181):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(182):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(183):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(184):
-    {
         usp = 4;
         mergedOutPoint = 0;
         break;
-    }
     case(191):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(192):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(193):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(194):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(195):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(196):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(197):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(198):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
     case(199):
-    {
         usp = 6;
         mergedOutPoint = 0;
         break;
-    }
-
         ///to add new component, add a new case with type index, number of
         ///state points, and number of points that might be merged with the
         /// inside point
@@ -425,7 +302,6 @@ void unit::initialize()
     for(int i = 0; i< 6; i++)
         myArrow[i] = new arrow;
     insideMerged=false;
-
 }
 
 void unit::drawUnit()
@@ -438,9 +314,9 @@ void unit::drawUnit()
     QPen dotpen(Qt::red);
     QPen dredpen(Qt::darkRed);
     dotpen.setStyle(Qt::DashLine);
-    greenpen.setWidth(2.5);
-    bluepen.setWidth(2.5);
-    dotpen.setWidth(2.5);
+    greenpen.setWidth(2);
+    bluepen.setWidth(2);
+    dotpen.setWidth(2);
 
     switch (unitid)
     {
@@ -542,7 +418,6 @@ void unit::drawUnit()
         unitName = "ABSORBER";
         utext->setParentItem(this);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -552,7 +427,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -565,7 +439,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(-15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -674,7 +547,6 @@ void unit::drawUnit()
         unitParameter = new QGraphicsSimpleTextItem(this);
         unitParameter->moveBy(80,-50);
         break;
-
     }
     case(12):
     {
@@ -771,7 +643,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -781,7 +652,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -842,7 +712,6 @@ void unit::drawUnit()
         myArrow[4]->setParentItem(this);
         myArrow[4]->moveBy(-15,45);
         myArrow[4]->setRotation(0);
-
 
         myNodes[5]->setParentItem(this);
         myNodes[5]->setFlag(QGraphicsItem::ItemIsSelectable);
@@ -999,7 +868,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -1009,7 +877,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -1059,7 +926,6 @@ void unit::drawUnit()
         myArrow[3]->moveBy(-45,-15);
         myArrow[3]->setRotation(90);
 
-
         myNodes[4]->setParentItem(this);
         myNodes[4]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[4]->moveBy(-15,+60);
@@ -1080,7 +946,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = true;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(25,-25);
-
 
         myNodes[0]->addToSet(myNodes[1],"fc");
         myNodes[0]->addToSet(myNodes[4],"fc");
@@ -1228,7 +1093,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -1238,7 +1102,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -1454,7 +1317,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -1464,7 +1326,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -1570,7 +1431,6 @@ void unit::drawUnit()
         myNodes[5]->addToSet(myNodes[0],"fc");
         myNodes[5]->addToSet(myNodes[1],"fc");
         myNodes[5]->addToSet(myNodes[4],"fc");
-
 
         utext->moveBy(-20,18);
         unitName = "DESORBER";
@@ -1681,7 +1541,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -1691,7 +1550,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -1798,7 +1656,6 @@ void unit::drawUnit()
         myNodes[5]->addToSet(myNodes[1],"fc");
         myNodes[5]->addToSet(myNodes[4],"fc");
 
-
         utext->moveBy(-20,18);
         unitName = "DESORBER";
         utext->setParentItem(this);
@@ -1888,7 +1745,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -1967,8 +1823,6 @@ void unit::drawUnit()
         myNodes[3]->addToSet(myNodes[2],"fc");
         myNodes[3]->addToSet(myNodes[2],"c");
         myNodes[3]->addToSet(myNodes[2],"fluid");
-
-
 
         utext->moveBy(-15,15);
         unitName = "HEAT EXCHANGER";
@@ -2056,7 +1910,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -2066,7 +1919,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -2222,7 +2074,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -2232,7 +2083,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -2301,7 +2151,6 @@ void unit::drawUnit()
         myNodes[3]->addToSet(myNodes[2],"fc");
         myNodes[3]->addToSet(myNodes[2],"c");
         myNodes[3]->addToSet(myNodes[2],"fluid");
-
 
         utext->moveBy(-15,15);
         unitName = "HEAT EXCHANGER";
@@ -2399,7 +2248,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -2458,7 +2306,6 @@ void unit::drawUnit()
         myArrow[3]->setParentItem(this);
         myArrow[3]->moveBy(45,-15);
         myArrow[3]->setRotation(-90);
-
 
         myNodes[4]->setParentItem(this);
         myNodes[4]->setFlag(QGraphicsItem::ItemIsSelectable);
@@ -2613,7 +2460,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -2623,7 +2469,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -2681,7 +2526,6 @@ void unit::drawUnit()
         myNodes[4] -> isinside = true;
         spParameter[4] = new QGraphicsSimpleTextItem(this);
         spParameter[4]->moveBy(-60,-20);
-
 
         myNodes[0]->addToSet(myNodes[1],"fc");
         myNodes[0]->addToSet(myNodes[4],"fc");
@@ -2827,7 +2671,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -2837,7 +2680,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -2895,7 +2737,6 @@ void unit::drawUnit()
         myNodes[4] -> isinside = true;
         spParameter[4] = new QGraphicsSimpleTextItem(this);
         spParameter[4]->moveBy(-15,40);
-
 
         myNodes[0]->addToSet(myNodes[1],"fc");
         myNodes[0]->addToSet(myNodes[4],"fc");
@@ -3041,7 +2882,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,5);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -3109,7 +2949,6 @@ void unit::drawUnit()
         myNodes[4] -> isinside = true;
         spParameter[4] = new QGraphicsSimpleTextItem(this);
         spParameter[4]->moveBy(-60,0);
-
 
         myNodes[0]->addToSet(myNodes[1],"fc");
         myNodes[0]->addToSet(myNodes[4],"fc");
@@ -3191,13 +3030,11 @@ void unit::drawUnit()
         line2->setPen(bluepen);
         line2->setLine(linef);
 
-
         QPolygonF polygon;
         poli = new QGraphicsPolygonItem(this);
         polygon << QPointF(-20,+30)<<QPointF(+20,-30)<<QPointF(-20,-30)<<QPointF(+20,+30)<<QPointF(-20,+30);
         poli->setPolygon(polygon);
         poli->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3266,13 +3103,11 @@ void unit::drawUnit()
         line2->setPen(bluepen);
         line2->setLine(linef);
 
-
         QPolygonF polygon;
         poli = new QGraphicsPolygonItem(this);
         polygon << QPointF(-20,+30)<<QPointF(+20,-30)<<QPointF(-20,-30)<<QPointF(+20,+30)<<QPointF(-20,+30);
         poli->setPolygon(polygon);
         poli->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3307,7 +3142,6 @@ void unit::drawUnit()
         myNodes[1]->addToSet(myNodes[0],"f");
         myNodes[1]->addToSet(myNodes[0],"c");
         myNodes[1]->addToSet(myNodes[0],"fluid");
-
 
         utext->moveBy(-35,0);
         unitName = "VALVE";
@@ -3354,13 +3188,11 @@ void unit::drawUnit()
         line3->setPen(dotpen);
         line3->setLine(linef);
 
-
         QPolygonF polygon;
         poli = new QGraphicsPolygonItem(this);
         polygon << QPointF(-20,+30)<<QPointF(+20,-30)<<QPointF(-20,-30)<<QPointF(+20,+30)<<QPointF(-20,+30);
         poli->setPolygon(polygon);
         poli->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3408,7 +3240,6 @@ void unit::drawUnit()
         myNodes[1]->addToSet(myNodes[0],"c");
         myNodes[1]->addToSet(myNodes[0],"fluid");
 
-
         utext->moveBy(-35,0);
         unitName = "VALVE";
         utext->setParentItem(this);
@@ -3453,11 +3284,9 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         circle = new QGraphicsEllipseItem(this);
         circle->setRect(-20,-20,40,40);
         circle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3552,11 +3381,9 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         circle = new QGraphicsEllipseItem(this);
         circle->setRect(-20,-20,40,40);
         circle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3651,11 +3478,9 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         circle = new QGraphicsEllipseItem(this);
         circle->setRect(-20,-20,40,40);
         circle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3779,11 +3604,9 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         circle = new QGraphicsEllipseItem(this);
         circle->setRect(-20,-20,40,40);
         circle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -3820,7 +3643,6 @@ void unit::drawUnit()
         myArrow[2]->setParentItem(this);
         myArrow[2]->moveBy(0,-25);
         myArrow[2]->setRotation(0);
-
 
         myNodes[0]->addToSet(myNodes[1],"fc");
         myNodes[0]->addToSet(myNodes[1],"t");
@@ -3972,8 +3794,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,-10);
 
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -3983,7 +3803,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -4053,7 +3872,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = true;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(30,-25);        
-
 
         myNodes[0]->addToSet(myNodes[1],"fc");
         myNodes[0]->addToSet(myNodes[4],"fc");
@@ -4215,8 +4033,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,-10);
 
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -4226,7 +4042,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -4467,8 +4282,6 @@ void unit::drawUnit()
         Q->setText("Q");
         Q->moveBy(5,-10);
 
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -4478,7 +4291,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -4706,8 +4518,6 @@ void unit::drawUnit()
         line7->setPen(bluepen);
         line7->setLine(linef);
 
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -4717,7 +4527,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -4730,7 +4539,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -4954,9 +4762,6 @@ void unit::drawUnit()
         line7->setPen(bluepen);
         line7->setLine(linef);
 
-
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -4966,7 +4771,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -4979,7 +4783,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5040,7 +4843,6 @@ void unit::drawUnit()
         myArrow[5]->setParentItem(this);
         myArrow[5]->moveBy(-15,45);
         myArrow[5]->setRotation(180);
-
 
         myNodes[6]->setParentItem(this);
         myNodes[6]->setFlag(QGraphicsItem::ItemIsSelectable);
@@ -5120,7 +4922,6 @@ void unit::drawUnit()
         myNodes[6]->addToSet(myNodes[4],"fc");
         myNodes[6]->addToSet(myNodes[5],"fc");
 
-
         utext->moveBy(-20,18);
         unitName = "ANALYZER";
         utext->setParentItem(this);
@@ -5175,7 +4976,6 @@ void unit::drawUnit()
         line4->setPen(bluepen);
         line4->setLine(linef);
 
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -5185,7 +4985,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5302,7 +5101,6 @@ void unit::drawUnit()
         myNodes[4]->addToSet(myNodes[2],"fc");
         myNodes[4]->addToSet(myNodes[3],"fc");
 
-
         utext->moveBy(-20,18);
         unitName = "ANALYZER";
         utext->setParentItem(this);
@@ -5376,7 +5174,6 @@ void unit::drawUnit()
         polygon << QPointF(-20,-5)<<QPointF(-20,+5)<<QPointF(+20,+25)<<QPointF(+20,-25)<<QPointF(-20,-5);
         poli->setPolygon(polygon);
         poli->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5516,7 +5313,6 @@ void unit::drawUnit()
         circle = new QGraphicsEllipseItem(this);
         circle->setRect(-25,-25,50,50);
         circle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5692,7 +5488,6 @@ void unit::drawUnit()
         spParameter[3] = new QGraphicsSimpleTextItem(this);
         spParameter[3]->moveBy(70,50);
 
-
         myNodes[4]->setParentItem(this);
         myNodes[4]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[4]->moveBy(-60,+15);
@@ -5741,7 +5536,6 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
@@ -5758,7 +5552,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5826,7 +5619,6 @@ void unit::drawUnit()
         line1->setPen(bluepen);
         line1->setLine(linef);
 
-
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
         arrow1->setRotation(180);
@@ -5842,12 +5634,10 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->setRotation(180);
         arrow2->moveBy(-15,60);
-
 
         packings* pak = new packings;
         pak->setParentItem(this);
@@ -5861,7 +5651,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5949,10 +5738,8 @@ void unit::drawUnit()
         arrow2->setRotation(90);
         arrow2->moveBy(60,-15);
 
-
         packings* pak = new packings;
         pak->setParentItem(this);
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -5963,7 +5750,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -5976,7 +5762,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6007,7 +5792,6 @@ void unit::drawUnit()
         myNodes[3] -> isinside = false;
         spParameter[3] = new QGraphicsSimpleTextItem(this);
         spParameter[3]->moveBy(55,-85);
-
 
         utext->moveBy(-20,18);
         unitName = "DEHUM";
@@ -6048,7 +5832,6 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
@@ -6065,7 +5848,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6108,7 +5890,6 @@ void unit::drawUnit()
         myNodes[3] -> isinside = false;
         spParameter[3] = new QGraphicsSimpleTextItem(this);
         spParameter[3]->moveBy(-50,60);
-
 
         myNodes[1]->addToSet(myNodes[3],"f");
         myNodes[3]->addToSet(myNodes[1],"f");
@@ -6172,11 +5953,9 @@ void unit::drawUnit()
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(180);
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -6187,7 +5966,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6200,7 +5978,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6255,7 +6032,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         myNodes[2]->addToSet(myNodes[3],"fluid");
         myNodes[3]->addToSet(myNodes[2],"fluid");
@@ -6327,16 +6103,12 @@ void unit::drawUnit()
         line5->setPen(bluepen);
         line5->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
 
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
-
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -6347,7 +6119,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6360,7 +6131,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6415,7 +6185,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "DHUMCT2";
@@ -6476,18 +6245,13 @@ void unit::drawUnit()
         line5->setPen(bluepen);
         line5->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
 
-
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(90);
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -6498,7 +6262,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6511,7 +6274,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6567,7 +6329,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "DHUMCT3";
         utext->setParentItem(this);
@@ -6592,7 +6353,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -6638,9 +6398,6 @@ void unit::drawUnit()
         mycoil->setParentItem(this);
         mycoil->setRotation(180);
 
-
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -6650,7 +6407,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6663,7 +6419,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6718,7 +6473,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "DHUMPAR1";
@@ -6785,11 +6539,8 @@ void unit::drawUnit()
         arrow2->setRotation(180);
         arrow2->moveBy(-15,60);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -6800,7 +6551,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6813,7 +6563,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6848,7 +6597,6 @@ void unit::drawUnit()
         myArrow[3]->moveBy(45,-15);
         myArrow[3]->setRotation(90);
 
-
         myNodes[4]->setParentItem(this);
         myNodes[4]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[4]->moveBy(+15,+60);
@@ -6869,7 +6617,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "DHUMPAR2";
@@ -6936,12 +6683,9 @@ void unit::drawUnit()
         arrow2->setRotation(180);
         arrow2->moveBy(-15,60);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(90);
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -6952,7 +6696,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -6965,7 +6708,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7021,7 +6763,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "DHUMPAR3";
         utext->setParentItem(this);
@@ -7046,7 +6787,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -7088,7 +6828,6 @@ void unit::drawUnit()
         arrow2->moveBy(60,+15);
         arrow2->setRotation(90);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
 
@@ -7101,7 +6840,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7170,7 +6908,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "DHUMCR2";
         utext->setParentItem(this);
@@ -7195,7 +6932,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -7252,7 +6988,6 @@ void unit::drawUnit()
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
 
-
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[0]->moveBy(+15,-60);
@@ -7264,7 +6999,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7320,7 +7054,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "DHUMCR2";
         utext->setParentItem(this);
@@ -7345,7 +7078,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -7387,7 +7119,6 @@ void unit::drawUnit()
         arrow2->moveBy(60,+15);
         arrow2->setRotation(90);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(90);
@@ -7402,7 +7133,6 @@ void unit::drawUnit()
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
 
-
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[0]->moveBy(+15,-60);
@@ -7414,7 +7144,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7470,7 +7199,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "DHUMCR3";
         utext->setParentItem(this);
@@ -7496,7 +7224,6 @@ void unit::drawUnit()
         line1->setPen(bluepen);
         line1->setLine(linef);
 
-
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
         arrow1->moveBy(-15,-60);
@@ -7511,11 +7238,9 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
-
 
         packings* pak = new packings;
         pak->setParentItem(this);
@@ -7529,7 +7254,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7597,7 +7321,6 @@ void unit::drawUnit()
         line1->setPen(bluepen);
         line1->setLine(linef);
 
-
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
         arrow1->setRotation(180);
@@ -7613,12 +7336,10 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->setRotation(180);
         arrow2->moveBy(-15,60);
-
 
         packings* pak = new packings;
         pak->setParentItem(this);
@@ -7632,7 +7353,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7720,10 +7440,8 @@ void unit::drawUnit()
         arrow2->setRotation(90);
         arrow2->moveBy(60,-15);
 
-
         packings* pak = new packings;
         pak->setParentItem(this);
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -7734,7 +7452,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7747,7 +7464,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7778,7 +7494,6 @@ void unit::drawUnit()
         myNodes[3] -> isinside = false;
         spParameter[3] = new QGraphicsSimpleTextItem(this);
         spParameter[3]->moveBy(55,-85);
-
 
         utext->moveBy(-20,18);
         unitName = "REGENERATOR";
@@ -7819,7 +7534,6 @@ void unit::drawUnit()
         line3->setPen(bluepen);
         line3->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
@@ -7836,7 +7550,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7942,11 +7655,9 @@ void unit::drawUnit()
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(180);
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -7957,7 +7668,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -7970,7 +7680,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8096,16 +7805,12 @@ void unit::drawUnit()
         line5->setPen(bluepen);
         line5->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
 
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
-
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -8116,7 +7821,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8129,7 +7833,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8184,7 +7887,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "REGCT2";
@@ -8245,18 +7947,13 @@ void unit::drawUnit()
         line5->setPen(bluepen);
         line5->setLine(linef);
 
-
         airArrow* arrow2 = new airArrow;
         arrow2->setParentItem(this);
         arrow2->moveBy(-15,30);
 
-
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(90);
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -8267,7 +7964,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8280,7 +7976,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8315,7 +8010,6 @@ void unit::drawUnit()
         myArrow[3]->moveBy(45,-15);
         myArrow[3]->setRotation(90);
 
-
         myNodes[4]->setParentItem(this);
         myNodes[4]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[4]->moveBy(+15,+60);
@@ -8336,7 +8030,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "REGCT3";
@@ -8362,7 +8055,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -8408,9 +8100,6 @@ void unit::drawUnit()
         mycoil->setParentItem(this);
         mycoil->setRotation(180);
 
-
-
-
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
         QPointF p2 = QPointF(x3,x4);
@@ -8420,7 +8109,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8433,7 +8121,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8488,7 +8175,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "REGPAR1";
@@ -8555,11 +8241,8 @@ void unit::drawUnit()
         arrow2->setRotation(180);
         arrow2->moveBy(-15,60);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -8570,7 +8253,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8583,7 +8265,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8638,7 +8319,6 @@ void unit::drawUnit()
         myNodes[5] -> isinside = false;
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
-
 
         utext->moveBy(-20,18);
         unitName = "REGPAR2";
@@ -8705,12 +8385,9 @@ void unit::drawUnit()
         arrow2->setRotation(180);
         arrow2->moveBy(-15,60);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(90);
-
-
 
         qreal x1 = -30, x2 = -30, x3 = +30 ,x4= +30;
         QPointF p1 = QPointF(x1,x2);
@@ -8721,7 +8398,6 @@ void unit::drawUnit()
         rectangle = new QGraphicsRectItem(this);
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
-
 
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8734,7 +8410,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8790,7 +8465,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "REGPAR3";
         utext->setParentItem(this);
@@ -8815,7 +8489,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -8857,7 +8530,6 @@ void unit::drawUnit()
         arrow2->moveBy(60,+15);
         arrow2->setRotation(90);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
 
@@ -8871,7 +8543,6 @@ void unit::drawUnit()
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
 
-
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[0]->moveBy(+15,-60);
@@ -8883,7 +8554,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -8939,7 +8609,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "REGCR2";
         utext->setParentItem(this);
@@ -8964,7 +8633,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -9006,7 +8674,6 @@ void unit::drawUnit()
         arrow2->moveBy(60,-15);
         arrow2->setRotation(90);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(180);
@@ -9021,7 +8688,6 @@ void unit::drawUnit()
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
 
-
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[0]->moveBy(+15,-60);
@@ -9033,7 +8699,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -9089,7 +8754,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "REGCR1";
         utext->setParentItem(this);
@@ -9114,7 +8778,6 @@ void unit::drawUnit()
         line1 = new QGraphicsLineItem(this);
         line1->setPen(bluepen);
         line1->setLine(linef);
-
 
         airArrow* arrow1 = new airArrow;
         arrow1->setParentItem(this);
@@ -9156,7 +8819,6 @@ void unit::drawUnit()
         arrow2->moveBy(60,+15);
         arrow2->setRotation(90);
 
-
         coils* mycoil = new coils;
         mycoil->setParentItem(this);
         mycoil->setRotation(90);
@@ -9171,7 +8833,6 @@ void unit::drawUnit()
         rectangle->setRect(rect);
         rectangle->setPen(blackpen);
 
-
         myNodes[0]->setParentItem(this);
         myNodes[0]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
         myNodes[0]->moveBy(+15,-60);
@@ -9183,7 +8844,6 @@ void unit::drawUnit()
         myArrow[0]->setParentItem(this);
         myArrow[0]->moveBy(15,-45);
         myArrow[0]->setRotation(0);
-
 
         myNodes[1]->setParentItem(this);
         myNodes[1]->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemSendsScenePositionChanges);
@@ -9239,7 +8899,6 @@ void unit::drawUnit()
         spParameter[5] = new QGraphicsSimpleTextItem(this);
         spParameter[5]->moveBy(-60,60);
 
-
         utext->moveBy(-20,18);
         unitName = "REGCR3";
         utext->setParentItem(this);
@@ -9262,13 +8921,10 @@ void unit::drawUnit()
         /// define if point is outlet/inside (if inside, disable "sendScenePositionChange" flag)
         /// define the parameter groups within the component
     }
-
-
 }
 
 void unit::horizontalFlip()
 {
-
     setTransform(flip(this,true));
 
     utext->setTransform(flip(utext,true));
@@ -9305,7 +8961,6 @@ void unit::verticalFlip()
 
 void unit::rotateClockWise()
 {
-
     QTransform transform(this->transform());
 
     qreal m11 = transform.m11();    // Horizontal scaling
@@ -9319,7 +8974,6 @@ void unit::rotateClockWise()
     else
         others = rot;
 
-
     setRotation(rot);
     utext->setRotation(others);
     unitParameter->setRotation(others);
@@ -9331,7 +8985,6 @@ void unit::rotateClockWise()
         spParameter[i]->setRotation(others);
     }
     moveBy(0.1,0.1);
-
 }
 
 void unit::updateRotate()
@@ -9348,7 +9001,6 @@ void unit::updateRotate()
         others = -rot;
     else
         others = rot;
-
 
     setRotation(rot);
     utext->setRotation(others);
@@ -9378,7 +9030,6 @@ QTransform unit::flip(QGraphicsItem *item, bool horizontally)
     qreal m32 = transform.m32();    // Vertical Position (DY)
     qreal m33 = transform.m33();    // Addtional Projection Factor
 
-
     if(horizontally)
         m11 = -m11;
     else
@@ -9386,7 +9037,6 @@ QTransform unit::flip(QGraphicsItem *item, bool horizontally)
 
     // Write back to the matrix
     transform.setMatrix(m11, m12, m13, m21, m22, m23, m31, m32, m33);
-
 
     return transform;
 }

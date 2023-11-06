@@ -39,7 +39,6 @@ extern int spnumber;
 extern QRect mainwindowSize;
 extern MainWindow*theMainwindow;
 
-
 bool initializing;
 masterDialog::masterDialog(QWidget *parent) :
     QDialog(parent),
@@ -53,7 +52,6 @@ masterDialog::masterDialog(QWidget *parent) :
     initializing = true;
     blockSizeChange = true;
 
-
     unit *it = dummy;
     globalpara.LDACcount = 0;
     for(int i = 0;i < globalcount;i++)
@@ -62,7 +60,6 @@ masterDialog::masterDialog(QWidget *parent) :
         if(it->idunit>160)
             globalpara.LDACcount += 1;
     }
-
 
     compTable = new QTableWidget();
     QStringList cHeader;
@@ -80,7 +77,6 @@ masterDialog::masterDialog(QWidget *parent) :
     compTable->verticalHeader()->setVisible(false);
     if(globalcount>globalpara.LDACcount)
         ui->tabWidget->insertTab(-1,compTable,"Components");
-
 
     spTable = new QTableWidget();
     QStringList sHeader;
@@ -100,7 +96,6 @@ masterDialog::masterDialog(QWidget *parent) :
     spTable->verticalHeader()->setVisible(false);
     ui->tabWidget->insertTab(-1,spTable,"State Points");
 
-
     LDACTable = new QTableWidget();
     QStringList lHeader;
     lHeader<<"Name"<<"Index"<<"Wetness\nLevel"<<"NTUm"<<"NTUw"<<"NTUa"<<"effectiveness";
@@ -118,16 +113,12 @@ masterDialog::masterDialog(QWidget *parent) :
     if(globalpara.LDACcount>0)
         ui->tabWidget->insertTab(-1,LDACTable,"LDAC");
 
-
     updateTable();
     initializing = false;
     blockSizeChange = false;
 
-
     ui->exportBox->addItem("Export...");
     ui->exportBox->addItem("Print current table");
-
-
 }
 
 masterDialog::~masterDialog()
@@ -140,8 +131,7 @@ void masterDialog::updateTable()
     compTable->clearContents();
     spTable->clearContents();
     LDACTable->clearContents();
-//    component parameters
-
+    // component parameters
     unit * iterator = dummy;
     QStringList htMethods;
     int ncounter = 0, lcounter = 0;
@@ -192,7 +182,6 @@ void masterDialog::updateTable()
                 compTable->setItem(ncounter,3,value);
             }
 
-
             QComboBox * ipinch = new QComboBox;
             ipinch->insertItems(0,QStringList()<<"Cold End"<<"Programed"<<"Hot End");
             ipinch->setCurrentIndex(iterator->ipinch+1);
@@ -221,8 +210,7 @@ void masterDialog::updateTable()
         }
     }
 
-    //    LDAC component parameters
-
+    // LDAC component parameters
         iterator = dummy;
         for(int i = 0; i < globalcount;i++)
         {
@@ -241,10 +229,8 @@ void masterDialog::updateTable()
                 index->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
                 LDACTable->setItem(lcounter,1,index);
 
-
                 if(iterator->idunit==164||iterator->idunit==184)//adiabatic eff model
                 {
-
                     QTableWidgetItem * value = new QTableWidgetItem;
                     value->setData(Qt::DisplayRole,1);
                     value->setTextAlignment(Qt::AlignCenter);
@@ -283,11 +269,9 @@ void masterDialog::updateTable()
                     }
                     value->setTextAlignment(Qt::AlignCenter);
                     LDACTable->setItem(lcounter,6,value);
-
                 }
                 else if(iterator->idunit<170||(iterator->idunit>180&&iterator->idunit<190))//adiabatic
                 {
-
                     QTableWidgetItem * value = new QTableWidgetItem;
                     value->setData(Qt::DisplayRole,iterator->wetness);
                     value->setTextAlignment(Qt::AlignCenter);
@@ -312,12 +296,9 @@ void masterDialog::updateTable()
                     value->setData(Qt::DisplayRole,"N/A");
                     value->setTextAlignment(Qt::AlignCenter);
                     LDACTable->setItem(lcounter,6,value);
-
                 }
                 else
                 {
-
-
                     QTableWidgetItem * value = new QTableWidgetItem;
                     value->setData(Qt::DisplayRole,iterator->wetness);
                     value->setTextAlignment(Qt::AlignCenter);
@@ -342,17 +323,12 @@ void masterDialog::updateTable()
                     value->setData(Qt::DisplayRole,"N/A");
                     value->setTextAlignment(Qt::AlignCenter);
                     LDACTable->setItem(lcounter,6,value);
-
                 }
-
                 lcounter++;
             }
         }
 
-
-
-//    state point parameters
-
+    // state point parameters
     QStringList ifix;
     bool found = false;
     ifix<<"Fixed as Input"<<"Unknown";
@@ -368,7 +344,7 @@ void masterDialog::updateTable()
                 if(iterator->myNodes[j]->ndum == i+1)
                 {
                     Node*tempNode = iterator->myNodes[j];
-                    QComboBox * Combo = new QComboBox;
+                    QComboBox *Combo = new QComboBox;
                     masterPanelCell * Line = new masterPanelCell(tempNode);
 
                     QTableWidgetItem*item = new QTableWidgetItem;//for index
@@ -396,7 +372,6 @@ void masterDialog::updateTable()
                     Combo->installEventFilter(this);
                     Combo->setFocusPolicy(Qt::StrongFocus);
 
-
                     Combo = new QComboBox;
                     Line = new masterPanelCell(tempNode);
                     QObject::connect(Combo,SIGNAL(currentIndexChanged(int)),Line,SLOT(setType(int)));
@@ -417,7 +392,6 @@ void masterDialog::updateTable()
                         Combo->setCurrentIndex(1);
                     Combo->installEventFilter(this);
                     Combo->setFocusPolicy(Qt::StrongFocus);
-
 
                     Combo = new QComboBox;
                     Line = new masterPanelCell(tempNode);
@@ -440,7 +414,6 @@ void masterDialog::updateTable()
                     Combo->installEventFilter(this);
                     Combo->setFocusPolicy(Qt::StrongFocus);
 
-
                     Combo = new QComboBox;
                     Line = new masterPanelCell(tempNode);
                     QObject::connect(Combo,SIGNAL(currentIndexChanged(int)),Line,SLOT(setType(int)));
@@ -461,7 +434,6 @@ void masterDialog::updateTable()
                         Combo->setCurrentIndex(1);
                     Combo->installEventFilter(this);
                     Combo->setFocusPolicy(Qt::StrongFocus);
-
 
                     Combo = new QComboBox;
                     Line = new masterPanelCell(tempNode);
@@ -489,22 +461,14 @@ void masterDialog::updateTable()
                 }
             }
         }
-
     }
-
-
-
-
 }
-
-
 
 void masterDialog::on_cancelButton_clicked()
 {
     applyChanges();
     reject();
 }
-
 
 void masterDialog::enforceValueChanges(Node *node, QString paraName, double value, double oldValue)
 {
@@ -609,10 +573,7 @@ void masterDialog::enforceValueChanges(Node *node, QString paraName, double valu
                 }
             }
         }
-
     }
-
-
 }
 
 void masterDialog::enforceIndexChanges(Node *node, QString paraName, int index)
@@ -721,7 +682,6 @@ void masterDialog::enforceIndexChanges(Node *node, QString paraName, int index)
 
         }
     }
-
 }
 
 
@@ -796,7 +756,6 @@ bool masterDialog::event(QEvent *e)
     return QDialog::event(e);
 }
 
-
 void masterDialog::applyChanges()
 {
 
@@ -818,8 +777,6 @@ void masterDialog::applyChanges()
                 iterator->ht = compTable->item(ncounter,3)->data(Qt::DisplayRole).toDouble();
             }
 
-
-
             QComboBox * ipinch = dynamic_cast<QComboBox*>(compTable->cellWidget(ncounter,4));
             iterator->ipinch = ipinch->currentIndex()-1;
 
@@ -839,14 +796,11 @@ void masterDialog::applyChanges()
             iterator->NTUt = LDACTable->item(lcounter,4)->data(Qt::DisplayRole).toDouble();
             iterator->NTUa = LDACTable->item(lcounter,5)->data(Qt::DisplayRole).toDouble();
             if(iterator->iht==3&&(iterator->idunit==164||iterator->idunit==184))
-            {
                 iterator->ht = LDACTable->item(lcounter,6)->data(Qt::DisplayRole).toDouble();
-            }
 
             lcounter++;
         }
     }
-
 
     for(int i = 0; i < spnumber;i++)
     {
@@ -863,102 +817,71 @@ void masterDialog::applyChanges()
                     QLineEdit * Line = dynamic_cast<QLineEdit*>(spTable->cellWidget(i,2));
                     Node* tempNode = iterator->myNodes[j];
                     index = Combo->currentIndex();
-                    switch (index)
-                    {
+                    switch (index) {
                     case 0:
-                    {
                         tempNode->itfix=0;
                         tempNode->t = Line->text().toDouble();
                         break;
-                    }
                     case 1:
-                    {
                         tempNode->itfix = 1;
                         break;
-                    }
                     }//itfix and t setting
 
 
                     Combo= dynamic_cast<QComboBox*>(spTable->cellWidget(i,3));
                     Line = dynamic_cast<QLineEdit*>(spTable->cellWidget(i,4));
                     index = Combo->currentIndex();
-                    switch (index)
-                    {
+                    switch (index) {
                     case 0:
-                    {
                         tempNode->iffix=0;
                         tempNode->f=Line->text().toDouble();
                         break;
-                    }
                     case 1:
-                    {
                         tempNode->iffix = 1;
                         break;
-                    }
                     }//iffix and f setting
 
                     Combo= dynamic_cast<QComboBox*>(spTable->cellWidget(i,5));
                     Line = dynamic_cast<QLineEdit*>(spTable->cellWidget(i,6));
                     index = Combo->currentIndex();
-                    switch (index)
-                    {
+                    switch (index) {
                     case 0:
-                    {
                         tempNode->ipfix=0;
                         tempNode->p=Line->text().toDouble();
                         break;
-                    }
                     case 1:
-                    {
                         tempNode->ipfix = 1;
                         break;
-                    }
                     }//ipfix and p setting
-
 
                     Combo = dynamic_cast<QComboBox*>(spTable->cellWidget(i,7));
                     Line = dynamic_cast<QLineEdit*>(spTable->cellWidget(i,8));
                     index = Combo->currentIndex();
-                    switch (index)
-                    {
+                    switch (index) {
                     case 0:
-                    {
                         tempNode->icfix=0;
                         tempNode->c=Line->text().toDouble();
                         break;
-
-                    }
                     case 1:
-                    {
                         tempNode->icfix = 1;
                         break;
-                    }
                     }//icfix and c setting
-
-
 
                     Combo= dynamic_cast<QComboBox*>(spTable->cellWidget(i,9));
                     Line = dynamic_cast<QLineEdit*>(spTable->cellWidget(i,10));
                     index = Combo->currentIndex();
-                    switch (index)
-                    {
+                    switch (index) {
                     case 0:
-                    {
                         tempNode->iwfix=0;
                         tempNode->w=Line->text().toDouble();
                         break;
-                    }
                     case 1:
-                    {
                         tempNode->iwfix = 1;
                         break;
                     }
-                    }
-
                  }
-           }
+            }
         }
-
     }
 }
 
@@ -988,7 +911,6 @@ void masterDialog::on_exportBox_currentTextChanged(const QString &arg1)
     }
 
     ui->exportBox->setCurrentIndex(0);
-
 }
 
 void masterDialog::on_guessButton_clicked()

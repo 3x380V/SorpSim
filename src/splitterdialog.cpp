@@ -13,14 +13,14 @@
 
 */
 
+#include <QDebug>
+#include <QLayout>
 
 #include "splitterdialog.h"
 #include "ui_splitterdialog.h"
 #include "mainwindow.h"
-#include <QDebug>
-#include <QLayout>
 
-extern MainWindow*theMainwindow;
+extern MainWindow *theMainwindow;
 
 splitterDialog::splitterDialog(unit* myunit, bool first, QWidget *parent) :
     ui(new Ui::splitterDialog)
@@ -64,10 +64,8 @@ splitterDialog::splitterDialog(unit* myunit, bool first, QWidget *parent) :
             qDebug()<<"split ratio exceeds limit";
     }
 
-
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 splitterDialog::~splitterDialog()

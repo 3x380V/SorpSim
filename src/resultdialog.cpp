@@ -199,8 +199,6 @@ resultDialog::resultDialog(QWidget *parent) :
                 }
             }
             iterator = iterator->next;
-
-
         }
     }
 
@@ -290,7 +288,6 @@ resultDialog::resultDialog(QWidget *parent) :
 
             lcount++;
         }
-
         iterator = iterator->next;
     }
 

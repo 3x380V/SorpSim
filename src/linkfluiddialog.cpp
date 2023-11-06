@@ -13,14 +13,13 @@
 
 */
 
+#include <QLayout>
+#include <QMessageBox>
 
 #include "linkfluiddialog.h"
 #include "ui_linkfluiddialog.h"
-#include <QLayout>
 #include "dataComm.h"
 #include "mainwindow.h"
-#include <QMessageBox>
-#include "myscene.h"
 
 extern globalparameter globalpara;
 extern MainWindow*theMainwindow;
@@ -54,7 +53,6 @@ linkFluidDialog::linkFluidDialog(Node *node1, Node *node2, bool withBox, QWidget
             }
         }
         sysFluids<<"Choose fluid..";
-
 
         for(int m = 0; m < sysFluids.count();m++)
             ui->fluidCB->insertItem(0,sysFluids.at(m).split(",").first());
@@ -90,7 +88,6 @@ linkFluidDialog::linkFluidDialog(Node *node1, Node *node2, bool withBox, QWidget
 
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 linkFluidDialog::~linkFluidDialog()
@@ -168,8 +165,6 @@ void linkFluidDialog::on_okButton_clicked()
             }
 
         }
-
-
     }
     else
     {
@@ -196,7 +191,6 @@ void linkFluidDialog::on_okButton_clicked()
                         sps.append("sp"+QString::number(link->myToNode->ndum));
                 }
             }
-
         }
         else if(ui->node2Button->isChecked())
         {

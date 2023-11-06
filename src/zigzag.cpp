@@ -12,10 +12,11 @@
 
 */
 
-#include "zigzag.h"
-#include <QPen>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPen>
+
+#include "zigzag.h"
 
 zigzag::zigzag()
 {
@@ -38,9 +39,6 @@ void zigzag::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     path.lineTo(width,20);
     painter->setPen(Qt::black);
     painter->drawPath(path);
-
-
-
 }
 
 QRectF zigzag::boundingRect() const

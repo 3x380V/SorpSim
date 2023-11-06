@@ -13,14 +13,16 @@
 
 */
 
-#include "newparaplotdialog.h"
-#include "ui_newparaplotdialog.h"
-#include <QFile>
 #include <QDebug>
+#include <QFile>
+#include <QMessageBox>
+
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
-#include <QMessageBox>
+
+#include "newparaplotdialog.h"
+#include "ui_newparaplotdialog.h"
 #include "mainwindow.h"
 #include "dataComm.h"
 #include "plotsdialog.h"
@@ -58,14 +60,12 @@ ui(new Ui::newParaPlotDialog)
 
     ui->yList->setSelectionMode(QAbstractItemView::MultiSelection);
 
-
     if(mode>0)
         readTheFile(tName);
 }
 
 newParaPlotDialog::~newParaPlotDialog()
 {
-
     delete ui;
 }
 
@@ -180,8 +180,6 @@ bool newParaPlotDialog::setupXml()
             theScene->plotWindow->close();
     }
 
-
-
     QFile file;
     if(mode==2)//from plot re-select
     {
@@ -204,193 +202,174 @@ bool newParaPlotDialog::setupXml()
         globalpara.reportError("Failed to open the case file for new parametric plot.",this);
         return false;
     }
-    else
+    if(!doc.setContent(&file))
     {
-        if(!doc.setContent(&file))
+        globalpara.reportError("Failed to load xml document for new parametric plot.",this);
+        file.close();
+        return false;
+    }
+    tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    if(doc.elementsByTagName("plotData").count()==0)
+    {
+        plotData = doc.createElement("plotData");
+        QDomElement root = doc.elementsByTagName("root").at(0).toElement();
+        root.appendChild(plotData);
+    }
+    else
+        plotData = doc.elementsByTagName("plotData").at(0).toElement();
+
+    // FIXED: write valid XML for children of <plotData>
+    // Check if the plot name is not already used, then create the new element, else raise an error.
+    QMap<QString, QDomElement> plotsByTitle;
+    QDomNodeList plots = plotData.elementsByTagName("plot");
+    for (int i = 0; i < plots.length(); i++)
+    {
+        QDomElement node = plots.at(i).toElement();
+        QString nodeTitle = node.attribute("title");
+        plotsByTitle.insert(nodeTitle, node);
+    }
+
+    if (plotsByTitle.contains(plotName))
+    {
+        globalpara.reportError("This <plot> title is already used.",this);
+        file.close();
+        return false;
+    }
+
+    if(mode==0)
+        currentTable = tablesByTitle.value(ui->tableCB->currentText());
+    else if(mode>0)
+        currentTable = tablesByTitle.value(tName);
+    // FIXED: write valid XML for children of <plotData>
+    // Note: plotName.replace() is not necessary
+    // <plot title="{plotName}" plotType="parametric">
+    newPlot = doc.createElement("plot");
+    plotData.appendChild(newPlot);
+    newPlot.setAttribute("title",plotName);
+    newPlot.setAttribute("plotType","parametric");
+    if(mode==0)
+        newPlot.setAttribute("tableName",ui->tableCB->currentText());
+    else if(mode>0)
+        newPlot.setAttribute("tableName",tName);
+    int nRuns = currentTable.attribute("runs").toInt();
+    newPlot.setAttribute("runs",QString::number(nRuns));
+
+    //plotName: tableName, # of runs, axisNames, # of outputs, scaleInfo
+    newPlot.setAttribute("xAxisName",ui->xList->currentItem()->text());
+    newPlot.setAttribute("yAxisName",outAxis_name.join(","));
+    newPlot.setAttribute("outputs",QString::number(outAxis_name.count()));
+    newPlot.setAttribute("scaleInfo",scaleInfo.join(","));
+
+    newPlot.setAttribute("inputIndex",QString::number(inputIndex));
+    QStringList outputIndex;
+    for(int i = 0; i < outputCount;i++)
+        outputIndex.append(QString::number(outputIndexes[i]));
+    newPlot.setAttribute("outputIndex",outputIndex.join(","));
+
+    //run: input(name, value), outputs(number, name, value)
+    tableRuns = currentTable.elementsByTagName("Run");
+    for(int i = 0; i < nRuns;i++)
+    {
+        //prepare values for input/outputs
+        QDomElement currentTableRun = tableRuns.at(i).toElement();
+        int nTableInputs = currentTableRun.elementsByTagName("Input").count();
+        QString xValue;
+        if(inputIndex<=nTableInputs-1)
         {
-            globalpara.reportError("Failed to load xml document for new parametric plot.",this);
-            file.close();
-            return false;
+            QDomElement tableInput = currentTableRun.elementsByTagName("Input").at(inputIndex).toElement();
+            xValue = tableInput.elementsByTagName("value").at(0).toElement().text();
         }
         else
         {
-            tableData = doc.elementsByTagName("TableData").at(0).toElement();
-            auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-            if(doc.elementsByTagName("plotData").count()==0)
-            {
-                plotData = doc.createElement("plotData");
-                QDomElement root = doc.elementsByTagName("root").at(0).toElement();
-                root.appendChild(plotData);
-            }
-            else
-                plotData = doc.elementsByTagName("plotData").at(0).toElement();
-
-            // FIXED: write valid XML for children of <plotData>
-            // Check if the plot name is not already used, then create the new element, else raise an error.
-            QMap<QString, QDomElement> plotsByTitle;
-            QDomNodeList plots = plotData.elementsByTagName("plot");
-            for (int i = 0; i < plots.length(); i++)
-            {
-                QDomElement node = plots.at(i).toElement();
-                QString nodeTitle = node.attribute("title");
-                plotsByTitle.insert(nodeTitle, node);
-            }
-
-            if (plotsByTitle.contains(plotName))
-            {
-                globalpara.reportError("This <plot> title is already used.",this);
-                file.close();
-                return false;
-            }
-            else
-            {
-                if(mode==0)
-                    currentTable = tablesByTitle.value(ui->tableCB->currentText());
-                else if(mode>0)
-                    currentTable = tablesByTitle.value(tName);
-                // FIXED: write valid XML for children of <plotData>
-                // Note: plotName.replace() is not necessary
-                // <plot title="{plotName}" plotType="parametric">
-                newPlot = doc.createElement("plot");
-                plotData.appendChild(newPlot);
-                newPlot.setAttribute("title",plotName);
-                newPlot.setAttribute("plotType","parametric");
-                if(mode==0)
-                    newPlot.setAttribute("tableName",ui->tableCB->currentText());
-                else if(mode>0)
-                    newPlot.setAttribute("tableName",tName);
-                int nRuns = currentTable.attribute("runs").toInt();
-                newPlot.setAttribute("runs",QString::number(nRuns));
-
-                //plotName: tableName, # of runs, axisNames, # of outputs, scaleInfo
-                newPlot.setAttribute("xAxisName",ui->xList->currentItem()->text());
-                newPlot.setAttribute("yAxisName",outAxis_name.join(","));
-                newPlot.setAttribute("outputs",QString::number(outAxis_name.count()));
-                newPlot.setAttribute("scaleInfo",scaleInfo.join(","));
-
-                newPlot.setAttribute("inputIndex",QString::number(inputIndex));
-                QStringList outputIndex;
-                for(int i = 0; i < outputCount;i++)
-                    outputIndex.append(QString::number(outputIndexes[i]));
-                newPlot.setAttribute("outputIndex",outputIndex.join(","));
-
-                //run: input(name, value), outputs(number, name, value)
-                tableRuns = currentTable.elementsByTagName("Run");
-                for(int i = 0; i < nRuns;i++)
-                {
-                    //prepare values for input/outputs
-                    QDomElement currentTableRun = tableRuns.at(i).toElement();
-                    int nTableInputs = currentTableRun.elementsByTagName("Input").count();
-                    QString xValue;
-                    if(inputIndex<=nTableInputs-1)
-                    {
-                        QDomElement tableInput = currentTableRun.elementsByTagName("Input").at(inputIndex).toElement();
-                        xValue = tableInput.elementsByTagName("value").at(0).toElement().text();
-                    }
-                    else
-                    {
-                        QDomElement tableInput =
-                                currentTableRun.elementsByTagName("Output").at(inputIndex-nTableInputs).toElement();
-                        xValue= tableInput.elementsByTagName("value").at(0).toElement().text();
-                    }
-                    QStringList yValues;
-                    for(int p = 0; p < outputCount;p++)
-                    {
-                        if(outputIndexes[p]<=nTableInputs-1)
-                        {
-                            QDomElement tableInput = currentTableRun.elementsByTagName("Input").at(outputIndexes[p]).toElement();
-                            yValues.append(tableInput.elementsByTagName("value").at(0).toElement().text());
-                        }
-                        else
-                        {
-                            QDomElement tableOutput =
-                                    currentTableRun.elementsByTagName("Output").at(outputIndexes[p]-nTableInputs).toElement();
-                            yValues.append(tableOutput.elementsByTagName("value").at(0).toElement().text());
-                        }
-                    }
-                    //prepare values for input/outputs
-                    //create new element and insert values
-                    QDomElement newRun = doc.createElement("Run");
-                    newRun.setAttribute("No.",QString::number(i));
-                    newPlot.appendChild(newRun);
-
-                    QDomElement newInput = doc.createElement("Input");
-                    newInput.setAttribute("name",ui->xList->currentItem()->text());
-                    QDomElement inputValue = doc.createElement("value");
-                    QDomText theValue = doc.createTextNode(xValue);
-                    inputValue.appendChild(theValue);
-                    newInput.appendChild(inputValue);
-                    newRun.appendChild(newInput);
-
-                    for(int j = 0; j < outputCount;j++)
-                    {
-                        QDomElement newOutput = doc.createElement("Output");
-                        newOutput.setAttribute("name",outAxis_name.at(j));
-                        QDomElement outputValue = doc.createElement("value");
-                        QDomText theValue = doc.createTextNode(yValues.at(j));
-                        outputValue.appendChild(theValue);
-                        newOutput.appendChild(outputValue);
-                        newRun.appendChild(newOutput);
-                    }
-                    //create new element and insert values
-                }
-
-                file.resize(0);
-                doc.save(stream,4);
-                file.close();
-                return true;
-            }
-
+            QDomElement tableInput =
+                    currentTableRun.elementsByTagName("Output").at(inputIndex-nTableInputs).toElement();
+            xValue= tableInput.elementsByTagName("value").at(0).toElement().text();
         }
+        QStringList yValues;
+        for(int p = 0; p < outputCount;p++)
+        {
+            if(outputIndexes[p]<=nTableInputs-1)
+            {
+                QDomElement tableInput = currentTableRun.elementsByTagName("Input").at(outputIndexes[p]).toElement();
+                yValues.append(tableInput.elementsByTagName("value").at(0).toElement().text());
+            }
+            else
+            {
+                QDomElement tableOutput =
+                        currentTableRun.elementsByTagName("Output").at(outputIndexes[p]-nTableInputs).toElement();
+                yValues.append(tableOutput.elementsByTagName("value").at(0).toElement().text());
+            }
+        }
+        //prepare values for input/outputs
+        //create new element and insert values
+        QDomElement newRun = doc.createElement("Run");
+        newRun.setAttribute("No.",QString::number(i));
+        newPlot.appendChild(newRun);
 
+        QDomElement newInput = doc.createElement("Input");
+        newInput.setAttribute("name",ui->xList->currentItem()->text());
+        QDomElement inputValue = doc.createElement("value");
+        QDomText theValue = doc.createTextNode(xValue);
+        inputValue.appendChild(theValue);
+        newInput.appendChild(inputValue);
+        newRun.appendChild(newInput);
+
+        for(int j = 0; j < outputCount;j++)
+        {
+            QDomElement newOutput = doc.createElement("Output");
+            newOutput.setAttribute("name",outAxis_name.at(j));
+            QDomElement outputValue = doc.createElement("value");
+            QDomText theValue = doc.createTextNode(yValues.at(j));
+            outputValue.appendChild(theValue);
+            newOutput.appendChild(outputValue);
+            newRun.appendChild(newOutput);
+        }
+        //create new element and insert values
     }
+
+    file.resize(0);
+    doc.save(stream,4);
+    file.close();
     delete[] outputIndexes;
+    return true;
 }
 
 bool newParaPlotDialog::plotNameUsed(QString name)
 {
-    if(name.count()==0)
+    if(name.isEmpty())
         return true;
     QFile file;
     QDir dir;
-//    if(mode==0)
-    if(mode!=2)
-        file.setFileName(globalpara.caseName);
-//    else if(mode==1)
-//        file.setFileName("tableTemp.xml");
-    else /*if(mode==2)*/
+    if(mode==2)
     {
         QString plotTempXML = Sorputils::sorpTempDir().absoluteFilePath("plotTemp.xml");
         file.setFileName(plotTempXML);
-    }
+    } else
+        file.setFileName(globalpara.caseName);
 
     if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
     {
         globalpara.reportError("Failed to open the case file to check if plot name is used.",this);
         return true;
     }
-    else
+
+    QDomDocument doc;
+    if(!doc.setContent(&file))
     {
-        QDomDocument doc;
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Failed to load xml document to check if plot name is used.",this);
-            file.close();
-            return true;
-        }
-        else
-        {
-            QDomElement plotData = doc.elementsByTagName("plotData").at(0).toElement();
-            QDomNodeList thePlots = plotData.elementsByTagName("plot");
-            QMap<QString, QDomElement> plotsByTitle;
-            for (int i = 0; i < thePlots.length(); i++) {
-                QDomElement iPlot = thePlots.at(i).toElement();
-                plotsByTitle.insert(iPlot.attribute("title"), iPlot);
-            }
-            file.close();
-            return plotsByTitle.contains(name);
-        }
+        globalpara.reportError("Failed to load xml document to check if plot name is used.",this);
+        file.close();
+        return true;
     }
+    QDomElement plotData = doc.elementsByTagName("plotData").at(0).toElement();
+    QDomNodeList thePlots = plotData.elementsByTagName("plot");
+    QMap<QString, QDomElement> plotsByTitle;
+    for (int i = 0; i < thePlots.length(); i++) {
+        QDomElement iPlot = thePlots.at(i).toElement();
+        plotsByTitle.insert(iPlot.attribute("title"), iPlot);
+    }
+    file.close();
+    return plotsByTitle.contains(name);
 }
 
 void newParaPlotDialog::on_cancelButton_clicked()
@@ -431,13 +410,11 @@ void newParaPlotDialog::on_xAutoScaleCB_toggled(bool checked)
         ui->xIntervalLine->hide();
         ui->xLinearButton->hide();
         ui->xLogButton->hide();
-
     }
 }
 
 void newParaPlotDialog::on_yAutoScaleCB_toggled(bool checked)
 {
-
     if(!checked)
     {
         ui->yLine->show();
@@ -461,7 +438,6 @@ void newParaPlotDialog::on_yAutoScaleCB_toggled(bool checked)
         ui->yIntervalLine->hide();
         ui->yLinearButton->hide();
         ui->yLogButton->hide();
-
     }
 }
 
@@ -471,34 +447,25 @@ bool newParaPlotDialog::readTheFile(QString tableName)
     ui->yList->clear();
     QFile file;
     QDir dir;
-    if/*(mode==0)*/(mode!=2)
-        file.setFileName(globalpara.caseName);
-//    else if(mode==1)
-//        file.setFileName("tableTemp.xml");
-    else if(mode==2)
+    if(mode==2)
     {
         QString plotTempXML = Sorputils::sorpTempDir().absoluteFilePath("plotTemp.xml");
         file.setFileName(plotTempXML);
-    }
+    } else
+        file.setFileName(globalpara.caseName);
 
     QDomDocument doc;
-
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         globalpara.reportError("Failed to open the case file for the new plot.",this);
         return false;
     }
-    else
+    if(!doc.setContent(&file))
     {
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Failed to load xml document for the new plot.",this);
-            file.close();
-            return false;
-        }
-
-     }
-
+        globalpara.reportError("Failed to load xml document for the new plot.",this);
+        file.close();
+        return false;
+    }
 
     QDomElement tables = doc.elementsByTagName("TableData").at(0).toElement();
     auto tablesByTitle = Sorputils::mapElementsByAttribute(tables.childNodes(), "title");
@@ -509,8 +476,6 @@ bool newParaPlotDialog::readTheFile(QString tableName)
         return false;
     }
     QDomElement currentTable = tablesByTitle.value(tableName);
-
-
     QDomNodeList Runs = currentTable.elementsByTagName("Run");
 
     int paranum=Runs.at(0).toElement().elementsByTagName("Input").count()+Runs.at(0).toElement().elementsByTagName("Output").count();
@@ -531,7 +496,6 @@ bool newParaPlotDialog::readTheFile(QString tableName)
         QString tempString = headerList.at(i);
         tempString.replace("\n","");
         inputD[i] = tempString;
-
     }
     QDomElement outputs = currentTable.elementsByTagName("outputEntries").at(0).toElement();
     QStringList outputD = outputs.text().split(";");
@@ -551,7 +515,6 @@ bool newParaPlotDialog::readTheFile(QString tableName)
         QString tempString = headerList.at(i+inputD.count());
         tempString.replace("\n","");
         outputD[i] = tempString;
-
     }
     QStringList list = inputD+outputD;
 
@@ -588,9 +551,7 @@ bool newParaPlotDialog::readTheFile(QString tableName)
 
     }
     // TODO: member tablevalue is never referenced after being set in this function. What is intent of the array?
-    // TODO: dyanmically allocated arrays are created with new, stored in tablevalue, but never delete[]'d!
-
-
+    // TODO: dynamically allocated arrays are created with new, stored in tablevalue, but never delete[]'d!
     return true;
 }
 
@@ -598,41 +559,31 @@ bool newParaPlotDialog::setTable()
 {
     QFile file;
     QDir dir;
-//    else if(mode ==0)
-    if(mode!=2)
-        file.setFileName(globalpara.caseName);
-//    if(mode==1)
-//        file.setFileName("tableTemp.xml");
-    else if(mode ==2)
+    if(mode==2)
     {
         QString plotTempXML = Sorputils::sorpTempDir().absoluteFilePath("plotTemp.xml");
         file.setFileName(plotTempXML);
-    }
+    } else
+        file.setFileName(globalpara.caseName);
 
     QDomDocument doc;
-
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         globalpara.reportError("Failed to open the case file to get available parametric table information.",this);
         return false;
     }
-    else
+    if(!doc.setContent(&file))
     {
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Failed to load xml document to get available parametric table information.",this);
-            file.close();
-            return false;
-        }
-
-     }
+        globalpara.reportError("Failed to load xml document to get available parametric table information.",this);
+        file.close();
+        return false;
+    }
     if(doc.elementsByTagName("TableData").at(0).toElement().childNodes().count()<1)
     {
         globalpara.reportError("There is no table data available in the file.");
         file.close();
         return false;
     }
-
     if(mode ==0)
     {
         QDomElement tables = doc.elementsByTagName("TableData").at(0).toElement();
@@ -643,7 +594,6 @@ bool newParaPlotDialog::setTable()
         ui->tableCB->addItems(myTables);
         ui->tableCB->setCurrentIndex(0);
     }
-
     else
     {
         ui->label->hide();
@@ -657,5 +607,4 @@ bool newParaPlotDialog::setTable()
     }
     file.close();
     return true;
-
 }

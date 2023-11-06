@@ -12,10 +12,10 @@
 
 */
 
+#include <QPainter>
+#include <QPen>
 
 #include "coils.h"
-#include <QPen>
-#include <QPainter>
 
 coils::coils()
 {
@@ -38,7 +38,6 @@ void coils::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     painter->drawLine(QPointF(-15,-15),QPointF(-15,15));
     painter->drawLine(QPointF(0,-15),QPointF(0,15));
     painter->drawLine(QPointF(15,-15),QPointF(15,15));
-
 }
 
 QRectF coils::boundingRect() const

@@ -31,7 +31,6 @@ QGraphicsArc::QGraphicsArc(int x, int y, int w, int h, int start, int span, QGra
     setSpanAngle(ispan);
 
     myPen = QPen(Qt::black);
-
 }
 
 void QGraphicsArc::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

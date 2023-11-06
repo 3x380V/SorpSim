@@ -12,13 +12,13 @@
 
 */
 
+#include <QDebug>
+#include <QPen>
+#include <QStyle>
 
 #include "link.h"
-#include <QPen>
 #include "node.h"
 #include "math.h"
-#include <QDebug>
-#include <QStyle>
 
 Link::Link(Node *fromNode, Node *toNode)
 {
@@ -32,7 +32,6 @@ Link::Link(Node *fromNode, Node *toNode)
         myFromNode = fromNode;
         myToNode = toNode;
     }
-
 
     myFromNode->addLink(this);
     myToNode->addLink(this);
@@ -69,94 +68,69 @@ void Link::setColor()
     //for refrigerant
     myColorPen.setBrush(Qt::black);
     myColorPen.setStyle(Qt::SolidLine);
-    myColorPen.setWidth(2.5);
+    myColorPen.setWidth(2);
 
-    switch(myFromNode->ksub)
-    {
-    case(0)://for not assigned
-    {
+    switch(myFromNode->ksub) {
+    case 0: //for not assigned
         myColorPen.setBrush(Qt::yellow);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(3.5);
+        myColorPen.setWidth(3);
         break;
-    }
-    case(1)://LiBr-H2O
-    {
+    case 1: //LiBr-H2O
         myColorPen.setBrush(Qt::darkBlue);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(2)://H2O-NH3
-    {
+    case 2: //H2O-NH3
         myColorPen.setBrush(Qt::darkCyan);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(3)://H2O
-    {
+    case 3: //H2O
         myColorPen.setBrush(Qt::blue);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(4)://LiBr-H2O-NH3
-    {
+    case 4: //LiBr-H2O-NH3
         myColorPen.setBrush(Qt::darkGray);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(5)://LiBr/ZnBr2-CH3OH
-    {
+    case 5: //LiBr/ZnBr2-CH3OH
         myColorPen.setBrush(Qt::darkGreen);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(6)://CH3OH
-    {
+    case 6: //CH3OH
         myColorPen.setBrush(Qt::green);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(7)://LiNO3/KNO3/NaNO3-H2O
-    {
+    case 7: //LiNO3/KNO3/NaNO3-H2O
         myColorPen.setBrush(Qt::darkMagenta);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(8)://NaOH-H2O
-    {
+    case 8: //NaOH-H2O
         myColorPen.setBrush(Qt::darkRed);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(9)://LiCl-H2O
-    {
+    case 9: //LiCl-H2O
         myColorPen.setBrush(Qt::darkYellow);
         myColorPen.setStyle(Qt::SolidLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(10)://Moist Air
-    {
+    case 10: //Moist Air
         myColorPen.setBrush(Qt::cyan);
         myColorPen.setStyle(Qt::DashDotLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
-    case(11)://Flue Gas
-    {
+    case 11: //Flue Gas
         myColorPen.setBrush(Qt::red);
         myColorPen.setStyle(Qt::DashDotLine);
-        myColorPen.setWidth(2.5);
+        myColorPen.setWidth(2);
         break;
-    }
     }
 
     line1->setPen(myColorPen);
@@ -165,7 +139,6 @@ void Link::setColor()
 
 void Link::trackNodes()
 {
-
     double dY = myToNode->scenePos().y() - myFromNode->scenePos().y();
     double dX = myToNode->scenePos().x() - myFromNode->scenePos().x();
 
@@ -176,7 +149,6 @@ void Link::trackNodes()
         myArrow->setRotation(-180*acos(dY/sqrt(dX*dX+dY*dY))/3.14);
     else
         myArrow->setRotation(180*acos(dY/sqrt(dX*dX+dY*dY))/3.14);
-
 }
 
 void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -188,10 +160,9 @@ void Link::setLineColor(bool highlight)
 {
     QPen myPen;
     myPen.setColor(Qt::red);
-    myPen.setWidth(2.5);
+    myPen.setWidth(2);
     if(highlight)
         line1->setPen(myPen);
     else
         line1->setPen(myColorPen);
-
 }

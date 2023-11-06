@@ -77,12 +77,12 @@ ipfixDialog::ipfixDialog(QWidget *parent) :
 
                 if((theNode->linked&&pList.count()==2&&theNode==theNode->myLinks.values().first()->myToNode)
                         ||(!theNode->linked&&pList.count()==1)){
-//single point
+                    // single point
                     if(!cbListP.contains("P#"+QString::number(theNode->ndum)))
                         cbListP.append("P#"+QString::number(theNode->ndum));
                 }
                 else if(!(theNode->linked&&pList.count()==2&&theNode==theNode->myLinks.values().first()->myFromNode)){
-//in a stream
+                    // in a stream
                     tempListP.clear();
                     QList<int> list;
                     for(int i = 0; i < pList.count(); i++){
@@ -151,8 +151,7 @@ void ipfixDialog::updateList()
             if(eachSet.count()==1||(eachSet.count()==2&&eachSet.values().first()->ndum==eachSet.values().last()->ndum)){
                 //for single point
                 groupListP<<"["+QString::number(eachSet.values().first()->ndum)+"]";
-            }
-            else{
+            } else {
                 //for stream
                 QList<int> list;
                 foreach(Node* node,eachSet){
@@ -211,8 +210,6 @@ void ipfixDialog::on_addButton_clicked()
             }
         }
 
-
-
         bool inGroup1= false, inGroup2 = false, first1 = true, first2 = true;
         QSet<Node*> set1, set2;
         foreach(QSet<Node*> set, globalpara.pGroup)
@@ -247,8 +244,6 @@ void ipfixDialog::on_addButton_clicked()
             QSet<Node*> newSet = mset1.unite(mset2);
             globalpara.pGroup.append(newSet);
         }
-
-
         else if(inGroup1&&!inGroup2)//unknown one
         {
             globalpara.pGroup.removeOne(set1);
@@ -259,7 +254,6 @@ void ipfixDialog::on_addButton_clicked()
             set1.unite(mset2);
             globalpara.pGroup.append(set1);
         }
-
         else if(inGroup2&&!inGroup1)//unknown one
         {
             globalpara.pGroup.removeOne(set2);
@@ -270,7 +264,6 @@ void ipfixDialog::on_addButton_clicked()
             set2.unite(mset1);
             globalpara.pGroup.append(set2);
         }
-
         else if(inGroup1&&inGroup2)
         {
             if(set1 == set2)
@@ -312,20 +305,13 @@ void ipfixDialog::on_addButton_clicked()
                     set2 = set2.unite(set1);
                     globalpara.pGroup.append(set2);
                 }
-
             }
         }
-
         else qDebug()<<"what the heck?";
     }
 
-
-
-
-
     updateList();
     globalpara.resetIfixes('p');
-
 }
 
 
@@ -354,8 +340,7 @@ void ipfixDialog::on_removeButton_clicked()
                 QSet<Node*> newSet = globalpara.allSet;
                 if(newSet.count()==1||(newSet.count()==2&&newSet.values().first()->linked)){
                     //a lone point
-                }
-                else{
+                } else {
                     globalpara.addGroup('p',newSet);
                 }
             }
@@ -367,16 +352,12 @@ void ipfixDialog::on_removeButton_clicked()
     ui->modifyButton->setDisabled(true);
     ui->removeButton->setDisabled(true);
     updateList();
-
 }
-
 
 void ipfixDialog::on_okButton_clicked()
 {
     close();
 }
-
-
 
 void ipfixDialog::on_modifyButton_clicked()
 {
@@ -429,24 +410,16 @@ void ipfixDialog::on_modifyButton_clicked()
             globalpara.pGroup.append(tempSet);
             if(set1.count()==1||(set1.count()==2&&node1->linked)){
                 //a lone point
-            }
-            else{
+            } else {
                 globalpara.addGroup('p',set1);
             }
-
-
-
-
         }
-
     }
-
 
     globalpara.resetIfixes('p');
     updateList();
     ui->modifyButton->setDisabled(true);
     ui->removeButton->setDisabled(true);
-
 }
 
 void ipfixDialog::on_listView_clicked(const QModelIndex &index)

@@ -13,14 +13,14 @@
 
 */
 
-
-#include "pumpdialog.h"
-#include "ui_pumpdialog.h"
+#include <QDebug>
+#include <QDoubleValidator>
 #include <QLayout>
 #include <QMessageBox>
 #include <QValidator>
-#include <QDoubleValidator>
-#include <QDebug>
+
+#include "pumpdialog.h"
+#include "ui_pumpdialog.h"
 #include "mainwindow.h"
 
 extern MainWindow*theMainwindow;
@@ -63,24 +63,18 @@ pumpDialog::pumpDialog(unit* theComp, bool first,QWidget *parent) :
             else
                 ui->nonisen_Button->setChecked(true);
             ui->isenLine->setText(QString::number(myUnit->ht,'g',4));
-            switch (myUnit->icop)
-            {
-            case(-1):
-            {
+            switch (myUnit->icop) {
+            case -1:
                 ui->DenominatorButton->setChecked(true);
                 break;
-            }case(1):
-            {
+            case 1:
                 ui->NumeratorButton->setChecked(true);
                 break;
-            }case(0):
-            {
+            case 0:
                 ui->NeitherButton->setChecked(true);
                 break;
             }
-            }
         }
-
     }
     else
     {
@@ -88,10 +82,8 @@ pumpDialog::pumpDialog(unit* theComp, bool first,QWidget *parent) :
         ui->NumeratorButton->setChecked(true);
     }
 
-
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 pumpDialog::~pumpDialog()
@@ -101,15 +93,14 @@ pumpDialog::~pumpDialog()
 
 void pumpDialog::on_isenButton_clicked()
 {
-     ui->isenBox->hide();
-     ui->COPBox->show();
+    ui->isenBox->hide();
+    ui->COPBox->show();
 }
 
 void pumpDialog::on_nonisen_Button_clicked()
 {
     ui->isenBox->show();
     ui->COPBox->show();
-
 }
 
 void pumpDialog::on_okButton_clicked()
@@ -139,12 +130,9 @@ void pumpDialog::on_okButton_clicked()
                 myUnit->icop = 1;
             else if(ui->DenominatorButton->isChecked())
                 myUnit->icop = -1;
-
         }
         accept();
-
     }
-
 }
 
 void pumpDialog::on_cancelButton_clicked()

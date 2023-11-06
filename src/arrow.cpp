@@ -12,9 +12,10 @@
 
 */
 
-#include "arrow.h"
-#include <QPen>
 #include <QPainter>
+#include <QPen>
+
+#include "arrow.h"
 
 arrow::arrow()
 {
@@ -29,7 +30,6 @@ void arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     painter->setPen(Qt::black);
     painter->drawLine(p1,p2);
     painter->drawLine(p1,p3);
-
 }
 
 QRectF arrow::boundingRect() const

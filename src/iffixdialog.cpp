@@ -76,12 +76,12 @@ iffixDialog::iffixDialog(QWidget *parent) :
 
                 if((theNode->linked&&fList.count()==2&&theNode==theNode->myLinks.values().first()->myToNode)
                         ||(!theNode->linked&&fList.count()==1)){
-//single point
+                    // single point
                     if(!cbListF.contains("F#"+QString::number(theNode->ndum)))
                         cbListF.append("F#"+QString::number(theNode->ndum));
                 }
                 else if(!(theNode->linked&&fList.count()==2&&theNode==theNode->myLinks.values().first()->myFromNode)){
-//in a stream
+                    // in a stream
                     tempListF.clear();
                     QList<int> list;
                     for(int i = 0; i < fList.count(); i++){
@@ -183,7 +183,6 @@ void iffixDialog::updateList()
 
 void iffixDialog::on_addButton_clicked()
 {
-
     QString cb1 = ui->tCB1->currentText();
     cb1.replace("F#","");
     cb1.replace("F-Stream: ","");
@@ -212,8 +211,6 @@ void iffixDialog::on_addButton_clicked()
                     node2 = iterator->myNodes[y];
             }
         }
-
-
 
         bool inGroup1= false, inGroup2 = false, first1 = true, first2 = true;
         QSet<Node*> set1, set2;
@@ -249,8 +246,6 @@ void iffixDialog::on_addButton_clicked()
             QSet<Node*> newSet = mset1.unite(mset2);
             globalpara.fGroup.append(newSet);
         }
-
-
         else if(inGroup1&&!inGroup2)//unknown one
         {
             globalpara.fGroup.removeOne(set1);
@@ -261,7 +256,6 @@ void iffixDialog::on_addButton_clicked()
             set1.unite(mset2);
             globalpara.fGroup.append(set1);
         }
-
         else if(inGroup2&&!inGroup1)//unknown one
         {
             globalpara.fGroup.removeOne(set2);
@@ -272,7 +266,6 @@ void iffixDialog::on_addButton_clicked()
             set2.unite(mset1);
             globalpara.fGroup.append(set2);
         }
-
         else if(inGroup1&&inGroup2)
         {
             if(set1 == set2)
@@ -317,16 +310,12 @@ void iffixDialog::on_addButton_clicked()
 
             }
         }
-
         else qDebug()<<"what the heck?";
     }
-
-
 
     updateList();
     globalpara.resetIfixes('f');
 }
-
 
 void iffixDialog::on_removeButton_clicked()
 {
@@ -365,15 +354,12 @@ void iffixDialog::on_removeButton_clicked()
     ui->modifyButton->setDisabled(true);
     ui->removeButton->setDisabled(true);
     updateList();
-
 }
-
 
 void iffixDialog::on_okButton_clicked()
 {
     close();
 }
-
 
 void iffixDialog::on_modifyButton_clicked()
 {
@@ -426,24 +412,16 @@ void iffixDialog::on_modifyButton_clicked()
             globalpara.fGroup.append(tempSet);
             if(set1.count()==1||(set1.count()==2&&node1->linked)){
                 //a lone point
-            }
-            else{
+            } else {
                 globalpara.addGroup('f',set1);
             }
-
-
-
-
         }
-
     }
-
 
     globalpara.resetIfixes('f');
     updateList();
     ui->modifyButton->setDisabled(true);
     ui->removeButton->setDisabled(true);
-
 }
 
 void iffixDialog::on_listView_clicked(const QModelIndex &index)

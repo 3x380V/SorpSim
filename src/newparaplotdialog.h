@@ -59,7 +59,6 @@ private:
 
     QString tName,pName;
     int mode;
-
 };
 
 #endif // NEWPARAPLOTDIALOG_H

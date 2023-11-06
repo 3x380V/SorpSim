@@ -20,6 +20,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QValidator>
+
 #include "mainwindow.h"
 #include "altervdialog.h"
 #include "ui_altervdialog.h"
@@ -73,55 +74,45 @@ void altervDialog::setInputs(QStringList inputs)
     ui->inputCB->insertItems(0,inputs);
 }
 
-
 /// \todo CAN ADD DETAILED DIRECTION TO WHERE THE PROBLEM IS
 void altervDialog::on_okButton_clicked()
 {
     if((ui->firstRowSB->value()<ui->lastRowSB->value()&&ui->firstRowSB->value()>0)&&(ui->clearValueCB->isChecked()||ui->enterValueCB->isChecked())
-            &&ui->firstValueLE->hasAcceptableInput()&&ui->lastValueLE->hasAcceptableInput())
+        &&ui->firstValueLE->hasAcceptableInput()&&ui->lastValueLE->hasAcceptableInput())
+    {
+        alvFirstRow = ui->firstRowSB->value()-1;
+        alvLastRow = ui->lastRowSB->value()-1;
+        if(ui->enterValueCB->isChecked())
         {
-            alvFirstRow = ui->firstRowSB->value()-1;
-            alvLastRow = ui->lastRowSB->value()-1;
-            if(ui->enterValueCB->isChecked())
-            {
-                alvFirstValue = ui->firstValueLE->text().toDouble();
-                alvLastValue = ui->lastValueLE->text().toDouble();
-                switch(ui->lastCB->currentIndex())
-                {
-                case(0):
-                {
-                    alvMethod = 0;//LINEAR
-                    break;
-                }
-                case(1):
-                {
-                    alvMethod = 1;//INCREMENTAL
-                    break;
-                }
-                case(2):
-                {
-                    alvMethod = 2;//MULTIPLIER
-                    break;
-                }
-                case(3):
-                {
-                    alvMethod = 3;//LOG
-                    break;
-                }
-                }
-                alvIsEnter = true;
+            alvFirstValue = ui->firstValueLE->text().toDouble();
+            alvLastValue = ui->lastValueLE->text().toDouble();
+            switch(ui->lastCB->currentIndex()) {
+            case 0:
+                alvMethod = 0;//LINEAR
+                break;
+            case 1:
+                alvMethod = 1;//INCREMENTAL
+                break;
+            case 2:
+                alvMethod = 2;//MULTIPLIER
+                break;
+            case 3:
+                alvMethod = 3;//LOG
+                break;
             }
-            else
-                alvIsEnter = false;
-            alvCol = ui->inputCB->currentIndex();
+            alvIsEnter = true;
+        }
+        else
+            alvIsEnter = false;
+        alvCol = ui->inputCB->currentIndex();
 
-            accept();
-            alvAccepted = true;
-        }
-        else // CAN ADD DETAILED DIRECTION TO WHERE THE PROBLEM IS
-        {
-            QMessageBox::warning(this, "Warning", "Invalid input. Please try again.");
-        }
+        accept();
+        alvAccepted = true;
+    }
+    else // CAN ADD DETAILED DIRECTION TO WHERE THE PROBLEM IS
+    {
+        QMessageBox::warning(this, "Warning", "Invalid input. Please try again.");
+    }
 }
 
 void altervDialog::on_cancelButton_clicked()

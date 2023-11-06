@@ -13,20 +13,18 @@
 
 */
 
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QLayout>
+#include <QSizePolicy>
+#include <QToolBar>
 
 #include "linkdialog.h"
 #include "ui_linkdialog.h"
-#include "node.h"
-#include "myscene.h"
 #include "mainwindow.h"
-#include <QSizePolicy>
-#include <QMessageBox>
 #include "link.h"
-#include <QLayout>
 #include "dataComm.h"
 #include "spdialog.h"
-#include <QToolBar>
-#include <QMenuBar>
 
 extern int sceneActionIndex;
 extern globalparameter globalpara;
@@ -69,10 +67,8 @@ linkDialog::linkDialog(Node *sp1, Node *sp2, QWidget *parent) :
     else
         ui->label->setText("Please select parameters of one state point to overwrite the other.");
 
-
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 linkDialog::~linkDialog()
@@ -238,7 +234,6 @@ void linkDialog::enforceChanges()
                 node->w = newValue;
                 node->passParaToMerged();
             }
-
         }
         else
         {
@@ -301,12 +296,9 @@ void linkDialog::enforceChanges()
                 node->w = newValue;
                 node->passParaToMerged();
             }
-
         }
     }
-
 }
-
 
 void linkDialog::on_okButton_clicked()
 {
@@ -328,7 +320,6 @@ void linkDialog::on_redefineButton_clicked()
     }
     else
         show();
-
 }
 
 void linkDialog::on_cancelButton_clicked()
@@ -344,7 +335,6 @@ void linkDialog::cancelLink()
     theMenuBar->setEnabled(true);
     QApplication::restoreOverrideCursor();
     theStatusBar->showMessage("Linking is canceled.");
-
 }
 
 void linkDialog::closeEvent(QCloseEvent *e)

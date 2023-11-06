@@ -13,13 +13,12 @@
 
 */
 
+#include <QLayout>
 
 #include "unitsettingdialog.h"
 #include "ui_unitsettingdialog.h"
 #include "mainwindow.h"
 #include "dataComm.h"
-#include <QLayout>
-
 
 extern globalparameter globalpara;
 extern MainWindow*theMainwindow;
@@ -41,7 +40,6 @@ unitsetting::unitsetting(QWidget *parent) :
     setWindowModality(Qt::ApplicationModal);
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 unitsetting::~unitsetting()

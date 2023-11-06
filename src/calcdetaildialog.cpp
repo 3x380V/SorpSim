@@ -96,8 +96,6 @@ void calcDetailDialog::setupList()
         dTable->setItem(i-1,0,item);
     }
 
-
-
     vTable->setRowCount(outputs.noVar);
     vTable->setColumnCount(3);
     vTable->resizeColumnsToContents();
@@ -115,7 +113,6 @@ void calcDetailDialog::setupList()
     double value;
     for(int i = 1; i<=outputs.noVar;i++)
     {
-
         type.clear();
         points.clear();
         if(i<=outputs.eqn_nukt)

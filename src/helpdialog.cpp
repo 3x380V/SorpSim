@@ -12,12 +12,11 @@
 
 */
 
+#include <QDebug>
 
 #include "helpdialog.h"
 #include "ui_helpdialog.h"
-#include <QDebug>
 #include "dataComm.h"
-#include "mainwindow.h"
 #include "sorputils.h"
 
 extern globalparameter globalpara;
@@ -48,7 +47,6 @@ void helpDialog::on_itemList_itemActivated(QTreeWidgetItem *item, int column)
 {
     content->clear();
 
-
     QString itemName = item->text(0);
     itemName.replace(" ","_");    
 
@@ -56,40 +54,29 @@ void helpDialog::on_itemList_itemActivated(QTreeWidgetItem *item, int column)
     QDomDocument doc;
     if(!ofile.open((QIODevice::ReadOnly|QIODevice::Text))){
         qDebug()<<"no file";
-        return ;
+        return;
     }
-    else
+    if(!doc.setContent(&ofile))
     {
-        if(!doc.setContent(&ofile))
-        {
-
-            qDebug()<<"error setting doc";
-            ofile.close();
-            return ;
-        }
-        else
-        {
-            QDomElement helpContent;
-            if(doc.elementsByTagName("helpContent").count()==0){
-                qDebug()<<"no helpContent";
-                return ;
-            }
-            else{
-                helpContent = doc.elementsByTagName("helpContent").at(0).toElement();
-            }
-            QDomElement helpItem;
-            helpItem = helpContent.elementsByTagName(itemName).at(0).toElement();
-            if(item->parent()!=NULL){
-                content->setPlainText(helpItem.text());
-            }
-
-            ofile.close();
-        }
+        qDebug()<<"error setting doc";
+        ofile.close();
+        return;
+    }
+    QDomElement helpContent;
+    if(doc.elementsByTagName("helpContent").count()==0){
+        qDebug()<<"no helpContent";
+        return;
     }
 
-    if(content->toPlainText()==""){
+    helpContent = doc.elementsByTagName("helpContent").at(0).toElement();
+    QDomElement helpItem = helpContent.elementsByTagName(itemName).at(0).toElement();
+    if(item->parent())
+        content->setPlainText(helpItem.text());
+
+    ofile.close();
+
+    if(content->toPlainText()=="")
         content->setPlainText("Welcome to SorpSim Help Document!\n\nPlease double-click to view the items.\n\nMore detailed documentation can be found in the user manual.\n\nThank you for using SorpSim!");
-    }
 }
 
 bool helpDialog::loadList()
@@ -102,63 +89,51 @@ bool helpDialog::loadList()
         qDebug()<<"no file";
         return false;
     }
-    else{
-        if(!doc.setContent(&ofile))
-        {
+    if(!doc.setContent(&ofile))
+    {
 
-            qDebug()<<"error setting doc";
-            ofile.close();
-            return false;
-        }
-        else
+        qDebug()<<"error setting doc";
+        ofile.close();
+        return false;
+    }
+    if(doc.elementsByTagName("helpContent").count()==0){
+        qDebug()<<"no helpContent";
+        return false;
+    }
+    QDomElement helpContent = doc.elementsByTagName("helpContent").at(0).toElement();
+    for(int i = 0; i < helpContent.childNodes().count();i++)
+    {
+        QDomElement helpItem = helpContent.childNodes().at(i).toElement();
+        QTreeWidgetItem*item;
+        QString name;
+        if(helpItem.hasChildNodes())
         {
-            QDomElement helpContent;
-            if(doc.elementsByTagName("helpContent").count()==0){
-                qDebug()<<"no helpContent";
-                return false;
-            }
-            else{
-                helpContent = doc.elementsByTagName("helpContent").at(0).toElement();
-            }
-            QDomElement helpItem;
-            for(int i = 0; i < helpContent.childNodes().count();i++)
+            name = helpItem.tagName();
+            name.replace("_"," ");
+            item = addTreeRoot(name);
+            QDomElement subHelpItem;
+            for(int j = 0; j < helpItem.childNodes().count();j++)
             {
-                helpItem = helpContent.childNodes().at(i).toElement();
-                QTreeWidgetItem*item;
-                QString name;
-                if(helpItem.hasChildNodes())
-                {
-                    name = helpItem.tagName();
-                    name.replace("_"," ");
-                    item = addTreeRoot(name);
-                    QDomElement subHelpItem;
-                    for(int j = 0; j < helpItem.childNodes().count();j++)
-                    {
-                        subHelpItem = helpItem.childNodes().at(j).toElement();
-                        name = subHelpItem.tagName();
-                        name.replace("_"," ");
-                        if(name!=""){
-                            addTreeChild(item,name);
-                        }
-                    }
-                }
-                else{
-                    name = helpItem.tagName();
-                    name.replace("_"," ");
-                    item = addTreeRoot(name);
+                subHelpItem = helpItem.childNodes().at(j).toElement();
+                name = subHelpItem.tagName();
+                name.replace("_"," ");
+                if(name!=""){
+                    addTreeChild(item,name);
                 }
             }
-
-            ofile.close();
-
-            if(content->toPlainText()==""){
-                content->setPlainText("Welcome to SorpSim Help Document!\n\nPlease double-click to view the items.\n\nMore detailed documentation can be found in the user manual.\n\nThank you for using SorpSim!");
-            }
-
-            return true;
+        } else {
+            name = helpItem.tagName();
+            name.replace("_"," ");
+            item = addTreeRoot(name);
         }
     }
 
+    ofile.close();
+
+    if(content->toPlainText()=="")
+        content->setPlainText("Welcome to SorpSim Help Document!\n\nPlease double-click to view the items.\n\nMore detailed documentation can be found in the user manual.\n\nThank you for using SorpSim!");
+
+    return true;
 }
 
 QTreeWidgetItem *helpDialog::addTreeRoot(QString name, QString description)

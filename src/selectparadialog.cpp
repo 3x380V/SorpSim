@@ -13,13 +13,12 @@
 
 */
 
+#include <QLayout>
 
 #include "selectparadialog.h"
 #include "ui_selectparadialog.h"
 #include "mainwindow.h"
-#include "myscene.h"
 #include "dataComm.h"
-#include <QLayout>
 
 extern globalparameter globalpara;
 extern MainWindow*theMainwindow;
@@ -38,13 +37,11 @@ selectParaDialog::selectParaDialog(QWidget *parent) :
 
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 selectParaDialog::~selectParaDialog()
 {
     delete ui;
-
 }
 
 void selectParaDialog::setUnit(unit * const tableunit)
@@ -65,17 +62,12 @@ void selectParaDialog::setUnit(unit * const tableunit)
         {
             if(tableunit->idunit==164||tableunit->idunit==184)
             {
-                switch(tableunit->iht)
-                {
-                case(2):
-                {
+                switch(tableunit->iht) {
+                case 2:
                     ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its NTU number to the table?");
                     break;
-                }
-                case(3):
-                {
+                case 3:
                     ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its Effectiveness to the table?");
-                }
                 }
             }
             else if(int(tableunit->idunit/10)==16||int(tableunit->idunit/10)==18)
@@ -100,47 +92,31 @@ void selectParaDialog::setUnit(unit * const tableunit)
         }
         else
         {
-            switch(tableunit->iht)
-            {
-            case(0):
-            {
+            switch(tableunit->iht) {
+            case 0:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its Heat Transfer Rate ("+globalpara.unitname_heatquantity+")to the table?");
                 break;
-            }
-            case(1):
-            {
+            case 1:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its UA value ("+globalpara.unitname_UAvalue+")to the table?");
                 break;
-            }
-            case(2):
-            {
+            case 2:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its NTU value to the table?");
                 break;
-            }
-            case(3):
-            {
+            case 3:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its EFF value to the table?");
                 break;
-            }
-            case(4):
-            {
+            case 4:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its CAT value ("+globalpara.unitname_temperature+")to the table?");
                 break;
-            }
-            case(5):
-            {
+            case 5:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\ndo you want to add its LMTD value ("+globalpara.unitname_temperature+")to the table?");
                 break;
-            }
-            case(6):
-            {
+            case 6:
                 ui->locationlb->setText("You have selected component#" + QString::number(tableunit->nu)+",\nits heat transfer method setting is skipped and can not be added to table.");
                 ui->okButton->setDisabled(true);
                 break;
             }
-            }
         }
-
     }
     else
     {
@@ -230,8 +206,6 @@ void selectParaDialog::setStatePoint(Node * const tablesp)
         ui->cb5->setText("Vapor fraction(mass%)");
         ui->cb6->setText("Enthalpy("+globalpara.unitname_enthalpy+")");
     }
-
-
 }
 
 void selectParaDialog::on_okButton_clicked()
@@ -320,10 +294,8 @@ void selectParaDialog::on_okButton_clicked()
             }
             else
             {
-                switch(tableunit->iht)
-                {
-                case(0):
-                {
+                switch(tableunit->iht) {
+                case 0:
                     if(!inputEntries.contains("Heat Transfer Rate,component#"+QString::number(tableunit->nu)
                                                +",U"+QString::number(tableunit->nu)+"HT"))
                     {
@@ -331,9 +303,7 @@ void selectParaDialog::on_okButton_clicked()
                                              +",U"+QString::number(tableunit->nu)+"HT");
                     }
                     break;
-                }
-                case(1):
-                {
+                case 1:
                     if(!inputEntries.contains("UA Value,component#"+QString::number(tableunit->nu)
                                                +",U"+QString::number(tableunit->nu)+"UA"))
                     {
@@ -341,9 +311,7 @@ void selectParaDialog::on_okButton_clicked()
                                              +",U"+QString::number(tableunit->nu)+"UA");
                     }
                     break;
-                }
-                case(2):
-                {
+                case 2:
                     if(!inputEntries.contains("NTU Value,component#"+QString::number(tableunit->nu)
                                                +",U"+QString::number(tableunit->nu)+"NT"))
                     {
@@ -351,9 +319,7 @@ void selectParaDialog::on_okButton_clicked()
                                              +",U"+QString::number(tableunit->nu)+"NT");
                     }
                     break;
-                }
-                case(3):
-                {
+                case 3:
                     if(!inputEntries.contains("EFF Value,component#"+QString::number(tableunit->nu)
                                                +",U"+QString::number(tableunit->nu)+"EF"))
                     {
@@ -361,9 +327,7 @@ void selectParaDialog::on_okButton_clicked()
                                              +",U"+QString::number(tableunit->nu)+"EF");
                     }
                     break;
-                }
-                case(4):
-                {
+                case 4:
                     if(!inputEntries.contains("CAT Value,component#"+QString::number(tableunit->nu)
                                                +",U"+QString::number(tableunit->nu)+"CA"))
                     {
@@ -371,9 +335,7 @@ void selectParaDialog::on_okButton_clicked()
                                              +",U"+QString::number(tableunit->nu)+"CA");
                     }
                     break;
-                }
-                case(5):
-                {
+                case 5:
                     if(!inputEntries.contains("LMTD Value,component#"+QString::number(tableunit->nu)
                                                +",U"+QString::number(tableunit->nu)+"LM"))
                     {
@@ -382,13 +344,8 @@ void selectParaDialog::on_okButton_clicked()
                     }
                     break;
                 }
-                }
-
             }
-
-
         }
-
         else
         {
             if(tableunit->idunit<160)
@@ -435,7 +392,6 @@ void selectParaDialog::on_okButton_clicked()
                         outputEntries.append("Heat Transfer Value,component#"+QString::number(tableunit->nu)
                                              +",U"+QString::number(tableunit->nu)+"HT");
                 }
-
             }
             else//LDAC component outputs
             {
@@ -494,11 +450,7 @@ void selectParaDialog::on_okButton_clicked()
                     }
                 }
             }
-
         }
-
-
-
     }
     else if(!isunit)
     {
@@ -512,7 +464,6 @@ void selectParaDialog::on_okButton_clicked()
                     inputEntries.append("Temperature,State Point#"+QString::number(tablesp->ndum)
                                         +",P"+QString::number(tablesp->unitindex)+" "+QString::number(tablesp->localindex)+"T");
                 }
-
             }
             if(ui->cb2->isChecked())
             {
@@ -550,7 +501,6 @@ void selectParaDialog::on_okButton_clicked()
                                         +",P"+QString::number(tablesp->unitindex)+" "+QString::number(tablesp->localindex)+"W");
                 }
             }
-
         }
         else
         {
@@ -562,7 +512,6 @@ void selectParaDialog::on_okButton_clicked()
                     outputEntries.append("Temperature,State Point#"+QString::number(tablesp->ndum)
                                         +",P"+QString::number(tablesp->unitindex)+" "+QString::number(tablesp->localindex)+"T");
                 }
-
             }
             if(ui->cb2->isChecked())
             {
@@ -608,7 +557,6 @@ void selectParaDialog::on_okButton_clicked()
                     outputEntries.append("Enthalpy,State Point#"+QString::number(tablesp->ndum)
                                          +",P"+QString::number(tablesp->unitindex)+" "+QString::number(tablesp->localindex)+"H");
                 }
-
             }
         }
 

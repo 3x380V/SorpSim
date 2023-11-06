@@ -13,9 +13,6 @@
 
 */
 
-
-#include "node.h"
-#include "link.h"
 #include <QApplication>
 #include <QStyle>
 #include <QStyleOptionGraphicsItem>
@@ -29,7 +26,9 @@
 #include <QDebug>
 #include <QSet>
 #include <QGraphicsSimpleTextItem>
-#include "mainwindow.h"
+
+#include "node.h"
+#include "link.h"
 #include "dataComm.h"
 
 extern globalparameter globalpara;
@@ -53,7 +52,6 @@ Node::Node()
     text->setPen(tpen);
     isHighlighted = false;
     linklowerflag = false;
-
 }
 
 Node::~Node()
@@ -64,10 +62,10 @@ Node::~Node()
 
 void Node::addLink(Link *link)
 {
-    if(linked == false)
+    if(!linked)
     {
-    myLinks.insert(link);
-    linked = true;
+        myLinks.insert(link);
+        linked = true;
     }
 }
 
@@ -128,8 +126,6 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->setBrush(myBackgroundColor);
 
     painter->drawRect(rect);
-
-
 }
 
 void Node::setHighlighted(bool isHigh)
@@ -333,9 +329,7 @@ void Node::setColor()
 void Node::showFluid(bool toShow)
 {
     if(toShow)
-    {
         myUnit->spParameter[localindex-1]->setText("["+QString::number(ndum)+"]"+globalpara.fluidInventory[ksub].split(",").first());
-    }
     else
         myUnit->spParameter[localindex-1]->setText("");
 }
@@ -377,7 +371,6 @@ void Node::addToSet(Node *node, QString type)
         if(!FluidSet.contains(node))
             FluidSet.insert(node);
     }
-
 }
 
 QSet<Node *> Node::returnSet(QString type)
@@ -386,11 +379,11 @@ QSet<Node *> Node::returnSet(QString type)
         return FSet;
     if(type=="fc")
         return FCSet;
-    else if(type=="p")
+    if(type=="p")
         return PSet;
-    else if(type=="c")
+    if(type=="c")
         return CSet;
-    else if(type=="t")
+    if(type=="t")
         return TSet;
     if(type=="w")
         return WSet;

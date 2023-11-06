@@ -77,12 +77,12 @@ iwfixDialog::iwfixDialog(QWidget *parent) :
 
                 if((theNode->linked&&wList.count()==2&&theNode==theNode->myLinks.values().first()->myToNode)
                         ||(!theNode->linked&&wList.count()==1)){
-//single point
+                    // single point
                     if(!cbListW.contains("W#"+QString::number(theNode->ndum)))
                         cbListW.append("W#"+QString::number(theNode->ndum));
                 }
                 else if(!(theNode->linked&&wList.count()==2&&theNode==theNode->myLinks.values().first()->myFromNode)){
-//in a stream
+                    // in a stream
                     tempListW.clear();
                     QList<int> list;
                     for(int i = 0; i < wList.count(); i++){
@@ -151,8 +151,7 @@ void iwfixDialog::updateList()
             if(eachSet.count()==1||(eachSet.count()==2&&eachSet.values().first()->ndum==eachSet.values().last()->ndum)){
                 //for single point
                 groupListW<<"["+QString::number(eachSet.values().first()->ndum)+"]";
-            }
-            else{
+            } else {
                 //for stream
                 QList<int> list;
                 foreach(Node* node,eachSet){
@@ -247,8 +246,6 @@ void iwfixDialog::on_addButton_clicked()
             QSet<Node*> newSet = mset1.unite(mset2);
             globalpara.wGroup.append(newSet);
         }
-
-
         else if(inGroup1&&!inGroup2)//unknown one
         {
             globalpara.wGroup.removeOne(set1);
@@ -259,7 +256,6 @@ void iwfixDialog::on_addButton_clicked()
             set1.unite(mset2);
             globalpara.wGroup.append(set1);
         }
-
         else if(inGroup2&&!inGroup1)//unknown one
         {
             globalpara.wGroup.removeOne(set2);
@@ -270,7 +266,6 @@ void iwfixDialog::on_addButton_clicked()
             set2.unite(mset1);
             globalpara.wGroup.append(set2);
         }
-
         else if(inGroup1&&inGroup2)
         {
             if(set1 == set2)
@@ -312,10 +307,8 @@ void iwfixDialog::on_addButton_clicked()
                     set2 = set2.unite(set1);
                     globalpara.wGroup.append(set2);
                 }
-
             }
         }
-
         else qDebug()<<"what the heck?";
     }
 
@@ -347,8 +340,7 @@ void iwfixDialog::on_removeButton_clicked()
                 QSet<Node*> newSet = globalpara.allSet;
                 if(newSet.count()==1||(newSet.count()==2&&newSet.values().first()->linked)){
                     //a lone point
-                }
-                else{
+                } else {
                     globalpara.addGroup('w',newSet);
                 }
             }
@@ -418,8 +410,7 @@ void iwfixDialog::on_modifyButton_clicked()
             globalpara.wGroup.append(tempSet);
             if(set1.count()==1||(set1.count()==2&&node1->linked)){
                 //a lone point
-            }
-            else{
+            } else {
                 globalpara.addGroup('w',set1);
             }
         }

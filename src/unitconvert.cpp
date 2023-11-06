@@ -12,58 +12,39 @@
 
 */
 
-#include "unitconvert.h"
 #include <QDebug>
+
+#include "unitconvert.h"
 
 double convert(double value, char current_unit, char convert_unit)
 {
     double temp;
-    switch (current_unit)
-    {
+    switch (current_unit) {
     case 'K':
-    {
         temp=value;
         break;
-    }
     case 'C':
-    {
         temp=value+273.15;
         break;
-    }
     case 'R':
-    {
         temp=value/1.8;
         break;
-    }
     case 'F':
-    {
         temp=(value+459.67)/1.8;
         break;
     }
 
-    }
-
-    switch (convert_unit)
-    {
+    switch (convert_unit) {
     case 'K':
-    {
         return temp;
-    }
     case 'C':
-    {
         return temp-273.15;
-    }
     case 'R':
-    {
         return temp*1.8;
-    }
     case 'F':
-    {
         return temp*1.8-459.67;
     }
-    }
 }
-
 
 double convert(double value, double current_unit, double convert_unit)
 {

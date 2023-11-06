@@ -13,13 +13,11 @@
     \copyright 2017-2018, Nicholas Fette
 */
 
-
+#include <QLayout>
+#include <QMessageBox>
 
 #include "adrowdialog.h"
 #include "ui_adrowdialog.h"
-#include "tabledialog.h"
-#include <QMessageBox>
-#include <QLayout>
 #include "mainwindow.h"
 
 extern MainWindow *theMainwindow;
@@ -43,8 +41,6 @@ adRowDialog::adRowDialog(QWidget *parent) :
 
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
-
 }
 
 adRowDialog::~adRowDialog()
@@ -87,7 +83,6 @@ void adRowDialog::on_OKButton_clicked()
         adrBox.setText("Please finish all sections!");
         adrBox.exec();
     }
-
 }
 
 void adRowDialog::on_cancelButton_clicked()

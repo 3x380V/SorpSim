@@ -13,15 +13,22 @@
 
 */
 
-
-#include "myscene.h"
+#include <QDebug>
+#include <QDrag>
+#include <QGraphicsItem>
+#include <QLabel>
+#include <QMimeData>
+#include <QMessageBox>
+#include <QStatusBar>
+#include <QToolBar>
 #include <QtGui>
 #include <QGraphicsSceneMouseEvent>
-#include "mainwindow.h"
 #include <QPen>
 #include <QGraphicsTextItem>
 #include <QObject>
-#include "node.h"
+
+#include "myscene.h"
+#include "mainwindow.h"
 #include "link.h"
 #include "unit.h"
 #include "linkdialog.h"
@@ -29,7 +36,6 @@
 #include "tableselectparadialog.h"
 #include "editunitdialog.h"
 #include "spdialog.h"
-#include "fluiddialog.h"
 #include "overlaysettingdialog.h"
 #include "ldaccompdialog.h"
 #include "splitterdialog.h"
@@ -38,16 +44,6 @@
 #include "dehumeffdialog.h"
 #include "linkfluiddialog.h"
 #include "dataComm.h"
-
-#include <QGraphicsItem>
-#include <QDebug>
-#include <QDrag>
-#include <QMimeData>
-#include <QLabel>
-#include <QMessageBox>
-#include <QStatusBar>
-#include <QToolBar>
-
 
 double mousex;
 double mousey;
@@ -64,7 +60,6 @@ extern QStatusBar *theStatusBar;
 extern globalparameter globalpara;
 extern MainWindow* theMainwindow;
 
-
 Node *node1;
 Node *node2;
 QStringList inputEntries;
@@ -76,7 +71,6 @@ int selectedKsub;
 extern int sceneActionIndex;
 extern QMenuBar* theMenuBar;
 extern QToolBar* theToolBar;
-
 
 myScene::myScene(QObject *parent)
     : QGraphicsScene(parent)
@@ -132,29 +126,28 @@ void myScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             list.append(QString::number(71));
             list.append(QString::number(72));
 
-           if(tempUnit->idunit==81||tempUnit->idunit==82)
+            if(tempUnit->idunit==81||tempUnit->idunit==82)
             {
                 splitterDialog *spltDialog = new splitterDialog(tempUnit,true,theMainwindow);
                 spltDialog->setModal(true);
                 spltDialog->exec();
                 spltDialog->deleteLater();
             }
-           else if(tempUnit->idunit == 62||tempUnit->idunit==63)
-           {
-               valveDialog *vlvDialog = new valveDialog(tempUnit,true,theMainwindow);
-               vlvDialog->setModal(true);
-               vlvDialog->exec();
-               vlvDialog->deleteLater();
-           }
-           else if(tempUnit->idunit==121||tempUnit->idunit==111)
-           {
-               pumpDialog * pmpDialog = new pumpDialog(tempUnit,true,theMainwindow);
-               pmpDialog->setModal(true);
-               pmpDialog->exec();
-               pmpDialog->deleteLater();
-           }
-
-           else if(!list.contains(QString::number(tempUnit->idunit)))
+            else if(tempUnit->idunit == 62||tempUnit->idunit==63)
+            {
+                valveDialog *vlvDialog = new valveDialog(tempUnit,true,theMainwindow);
+                vlvDialog->setModal(true);
+                vlvDialog->exec();
+                vlvDialog->deleteLater();
+            }
+            else if(tempUnit->idunit==121||tempUnit->idunit==111)
+            {
+                pumpDialog * pmpDialog = new pumpDialog(tempUnit,true,theMainwindow);
+                pmpDialog->setModal(true);
+                pmpDialog->exec();
+                pmpDialog->deleteLater();
+            }
+            else if(!list.contains(QString::number(tempUnit->idunit)))
             {
                 editUnitDialog *eduDialog = new editUnitDialog(tempUnit,theMainwindow);
                 eduDialog->setModal(true);
@@ -162,14 +155,8 @@ void myScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 eduDialog->deleteLater();
             }
         }
-
-
     }//*********************************************for adding units
-
-
-
 }
-
 
 void myScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -217,8 +204,6 @@ void myScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
                     seleDialog->exec();
                     theStatusBar->showMessage("Parameter added to table.",5000);
                 }
-
-
             }
             else if(items.first()->zValue() == 3)//if a state point is selected
             {
@@ -228,7 +213,6 @@ void myScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
                 seleDialog->isunit = false;
                 seleDialog->exec();
                 theStatusBar->showMessage("Parameter added to table.",5000);
-
             }
             theToolBar->setEnabled(true);
             theMenuBar->setEnabled(true);
@@ -323,8 +307,6 @@ void myScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
                     clearSelection();
                     item->update();
                 }
-
-
             }
 
             else if(selectednodeslist.count()==1)
@@ -493,12 +475,9 @@ void myScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
             else if(items.first()->zValue() == 3)
                 evokeProperties();
         }
-
-
     }
     //***********************************for evoke property setting dialogs
     clearSelection();
-
 }
 
 int myScene::checkFluidForLink(Node *node1, Node *node2)
@@ -599,7 +578,6 @@ int myScene::checkFluidForLink(Node *node1, Node *node2)
     }
 }
 
-
 void myScene::drawLink(Node *node1, Node *node2)
 {
     int m, n, intTemp;
@@ -622,101 +600,94 @@ void myScene::drawLink(Node *node1, Node *node2)
         sp1 = sp2;
         sp2 = Ntemp;
     }
-        sp2->ndum = sp1->ndum;
-        sp2->passIndToMerged();
-        sp2->text->setText(QString::number(sp2->ndum));
-        sp2->linklowerflag = true;
-        sp1->linklowerflag = false;
-        spnumber--;
+    sp2->ndum = sp1->ndum;
+    sp2->passIndToMerged();
+    sp2->text->setText(QString::number(sp2->ndum));
+    sp2->linklowerflag = true;
+    sp1->linklowerflag = false;
+    spnumber--;
 
-        head = dummy;
-        for(int i = 0;i<globalcount;i++)
+    head = dummy;
+    for(int i = 0;i<globalcount;i++)
+    {
+        if(head->next!=NULL)
         {
-            if(head->next!=NULL)
-            {
             head = head->next;
-
-
-                if(head->nu == sp2->unitindex )//for sp in the same unit
+            if(head->nu == sp2->unitindex )//for sp in the same unit
+            {
+                // TODO: for readability/consistency, change index range and use [j] instead of [j-1] (why not?)
+                for(int j = sp2->localindex+1; j <= head->usp;j++)
                 {
-                    // TODO: for readability/consistency, change index range and use [j] instead of [j-1] (why not?)
-                    for(int j = sp2->localindex+1; j <= head->usp;j++)
+                    if(head->myNodes[j-1]->linked && (!head->myNodes[j-1]->linklowerflag))//linked and is the smaller one, just update
                     {
-                        if(head->myNodes[j-1]->linked && (!head->myNodes[j-1]->linklowerflag))//linked and is the smaller one, just update
-                        {
-                            head->myNodes[j-1]->ndum = (head->myNodes[j-1]->ndum-1);
-                            head->myNodes[j-1]->text->setText(QString::number(head->myNodes[j-1]->ndum));
-                            head->myNodes[j-1]->passIndToMerged();
-                        }
-
-                        if(head->myNodes[j-1]->linked && head->myNodes[j-1]->linklowerflag)//linked and is the larger one, update according to the smaller one
-                        {
-                            Link * linktemp;
-                            linktemp = head->myNodes[j-1]->myLinks.values().first();
-                            Node * sp3 = linktemp->myFromNode;
-                            Node * sp4 = linktemp->myToNode;
-                            if(sp3->unitindex > sp4->unitindex)
-                            {
-                                Ntemp = sp3;
-                                sp3 = sp4;
-                                sp4 = Ntemp;
-                            }
-                            head->myNodes[j-1]->ndum = sp3->ndum;
-                            head->myNodes[j-1]->text->setText(QString::number(head->myNodes[j-1]->ndum));
-                            head->myNodes[j-1]->passIndToMerged();
-                         }
-
-                        if(!head->myNodes[j-1]->linked&&!(head->myNodes[j-1]->isinside&&head->myNodes[j-1]->insideLinked))//not linked, just update
-                        {
-                            head->myNodes[j-1]->ndum = (head->myNodes[j-1]->ndum-1);
-                            head->myNodes[j-1]->text->setText(QString::number(head->myNodes[j-1]->ndum));
-                            head->myNodes[j-1]->passIndToMerged();
-                        }
-
+                        head->myNodes[j-1]->ndum = (head->myNodes[j-1]->ndum-1);
+                        head->myNodes[j-1]->text->setText(QString::number(head->myNodes[j-1]->ndum));
+                        head->myNodes[j-1]->passIndToMerged();
                     }
-                }
-                if(head->nu > sp2->unitindex)
-                {
 
-                    for(intTemp = 0;intTemp<head->usp;intTemp++)//for sps in the following units
+                    if(head->myNodes[j-1]->linked && head->myNodes[j-1]->linklowerflag)//linked and is the larger one, update according to the smaller one
                     {
-                        if(head->myNodes[intTemp]->linked && (!head->myNodes[intTemp]->linklowerflag))//linked and is the smaller one, just update
+                        Link * linktemp;
+                        linktemp = head->myNodes[j-1]->myLinks.values().first();
+                        Node * sp3 = linktemp->myFromNode;
+                        Node * sp4 = linktemp->myToNode;
+                        if(sp3->unitindex > sp4->unitindex)
                         {
-                            head->myNodes[intTemp]->ndum = (head->myNodes[intTemp]->ndum-1);
-                            head->myNodes[intTemp]->text->setText(QString::number(head->myNodes[intTemp]->ndum));
-                            head->myNodes[intTemp]->passIndToMerged();
+                            Ntemp = sp3;
+                            sp3 = sp4;
+                            sp4 = Ntemp;
                         }
+                        head->myNodes[j-1]->ndum = sp3->ndum;
+                        head->myNodes[j-1]->text->setText(QString::number(head->myNodes[j-1]->ndum));
+                        head->myNodes[j-1]->passIndToMerged();
+                    }
 
-                        else if(head->myNodes[intTemp]->linked && head->myNodes[intTemp]->linklowerflag)//linked and is the larger one, update according to the smaller one
-                        {
-                            Link * linktemp;
-                            linktemp = head->myNodes[intTemp]->myLinks.values().first();
-                            Node * sp3 = linktemp->myFromNode;
-                            Node * sp4 = linktemp->myToNode;
-                            if(sp3->unitindex > sp4->unitindex)
-                            {
-                                Ntemp = sp3;
-                                sp3 = sp4;
-                                sp4 = Ntemp;
-                            }
-                            head->myNodes[intTemp]->ndum = sp3->ndum;
-                            head->myNodes[intTemp]->text->setText(QString::number(head->myNodes[intTemp]->ndum));
-                            head->myNodes[intTemp]->passIndToMerged();
-                         }
+                    if(!head->myNodes[j-1]->linked&&!(head->myNodes[j-1]->isinside&&head->myNodes[j-1]->insideLinked))//not linked, just update
+                    {
+                        head->myNodes[j-1]->ndum = (head->myNodes[j-1]->ndum-1);
+                        head->myNodes[j-1]->text->setText(QString::number(head->myNodes[j-1]->ndum));
+                        head->myNodes[j-1]->passIndToMerged();
+                    }
 
-                        else if(!head->myNodes[intTemp]->linked&&!(head->myNodes[intTemp]->isinside&&head->myNodes[intTemp]->insideLinked))//not linked, just update
+                }
+            }
+            if(head->nu > sp2->unitindex)
+            {
+                for(intTemp = 0;intTemp<head->usp;intTemp++)//for sps in the following units
+                {
+                    if(head->myNodes[intTemp]->linked && (!head->myNodes[intTemp]->linklowerflag))//linked and is the smaller one, just update
+                    {
+                        head->myNodes[intTemp]->ndum = (head->myNodes[intTemp]->ndum-1);
+                        head->myNodes[intTemp]->text->setText(QString::number(head->myNodes[intTemp]->ndum));
+                        head->myNodes[intTemp]->passIndToMerged();
+                    }
+                    else if(head->myNodes[intTemp]->linked && head->myNodes[intTemp]->linklowerflag)//linked and is the larger one, update according to the smaller one
+                    {
+                        Link * linktemp;
+                        linktemp = head->myNodes[intTemp]->myLinks.values().first();
+                        Node * sp3 = linktemp->myFromNode;
+                        Node * sp4 = linktemp->myToNode;
+                        if(sp3->unitindex > sp4->unitindex)
                         {
-                            head->myNodes[intTemp]->ndum = (head->myNodes[intTemp]->ndum-1);
-                            head->myNodes[intTemp]->text->setText(QString::number(head->myNodes[intTemp]->ndum));
-                            head->myNodes[intTemp]->passIndToMerged();
+                            Ntemp = sp3;
+                            sp3 = sp4;
+                            sp4 = Ntemp;
                         }
+                        head->myNodes[intTemp]->ndum = sp3->ndum;
+                        head->myNodes[intTemp]->text->setText(QString::number(head->myNodes[intTemp]->ndum));
+                        head->myNodes[intTemp]->passIndToMerged();
+                    }
+                    else if(!head->myNodes[intTemp]->linked&&!(head->myNodes[intTemp]->isinside&&head->myNodes[intTemp]->insideLinked))//not linked, just update
+                    {
+                        head->myNodes[intTemp]->ndum = (head->myNodes[intTemp]->ndum-1);
+                        head->myNodes[intTemp]->text->setText(QString::number(head->myNodes[intTemp]->ndum));
+                        head->myNodes[intTemp]->passIndToMerged();
                     }
                 }
             }
-
-        }//***********************for changing index
+        }
+    }//***********************for changing index
 }
-
 
 void myScene::drawAUnit(unit* unit)
 {
@@ -727,14 +698,12 @@ void myScene::drawAUnit(unit* unit)
     rect->setPen(pen);
     rect->setZValue(2);
 
-
     head->next = unit;
     head = unit;
     unit = NULL;
     head->next = NULL;
 
     globalcount++;
-
 
     spnumber = spnumber + head->usp;
     head->drawUnit();
@@ -750,9 +719,7 @@ void myScene::drawAUnit(unit* unit)
 
     // Transfers ownership of the unit to rect.
     head->setParentItem(rect);
-
 }
-
 
 void myScene::evokeProperties()
 {
@@ -786,7 +753,6 @@ void myScene::evokeProperties()
                     pmpDialog.setModal(true);
                     pmpDialog.exec();
                 }
-
                 else
                     editUnit(edunit);
             }
@@ -810,11 +776,8 @@ void myScene::evokeProperties()
 
             editSp(node);
         }
-
-
     }
 }
-
 
 void myScene::editUnit(unit * edUnit)
 {
@@ -822,7 +785,6 @@ void myScene::editUnit(unit * edUnit)
     edDialog.setModal(true);
     edDialog.exec();
 }
-
 
 void myScene::editSp(Node *node)
 {
@@ -925,7 +887,6 @@ void myScene::cancelLink(Node *node1, Node *node2)
     node1->setHighlighted(false);
     if(node2!=NULL)
         node2->setHighlighted(false);
-
 }
 
 void myScene::resetPointedComp()
@@ -948,6 +909,3 @@ void myScene::evokeTDialog()
     tDialog->setModal(true);
     tDialog->show();
 }
-
-
-

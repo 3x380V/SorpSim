@@ -57,7 +57,6 @@ icfixDialog::icfixDialog(QWidget *parent) :
 
     globalpara.resetIfixes('c');
 
-
     QStringList cbListC;
     QStringList tempListC;
     unit * iterator = dummy;
@@ -77,13 +76,13 @@ icfixDialog::icfixDialog(QWidget *parent) :
 
                 if((theNode->linked&&cList.count()==2&&theNode==theNode->myLinks.values().first()->myToNode)
                         ||(!theNode->linked&&cList.count()==1)){
-//single point
+                    //single point
                     if(!cbListC.contains("C#"+QString::number(theNode->ndum)))
                         cbListC.append("C#"+QString::number(theNode->ndum));
 
                 }
                 else if(!(theNode->linked&&cList.count()==2&&theNode==theNode->myLinks.values().first()->myFromNode)){
-//in a stream
+                    //in a stream
                     tempListC.clear();
                     QList<int> list;
                     for(int i = 0; i < cList.count(); i++){
@@ -211,8 +210,6 @@ void icfixDialog::on_addButton_clicked()
             }
         }
 
-
-
         bool inGroup1= false, inGroup2 = false, first1 = true, first2 = true;
         QSet<Node*> set1, set2;
         foreach(QSet<Node*> set, globalpara.cGroup)
@@ -247,8 +244,6 @@ void icfixDialog::on_addButton_clicked()
             QSet<Node*> newSet = mset1.unite(mset2);
             globalpara.cGroup.append(newSet);
         }
-
-
         else if(inGroup1&&!inGroup2)//unknown one
         {
             globalpara.cGroup.removeOne(set1);
@@ -259,7 +254,6 @@ void icfixDialog::on_addButton_clicked()
             set1.unite(mset2);
             globalpara.cGroup.append(set1);
         }
-
         else if(inGroup2&&!inGroup1)//unknown one
         {
             globalpara.cGroup.removeOne(set2);
@@ -315,12 +309,8 @@ void icfixDialog::on_addButton_clicked()
 
             }
         }
-
         else qDebug()<<"what the heck?";
     }
-
-
-
     updateList();
     globalpara.resetIfixes('c');
 }
@@ -421,8 +411,7 @@ void icfixDialog::on_modifyButton_clicked()
             globalpara.cGroup.append(tempSet);
             if(set1.count()==1||(set1.count()==2&&node1->linked)){
                 //a lone point
-            }
-            else{
+            } else {
                 globalpara.addGroup('c',set1);
             }
         }

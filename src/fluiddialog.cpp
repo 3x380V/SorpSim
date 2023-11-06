@@ -14,16 +14,16 @@
 
 */
 
+#include <QDebug>
+#include <QMessageBox>
+#include <QLayout>
+
 #include "fluiddialog.h"
 #include "ui_fluiddialog.h"
 #include "unit.h"
 #include "link.h"
 #include "mainwindow.h"
 #include "dataComm.h"
-
-#include <QDebug>
-#include <QMessageBox>
-#include <QLayout>
 
 extern globalparameter globalpara;
 extern unit * dummy;
@@ -58,7 +58,6 @@ fluidDialog::fluidDialog(QWidget *parent) :
 
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 fluidDialog::~fluidDialog()
@@ -96,8 +95,6 @@ void fluidDialog::on_OkButton_clicked()
                 }
             }
         }
-
-
 //        QMessageBox setBox;
 //        setBox.setWindowTitle("Fluid set");
 //        QString fluids;
@@ -130,9 +127,6 @@ void fluidDialog::on_OkButton_clicked()
         }
         accept();
     }
-
-
-
 }
 
 void fluidDialog::closeEvent(QCloseEvent *event)
@@ -147,7 +141,6 @@ void fluidDialog::keyPressEvent(QKeyEvent *event)
 
     }
 }
-
 
 void fluidDialog::on_cancelButton_clicked()
 {

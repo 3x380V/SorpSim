@@ -24,21 +24,19 @@
 /// \copyright 2017-2018, Nicholas Fette
 ///
 
-#include "sorpsimEngine.h"
-#include "mainwindow.h"
-#include "dataComm.h"
-#include "globaldialog.h"
-#include <QDebug>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <vector>
 #include <QDebug>
 #include <QString>
 #include <QStringList>
 #include <QSet>
+
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <vector>
+
+#include "sorpsimEngine.h"
+#include "dataComm.h"
 #include "unit.h"
-#include "node.h"
 
 calInputs inputs;     ///< Used to pass simulation inputs
 calOutputs outputs;   ///< Used to pass simulation outputs
@@ -54,7 +52,6 @@ bool isLinked[150];
 bool calcLink[150];
 QSet<Node*> chosenNodes;
 QSet<int> chosenIndexes;
-
 
 //C***********************************************************************
 void
@@ -17972,4 +17969,3 @@ double calcEnthalpy(common &cmn, int ksub, double t, double p, double c, double 
 
 /// End of sorpsim engine main program
 /// \}
-

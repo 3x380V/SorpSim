@@ -48,11 +48,9 @@ LDACcompDialog::LDACcompDialog(unit* unit, QWidget *parent) :
     ui->COPbox->setStyleSheet("QGroupBox{ background-color:rgb(129, 198, 221); border: 1px solid black; }");
     ui->iterationLE->setText(QString::number(myUnit->nIter));
     ui->LeLE->setText(QString::number(myUnit->le));
-    switch(int(myUnit->idunit/10))
-    {
-    case(16):
-    case(18):
-    {
+    switch(int(myUnit->idunit/10)) {
+    case 16:
+    case 18:
         ui->COPbox->hide();
         ui->NTUalabel->hide();
         ui->NTUaLine->hide();
@@ -61,10 +59,8 @@ LDACcompDialog::LDACcompDialog(unit* unit, QWidget *parent) :
         ui->NTUwLine->hide();
         ui->NTUwtip->hide();
         break;
-    }
-    case(17):
-    case(19):
-    {
+    case 17:
+    case 19:
         ui->NTUwLine->setText(QString::number(myUnit->NTUt,'g',4));
         if(myUnit->wetness==1)
         {
@@ -76,23 +72,17 @@ LDACcompDialog::LDACcompDialog(unit* unit, QWidget *parent) :
             ui->NTUaLine->setText(QString::number(myUnit->NTUa,'g',4));
         break;
     }
-    }
 
-    switch(myUnit->icop)
-    {
-    case(-1):
-    {
+    switch(myUnit->icop) {
+    case -1:
         ui->copDenomButton->setChecked(true);
         break;
-    }case(1):
-    {
+    case 1:
         ui->copNumeratorButton->setChecked(true);
         break;
-    }case(0):
-    {
+    case 0:
         ui->copNeitherButton->setChecked(true);
         break;
-    }
     }
 
     ui->insertNTUmButton->setChecked(true);
@@ -142,7 +132,6 @@ void LDACcompDialog::on_OKbutton_clicked()
         myUnit->icop = 0;
 
     accept();
-
 }
 
 void LDACcompDialog::on_CancleButton_clicked()
@@ -188,7 +177,6 @@ void LDACcompDialog::on_wetLine_textChanged(const QString &arg1)
             ui->NTUatip->show();
         }
     }
-
 }
 
 bool LDACcompDialog::event(QEvent *e)

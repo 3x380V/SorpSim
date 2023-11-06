@@ -13,23 +13,19 @@
 
 */
 
+#include <QDebug>
+#include <QFileDialog>
+#include <QHeaderView>
+#include <QLayout>
+#include <QLineEdit>
+#include <QStringList>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 
 #include "guessdialog.h"
 #include "ui_guessdialog.h"
-#include "unit.h"
-#include "node.h"
 #include "mainwindow.h"
 #include "dataComm.h"
-#include "masterdialog.h"
-
-#include <QTableWidget>
-#include <QHeaderView>
-#include <QStringList>
-#include <QTableWidgetItem>
-#include <QLineEdit>
-#include <QDebug>
-
-#include <QLayout>
 
 extern unit*dummy;
 extern globalparameter globalpara;
@@ -45,7 +41,6 @@ guessDialog::guessDialog(bool fromMasterDialog, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::guessDialog)
 {
-
     fromMDialog=fromMasterDialog;
     nv = 0;
     nt = 0;
@@ -59,8 +54,8 @@ guessDialog::guessDialog(bool fromMasterDialog, QWidget *parent) :
     setWindowTitle("Guess Value");
     QStringList sHeader;
     sHeader<<"Temperature\n("+globalpara.unitname_temperature+")"<<"Mass Flow Rate\n("+globalpara.unitname_massflow+")"
-             <<"Pressure\n("+globalpara.unitname_pressure+")"<<"Concentration\n(Mass%)"
-               <<"Vapor Fraction\n(Mass ratio)";
+            <<"Pressure\n("+globalpara.unitname_pressure+")"<<"Concentration\n(Mass%)"
+            <<"Vapor Fraction\n(Mass ratio)";
     ui->guessTable->setColumnCount(5);
     ui->guessTable->setHorizontalHeaderLabels(sHeader);
     ui->guessTable->setRowCount(spnumber);
@@ -87,7 +82,6 @@ guessDialog::guessDialog(bool fromMasterDialog, QWidget *parent) :
     ui->exportBox->addItem("Export to text file");
 
     ui->upDateButton->setToolTip("Update guess values with previous calculation results.");
-
 }
 
 guessDialog::~guessDialog()
@@ -133,7 +127,6 @@ void guessDialog::on_applyButton_clicked()
             }
         }
     }
-
     accept();
 }
 

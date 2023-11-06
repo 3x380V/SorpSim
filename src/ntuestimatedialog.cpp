@@ -75,7 +75,6 @@ NTUestimateDialog::NTUestimateDialog(unit *estUnit, QWidget *parent) :
     uid=myUnit->idunit;
     if(myUnit->idunit>160&&myUnit->idunit<200)
     {
-
         if(uid/10==16||uid/10==18)
         {
             so = 2;
@@ -131,20 +130,15 @@ NTUestimateDialog::NTUestimateDialog(unit *estUnit, QWidget *parent) :
         ui->msiMrrLine->setText(QString::number(myUnit->myNodes[si]->f));
 
         // TODO: document intent and make this consistent
-        switch (myUnit->myNodes[0]->ksub)
-        {
+        switch (myUnit->myNodes[0]->ksub) {
         case 1:
-        {
             ui->FluidBox->setCurrentText("LiBr-water");
             ui->FluidBox_2->setCurrentText("LiBr-water"); // matching
             break;
-        }
         case 9:
-        {
             ui->FluidBox->setCurrentText("LiCl-water");
             ui->FluidBox_2->setCurrentText("LiBr-water"); // not matching
             break;
-        }
         }
     }
 
@@ -383,18 +377,13 @@ double NTUestimateDialog::dehum(double tsoli, double xsoli, double msol, double 
         for(int i = 1;i <= n; i++)
         {
             double wsat,hsati;
-            switch (ksub)
-            {
+            switch (ksub) {
             case 9:
-            {
                 wftx9(cmn,wsat,ts[i],xs[i]);
                 break;
-            }
             case 1:
-            {
                 wftx1(cmn,wsat,ts[i],xs[i]);
                 break;
-            }
             }
             hsati = (1.006*(ts[i]-32)/1.8 + wsat*(1.84*(ts[i]-32)/1.8 + 2501))/2.326;
             hsat[i] = hsati;

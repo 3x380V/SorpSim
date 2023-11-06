@@ -12,15 +12,15 @@
 
 */
 
+#include <QDebug>
+#include <QShortcut>
+#include <QWheelEvent>
 
 #include "myview.h"
 #include "mainwindow.h"
 #include "unit.h"
-#include <QWheelEvent>
-#include <QDebug>
 #include <math.h>
 #include "myscene.h"
-#include <QShortcut>
 
 extern unit * dummy;
 extern int globalcount;

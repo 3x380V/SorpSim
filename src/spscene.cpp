@@ -13,13 +13,7 @@
 
 */
 
-
-
 #include "spscene.h"
-#include "unit.h"
-#include "node.h"
-#include "mainwindow.h"
-
 
 spScene::spScene(QObject *parent)
     : QGraphicsScene(parent)

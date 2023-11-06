@@ -15,14 +15,7 @@
 
 #include "tabledialog.h"
 #include "ui_tabledialog.h"
-#include "selectparadialog.h"
-#include "tableselectparadialog.h"
 #include "mainwindow.h"
-#include "node.h"
-#include "unit.h"
-#include "link.h"
-#include "calculate.h"
-#include "globaldialog.h"
 #include "adrowdialog.h"
 #include "altervdialog.h"
 #include "mainwindow.h"
@@ -126,7 +119,6 @@ tableDialog::tableDialog(unit * dummy, QString startTable, QWidget * parent) :
     ui->exportBox->addItem("Export to text file");
 
     theMainwindow->setTPMenu();
-
 }
 
 
@@ -160,103 +152,94 @@ bool tableDialog::setupTables(bool init)
     {
         if(!file.open(QIODevice::ReadOnly|QIODevice::Text))
         {
-            return false;
             globalpara.reportError("Fail to open case file for table data.",this);
+            return false;
         }
-        else
+
+        QDomDocument doc;
+        if(!doc.setContent(&file))
         {
-            QDomDocument doc;
-            if(!doc.setContent(&file))
-            {
-                globalpara.reportError("Fail to load xml document for table data.",this);
-                file.close();
-                return false;
-            }
-            else
-            {
-                QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-                int tableCount = tableData.childNodes().count();
-                for(int i = 0; i < tableCount; i++)
-                {
-                    QDomElement currentTable = tableData.childNodes().at(i).toElement();
-                    QString tableTitle = currentTable.attribute("title");
-                    // TODO: inputEntries and outputEntries conflicts with same names at global scope
-                    QStringList inputEntries = currentTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
-                    QStringList outputEntries = currentTable.elementsByTagName("outputEntries").at(0).toElement().text().split(";");
-                    QStringList tHeader = currentTable.elementsByTagName("header").at(0).toElement().text().split(";");
-                    QTableWidget * newTable = new QTableWidget();
-                    int runs = currentTable.attribute("runs").toInt();
-
-                    //ui->tabWidget->insertTab(-1,newTable,currentTable.tagName());
-                    ui->tabWidget->insertTab(-1,newTable,tableTitle);
-                    newTable->setColumnCount(inputEntries.count()+outputEntries.count());
-                    newTable->setHorizontalHeaderLabels(tHeader);
-                    newTable->setRowCount(runs);
-                    newTable->resizeColumnsToContents();
-                    QHeaderView *Hheader = newTable->horizontalHeader();
-                    Hheader->setSectionResizeMode(QHeaderView::ResizeToContents);
-                    QHeaderView *Vheader = newTable->verticalHeader();
-                    Vheader->setSectionResizeMode(QHeaderView::ResizeToContents);
-                    newTable->setWordWrap(true);
-                    newTable->setAlternatingRowColors(true);//setup tab and table widget
-
-                    for(int i = 0; i < runs; i++)//put existing value of parameters into the table
-                    {
-                        QDomElement currentRun = currentTable.elementsByTagName("Run").at(i).toElement();
-                        QDomNodeList inputs = currentRun.elementsByTagName("Input");
-                        for(int j = 0; j < inputEntries.count();j++)
-                        {
-                            QDomElement currentInput = inputs.at(j).toElement();
-                            QDomNodeList values = currentInput.elementsByTagName("value");
-                            QDomElement value = values.at(0).toElement();
-                            double theValue = value.text().toFloat();
-                            QTableWidgetItem * newItem = new QTableWidgetItem;
-                            newItem->setData(Qt::DisplayRole,QString::number(theValue,'g',4));
-                            newItem->setTextAlignment(Qt::AlignCenter);
-                            newTable->setItem(i,j,newItem);
-                        }
-                        QDomNodeList outputs = currentRun.elementsByTagName("Output");
-                        for(int j = 0; j < outputEntries.count();j++)
-                        {
-                            QDomElement currentOutput = outputs.at(j).toElement();
-                            QDomNodeList values = currentOutput.elementsByTagName("value");
-                            QDomElement value = values.at(0).toElement();
-                            double theValue = value.text().toFloat();
-                            QTableWidgetItem * newItem = new QTableWidgetItem;
-                            newItem->setData(Qt::DisplayRole,QString::number(theValue,'g',4));
-                            newItem->setForeground(Qt::blue);
-                            newItem->setTextAlignment(Qt::AlignCenter);
-                            newTable->setItem(i,inputEntries.count()+j,newItem);
-                        }
-                    }
-                    int newCurrentIndex = 0;
-                    if(ui->tabWidget->count()>0)
-                        newCurrentIndex = ui->tabWidget->count()-1;
-                    ui->tabWidget->setCurrentIndex(newCurrentIndex);
-
-                }
-                if(startTName!="")
-                {
-                    int index = ui->tabWidget->count()-1;
-                    for(int i = 0; i < ui->tabWidget->count();i++)
-                    {
-                        if(ui->tabWidget->tabText(i)==startTName)
-                            index = i;
-                    }
-                    ui->tabWidget->setCurrentIndex(index);
-                }
-            }
-            return true;
+            globalpara.reportError("Fail to load xml document for table data.",this);
+            file.close();
+            return false;
         }
-    }
-    else
-    {
-        globalpara.reportError("File for table data is not found.",this);
-        return false;
-    }
 
-    adjustTableSize(true);
+        QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+        int tableCount = tableData.childNodes().count();
+        for(int i = 0; i < tableCount; i++)
+        {
+            QDomElement currentTable = tableData.childNodes().at(i).toElement();
+            QString tableTitle = currentTable.attribute("title");
+            // TODO: inputEntries and outputEntries conflicts with same names at global scope
+            QStringList inputEntries = currentTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
+            QStringList outputEntries = currentTable.elementsByTagName("outputEntries").at(0).toElement().text().split(";");
+            QStringList tHeader = currentTable.elementsByTagName("header").at(0).toElement().text().split(";");
+            QTableWidget * newTable = new QTableWidget();
+            int runs = currentTable.attribute("runs").toInt();
 
+            //ui->tabWidget->insertTab(-1,newTable,currentTable.tagName());
+            ui->tabWidget->insertTab(-1,newTable,tableTitle);
+            newTable->setColumnCount(inputEntries.count()+outputEntries.count());
+            newTable->setHorizontalHeaderLabels(tHeader);
+            newTable->setRowCount(runs);
+            newTable->resizeColumnsToContents();
+            QHeaderView *Hheader = newTable->horizontalHeader();
+            Hheader->setSectionResizeMode(QHeaderView::ResizeToContents);
+            QHeaderView *Vheader = newTable->verticalHeader();
+            Vheader->setSectionResizeMode(QHeaderView::ResizeToContents);
+            newTable->setWordWrap(true);
+            newTable->setAlternatingRowColors(true);//setup tab and table widget
+
+            for(int i = 0; i < runs; i++)//put existing value of parameters into the table
+            {
+                QDomElement currentRun = currentTable.elementsByTagName("Run").at(i).toElement();
+                QDomNodeList inputs = currentRun.elementsByTagName("Input");
+                for(int j = 0; j < inputEntries.count();j++)
+                {
+                    QDomElement currentInput = inputs.at(j).toElement();
+                    QDomNodeList values = currentInput.elementsByTagName("value");
+                    QDomElement value = values.at(0).toElement();
+                    double theValue = value.text().toFloat();
+                    QTableWidgetItem * newItem = new QTableWidgetItem;
+                    newItem->setData(Qt::DisplayRole,QString::number(theValue,'g',4));
+                    newItem->setTextAlignment(Qt::AlignCenter);
+                    newTable->setItem(i,j,newItem);
+                }
+                QDomNodeList outputs = currentRun.elementsByTagName("Output");
+                for(int j = 0; j < outputEntries.count();j++)
+                {
+                    QDomElement currentOutput = outputs.at(j).toElement();
+                    QDomNodeList values = currentOutput.elementsByTagName("value");
+                    QDomElement value = values.at(0).toElement();
+                    double theValue = value.text().toFloat();
+                    QTableWidgetItem * newItem = new QTableWidgetItem;
+                    newItem->setData(Qt::DisplayRole,QString::number(theValue,'g',4));
+                    newItem->setForeground(Qt::blue);
+                    newItem->setTextAlignment(Qt::AlignCenter);
+                    newTable->setItem(i,inputEntries.count()+j,newItem);
+                }
+            }
+            int newCurrentIndex = 0;
+            if(ui->tabWidget->count()>0)
+                newCurrentIndex = ui->tabWidget->count()-1;
+            ui->tabWidget->setCurrentIndex(newCurrentIndex);
+
+        }
+        if(startTName!="")
+        {
+            int index = ui->tabWidget->count()-1;
+            for(int i = 0; i < ui->tabWidget->count();i++)
+            {
+                if(ui->tabWidget->tabText(i)==startTName)
+                    index = i;
+            }
+            ui->tabWidget->setCurrentIndex(index);
+        }
+        adjustTableSize(true);
+        return true;
+    }
+    globalpara.reportError("File for table data is not found.",this);
+    return false;
 }
 
 QString tableDialog::translateInput(QStringList inputEntries, int index, int item)
@@ -270,58 +253,36 @@ QString tableDialog::translateInput(QStringList inputEntries, int index, int ite
 
     if(QString(infoTemp.at(0))=="U")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "unit";
-        }
-        case(2):
-        {
-            if(!infoTemp.at(2).isDigit())//possibly there are more than 9 units
-                return infoTemp.at(1);
-            else
+        case 2:
+            if(infoTemp.at(2).isDigit())//possibly there are more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2));
-        }
-        case(3):
-        {
-            if(!infoTemp.at(2).isDigit())
-                return QString(infoTemp.at(2))+QString(infoTemp.at(3));
-            else
+            return infoTemp.at(1);
+        case 3:
+            if(infoTemp.at(2).isDigit())
                 return QString(infoTemp.at(3))+QString(infoTemp.at(4));
-        }
+            return QString(infoTemp.at(2))+QString(infoTemp.at(3));
         }
     }
-    else if(QString(infoTemp.at(0)) == "P")
+    if(QString(infoTemp.at(0)) == "P")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "sp";
-        }
-        case(2):
-        {
-            if(!infoTemp.at(3).isDigit())//possibly there are more than 9 units
-                return QString(infoTemp.at(1))+" "+QString(infoTemp.at(2));
-            else
+        case 2:
+            if(infoTemp.at(3).isDigit())//possibly there are more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2))+" "+QString(infoTemp.at(3));
-        }
-        case(3):
-        {
-            if(!infoTemp.at(3).isDigit())
-                return infoTemp.at(3);
-            else
+            return QString(infoTemp.at(1))+" "+QString(infoTemp.at(2));
+        case 3:
+            if(infoTemp.at(3).isDigit())
                 return infoTemp.at(4);
+            return infoTemp.at(3);
         }
-        }
-
     }
-    else
-    {
-        return "error";
-        qDebug()<<"error at the"+QString::number(index)+"th entry";
-    }
+    qDebug()<<"error at the"+QString::number(index)+"th entry";
+    return "error";
 }
 
 QString tableDialog::translateOutput(QStringList outputEntries, int index, int item)
@@ -335,80 +296,50 @@ QString tableDialog::translateOutput(QStringList outputEntries, int index, int i
 
     if(QString(infoTemp.at(0))=="U")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "unit";
-        }
-        case(2):
-        {
-            if(!infoTemp.at(2).isDigit())//possibly there are more than 9 units
-                return infoTemp.at(1);
-            else
+        case 2:
+            if(infoTemp.at(2).isDigit())//possibly there are more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2));
-        }
-        case(3):
-        {
-            if(!infoTemp.at(2).isDigit())
-                return QString(infoTemp.at(2))+QString(infoTemp.at(3));
-            else
+            return infoTemp.at(1);
+        case 3:
+            if(infoTemp.at(2).isDigit())
                 return QString(infoTemp.at(3))+QString(infoTemp.at(4));
-        }
+            return QString(infoTemp.at(2))+QString(infoTemp.at(3));
         }
     }
-    else if(QString(infoTemp.at(0)) == "P")
+    if(QString(infoTemp.at(0)) == "P")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "sp";
-        }
-        case(2):
-        {
-            if(!infoTemp.at(3).isDigit())//in case there're more than 9 units
-                return QString(infoTemp.at(1))+QString(infoTemp.at(2));
-            else
+        case 2:
+            if(infoTemp.at(3).isDigit())//in case there're more than 9 units
                 return QString(infoTemp.at(1))+QString(infoTemp.at(2))+QString(infoTemp.at(3));
-        }
-        case(3):
-        {
-            if(!infoTemp.at(3).isDigit())
-                return infoTemp.at(3);
-            else
+            return QString(infoTemp.at(1))+QString(infoTemp.at(2));
+        case 3:
+            if(infoTemp.at(3).isDigit())
                 return infoTemp.at(4);
+            return infoTemp.at(3);
         }
-        }
-
     }
-    else if(QString(infoTemp.at(0))=="S")
+    if(QString(infoTemp.at(0))=="S")
     {
-        switch(item)
-        {
-        case(1):
-        {
+        switch(item) {
+        case 1:
             return "global";
-        }
-        case(2):
-        {
+        case 2:
             return "0";
-        }
-        case(3):
-        {
+        case 3:
             if(QString(infoTemp.at(1))=="A")
                 return "CAP";
             if(QString(infoTemp.at(1))=="O")
                 return "COP";
         }
-        }
     }
-    else
-    {
-        return "error";
-        qDebug()<<"error at the"+QString::number(index)+"th entry";
-    }
-
+    qDebug()<<"error at the"+QString::number(index)+"th entry";
+    return "error";
 }
 
 bool tableDialog::reshapeXml(int adrPosition, int adrIar)
@@ -422,129 +353,113 @@ bool tableDialog::reshapeXml(int adrPosition, int adrIar)
     stream.setDevice(&file);
     if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
     {
-        return false;
         globalpara.reportError("Fail to open case file to apply changes to xml document.",this);
+        return false;
     }
-    else
+
+    QDomDocument doc;
+    if(!doc.setContent(&file))
     {
-        QDomDocument doc;
-
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load original xml document to apply changes to xml document.",this);
-            file.close();
-            return false;
-        }
-
-        QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-        auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-        QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
-        QDomElement currentTable = tablesByTitle[tableTitle];
-        // ...       tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0).toElement();
-        QStringList inputEntries = currentTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
-        QStringList outputEntries = currentTable.elementsByTagName("outputEntries").at(0).toElement().text().split(";");
-
-        if(currentTable.elementsByTagName("Run").count() > tableToUpdate->rowCount())
-        {
-            qDebug()<<"Guessing that rows were deleting, so repeating that.";
-            int step = currentTable.elementsByTagName("Run").count()-tableToUpdate->rowCount();
-            switch(adrPosition)
-            {
-            case(1)://remove at top
-            {
-                for(int i = 0;i < step;i++)
-                    currentTable.removeChild(currentTable.elementsByTagName("Run").at(0));
-                break;
-            }
-            case(2)://remove at bottom
-            {
-                for(int i = 0;i < step;i++){
-                    currentTable.removeChild(currentTable.elementsByTagName("Run").at(currentTable.elementsByTagName("Run").count()-1));
-                }
-                break;
-            }
-            case(3)://remove at pos
-            {
-                for(int i = 0;i < step;i++)
-                    currentTable.removeChild(currentTable.elementsByTagName("Run").at(adrIar));
-                break;
-            }
-            }
-
-            currentTable.setAttribute("runs",tableToUpdate->rowCount());
-        }
-
-
-        if(currentTable.elementsByTagName("Run").count() < tableToUpdate->rowCount())
-        {
-            qDebug()<<"Expanding, maybe at the end, why not?, haha!";
-            int step = tableToUpdate->rowCount()-currentTable.elementsByTagName("Run").count();
-            for(int i = 1; i <= step; i++)
-            {
-                QDomElement newRun = doc.createElement("Run");
-                currentTable.appendChild(newRun);
-                newRun.setAttribute("No.",i+currentTable.elementsByTagName("Run").count()-2);
-                for(int j = 0; j < inputEntries.count();j++)
-                {
-                    QDomElement newInput = doc.createElement("Input");
-                    newInput.setAttribute("type",translateInput(inputEntries,j,1));
-
-                    QDomElement newIndex = doc.createElement("index");
-                    QDomText theIndex = doc.createTextNode(translateInput(inputEntries,j,2));
-                    newIndex.appendChild(theIndex);
-                    newInput.appendChild(newIndex);
-
-                    QDomElement newPara = doc.createElement("parameter");
-                    QDomText thePara = doc.createTextNode(translateInput(inputEntries,j,3));
-                    newPara.appendChild(thePara);
-                    newInput.appendChild(newPara);
-
-                    QDomElement newValue = doc.createElement("value");
-                    QDomText theValue= doc.createTextNode(" ");
-                    newValue.appendChild(theValue);
-                    newInput.appendChild(newValue);
-
-                    newRun.appendChild(newInput);
-                }
-
-                for(int j = 0; j < outputEntries.count();j++)
-                {
-                    QDomElement newOutput = doc.createElement("Output");
-                    newOutput.setAttribute("type",translateOutput(outputEntries,j,1));
-
-                    QDomElement newIndex = doc.createElement("index");
-                    QDomText theIndex = doc.createTextNode(translateOutput(outputEntries,j,2));
-                    newIndex.appendChild(theIndex);
-                    newOutput.appendChild(newIndex);
-
-                    QDomElement newPara = doc.createElement("parameter");
-                    QDomText thePara = doc.createTextNode(translateOutput(outputEntries,j,3));
-                    newPara.appendChild(thePara);
-                    newOutput.appendChild(newPara);
-
-                    QDomElement newValue = doc.createElement("value");
-                    QDomText theValue = doc.createTextNode(" ");
-                    newValue.appendChild(theValue);
-                    newOutput.appendChild(newValue);
-
-                    newRun.appendChild(newOutput);
-                }
-            }
-            currentTable.setAttribute("runs",tableToUpdate->rowCount());
-        }
-        file.resize(0);
-        doc.save(stream,4);
+        globalpara.reportError("Fail to load original xml document to apply changes to xml document.",this);
         file.close();
-        stream.flush();
-        return true;
+        return false;
     }
 
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
+    QDomElement currentTable = tablesByTitle[tableTitle];
+    // ...       tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0).toElement();
+    QStringList inputEntries = currentTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
+    QStringList outputEntries = currentTable.elementsByTagName("outputEntries").at(0).toElement().text().split(";");
 
+    if(currentTable.elementsByTagName("Run").count() > tableToUpdate->rowCount())
+    {
+        qDebug()<<"Guessing that rows were deleting, so repeating that.";
+        int step = currentTable.elementsByTagName("Run").count()-tableToUpdate->rowCount();
+        switch(adrPosition) {
+        case 1://remove at top
+            for(int i = 0;i < step;i++)
+                currentTable.removeChild(currentTable.elementsByTagName("Run").at(0));
+            break;
+        case 2://remove at bottom
+            for(int i = 0;i < step;i++)
+                currentTable.removeChild(currentTable.elementsByTagName("Run").at(currentTable.elementsByTagName("Run").count()-1));
+            break;
+        case 3://remove at pos
+            for(int i = 0;i < step;i++)
+                currentTable.removeChild(currentTable.elementsByTagName("Run").at(adrIar));
+            break;
+        }
+        currentTable.setAttribute("runs",tableToUpdate->rowCount());
+    }
+
+    if(currentTable.elementsByTagName("Run").count() < tableToUpdate->rowCount())
+    {
+        qDebug()<<"Expanding, maybe at the end, why not?, haha!";
+        int step = tableToUpdate->rowCount()-currentTable.elementsByTagName("Run").count();
+        for(int i = 1; i <= step; i++)
+        {
+            QDomElement newRun = doc.createElement("Run");
+            currentTable.appendChild(newRun);
+            newRun.setAttribute("No.",i+currentTable.elementsByTagName("Run").count()-2);
+            for(int j = 0; j < inputEntries.count();j++)
+            {
+                QDomElement newInput = doc.createElement("Input");
+                newInput.setAttribute("type",translateInput(inputEntries,j,1));
+
+                QDomElement newIndex = doc.createElement("index");
+                QDomText theIndex = doc.createTextNode(translateInput(inputEntries,j,2));
+                newIndex.appendChild(theIndex);
+                newInput.appendChild(newIndex);
+
+                QDomElement newPara = doc.createElement("parameter");
+                QDomText thePara = doc.createTextNode(translateInput(inputEntries,j,3));
+                newPara.appendChild(thePara);
+                newInput.appendChild(newPara);
+
+                QDomElement newValue = doc.createElement("value");
+                QDomText theValue= doc.createTextNode(" ");
+                newValue.appendChild(theValue);
+                newInput.appendChild(newValue);
+
+                newRun.appendChild(newInput);
+            }
+
+            for(int j = 0; j < outputEntries.count();j++)
+            {
+                QDomElement newOutput = doc.createElement("Output");
+                newOutput.setAttribute("type",translateOutput(outputEntries,j,1));
+
+                QDomElement newIndex = doc.createElement("index");
+                QDomText theIndex = doc.createTextNode(translateOutput(outputEntries,j,2));
+                newIndex.appendChild(theIndex);
+                newOutput.appendChild(newIndex);
+
+                QDomElement newPara = doc.createElement("parameter");
+                QDomText thePara = doc.createTextNode(translateOutput(outputEntries,j,3));
+                newPara.appendChild(thePara);
+                newOutput.appendChild(newPara);
+
+                QDomElement newValue = doc.createElement("value");
+                QDomText theValue = doc.createTextNode(" ");
+                newValue.appendChild(theValue);
+                newOutput.appendChild(newValue);
+
+                newRun.appendChild(newOutput);
+            }
+        }
+        currentTable.setAttribute("runs",tableToUpdate->rowCount());
+    }
+    file.resize(0);
+    doc.save(stream,4);
+    file.close();
+    stream.flush();
+    return true;
 }
 
 void tableDialog::copyTable()
 {
-
     QString tName = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
     QString newName = tName+"Copy";
 
@@ -558,41 +473,33 @@ void tableDialog::copyTable()
         globalpara.reportError("Fail to open case file to copy table.",this);
         return;
     }
-    else
+    QDomDocument doc;
+    if(!doc.setContent(&file))
     {
-        QDomDocument doc;
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document to copy table.",this);
-            file.close();
-            return;
-        }
-        else
-        {
-            QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-            auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-            //if(!tableData.elementsByTagName(tName).isEmpty())
-            if (tablesByTitle.contains(tName))
-            {
-                //QDomNode newNode = tableData.elementsByTagName(tName).at(0).cloneNode(true);
-                QDomNode newNode = tablesByTitle.value(tName).cloneNode(true);
-                newNode.toElement().setAttribute("title", newName);
-                tableData.appendChild(newNode);
-            }
-        }
-        file.resize(0);
-        doc.save(stream,4);
+        globalpara.reportError("Fail to load xml document to copy table.",this);
         file.close();
-        stream.flush();
+        return;
     }
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    //if(!tableData.elementsByTagName(tName).isEmpty())
+    if (tablesByTitle.contains(tName))
+    {
+        //QDomNode newNode = tableData.elementsByTagName(tName).at(0).cloneNode(true);
+        QDomNode newNode = tablesByTitle.value(tName).cloneNode(true);
+        newNode.toElement().setAttribute("title", newName);
+        tableData.appendChild(newNode);
+    }
+    file.resize(0);
+    doc.save(stream,4);
+    file.close();
+    stream.flush();
     setupTables(false);
-
 
     int newCurrentIndex = 0;
     if(ui->tabWidget->count()!=0)
         newCurrentIndex = ui->tabWidget->count()-1;
     ui->tabWidget->setCurrentIndex(newCurrentIndex);
-
 }
 
 bool tableDialog::updateXml()
@@ -604,73 +511,65 @@ bool tableDialog::updateXml()
 
     if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
     {
-        return false;
         globalpara.reportError("Fail to open case file to update changes.",this);
+        return false;
     }
-    else
+    QDomDocument doc;
+    QTextStream stream;
+    stream.setDevice(&file);
+    if(!doc.setContent(&file))
     {
-        QDomDocument doc;
-        QTextStream stream;
-        stream.setDevice(&file);
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document to update changes.",this);
-            file.close();
-            return false;
-        }
-        else
-        {
-            QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-            QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
-            auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-            QDomElement currentTable = tablesByTitle[tableTitle];
-            // ...        tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0).toElement();
-            QStringList inputEntries = currentTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
-            QStringList outputEntries = currentTable.elementsByTagName("outputEntries").at(0).toElement().text().split(";");
-            currentTable.setAttribute("runs",tableToUpdate->rowCount());
-
-            qDebug()<<"updating";
-
-            for(int i = 0; i < tableToUpdate->rowCount(); i++)//put table value of parameters into the xml
-            {
-                QDomElement currentRun = currentTable.elementsByTagName("Run").at(i).toElement();
-                QDomNodeList inputs = currentRun.elementsByTagName("Input");
-                for(int j = 0; j < inputEntries.count();j++)
-                {
-                    QDomElement currentInput = inputs.at(j).toElement();
-                    QDomNodeList values = currentInput.elementsByTagName("value");
-                    QDomElement oldValue = values.at(0).toElement();
-                    QDomElement newValue = doc.createElement("value");
-                    QDomText text = doc.createTextNode(QString::number(tableToUpdate
-                        ->item(i,j)->data(Qt::DisplayRole).toDouble()));
-                    newValue.appendChild(text);
-                    currentInput.appendChild(newValue);
-                    currentInput.replaceChild(newValue,oldValue);
-                }
-                QDomNodeList outputs = currentRun.elementsByTagName("Output");
-                for(int j = 0; j < outputEntries.count();j++)
-                {
-                    QDomElement currentOutput = outputs.at(j).toElement();
-                    QDomNodeList values = currentOutput.elementsByTagName("value");
-                    QDomElement oldValue = values.at(0).toElement();
-                    QDomElement newValue = doc.createElement("value");
-                    QDomText text = doc.createTextNode(QString::number(tableToUpdate
-                        ->item(i,j+inputEntries.count())->data(Qt::DisplayRole).toDouble()));
-                    newValue.appendChild(text);
-                    currentOutput.appendChild(newValue);
-                    currentOutput.replaceChild(newValue,oldValue);
-                }
-            }
-
-
-        }
-        file.resize(0);
-        doc.save(stream,4);
+        globalpara.reportError("Fail to load xml document to update changes.",this);
         file.close();
-        stream.flush();
-        qDebug()<<"xml updated";
-        return true;
+        return false;
     }
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    QDomElement currentTable = tablesByTitle[tableTitle];
+    // ...        tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0).toElement();
+    QStringList inputEntries = currentTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
+    QStringList outputEntries = currentTable.elementsByTagName("outputEntries").at(0).toElement().text().split(";");
+    currentTable.setAttribute("runs",tableToUpdate->rowCount());
+
+    qDebug()<<"updating";
+
+    for(int i = 0; i < tableToUpdate->rowCount(); i++)//put table value of parameters into the xml
+    {
+        QDomElement currentRun = currentTable.elementsByTagName("Run").at(i).toElement();
+        QDomNodeList inputs = currentRun.elementsByTagName("Input");
+        for(int j = 0; j < inputEntries.count();j++)
+        {
+            QDomElement currentInput = inputs.at(j).toElement();
+            QDomNodeList values = currentInput.elementsByTagName("value");
+            QDomElement oldValue = values.at(0).toElement();
+            QDomElement newValue = doc.createElement("value");
+            QDomText text = doc.createTextNode(QString::number(tableToUpdate
+                ->item(i,j)->data(Qt::DisplayRole).toDouble()));
+            newValue.appendChild(text);
+            currentInput.appendChild(newValue);
+            currentInput.replaceChild(newValue,oldValue);
+        }
+        QDomNodeList outputs = currentRun.elementsByTagName("Output");
+        for(int j = 0; j < outputEntries.count();j++)
+        {
+            QDomElement currentOutput = outputs.at(j).toElement();
+            QDomNodeList values = currentOutput.elementsByTagName("value");
+            QDomElement oldValue = values.at(0).toElement();
+            QDomElement newValue = doc.createElement("value");
+            QDomText text = doc.createTextNode(QString::number(tableToUpdate
+                ->item(i,j+inputEntries.count())->data(Qt::DisplayRole).toDouble()));
+            newValue.appendChild(text);
+            currentOutput.appendChild(newValue);
+            currentOutput.replaceChild(newValue,oldValue);
+        }
+    }
+    file.resize(0);
+    doc.save(stream,4);
+    file.close();
+    stream.flush();
+    qDebug()<<"xml updated";
+    return true;
 }
 
 bool tableDialog::calc(globalparameter globalpara, QString fileName, int run)
@@ -686,8 +585,6 @@ bool tableDialog::calc(globalparameter globalpara, QString fileName, int run)
     tInputs.xtol = globalpara.xtol;
     tInputs.nunits = globalcount;
     tInputs.nsp = spnumber;
-
-
 
     double conv = 10;
     if(globalpara.unitindex_temperature==3)
@@ -739,7 +636,6 @@ bool tableDialog::calc(globalparameter globalpara, QString fileName, int run)
             }
             tInputs.devg[count] = myHead->devg*conv;
             tInputs.icop[count] = myHead->icop;
-
         }
 
         tInputs.wetness[count] = myHead->wetnessT;
@@ -757,7 +653,6 @@ bool tableDialog::calc(globalparameter globalpara, QString fileName, int run)
 
         myHead = myHead->next;
     }
-
 
     bool notFound;
     bool iflag;
@@ -790,22 +685,14 @@ bool tableDialog::calc(globalparameter globalpara, QString fileName, int run)
                         tInputs.ipfix[i] = myHead->myNodes[k]->ipfix;
                         tInputs.iwfix[i] = myHead->myNodes[k]->iwfix;
                         iflag = true;
-
                     }
-
             }
-
             myHead = myHead->next;
         }
     }
-
-
-
     //initialize calculation
-
     int cal = absdCal(0,0,tInputs,false);
     qDebug()<<run<<"message is "<<outputs.Msgs[outputs.IER+1];
-
 
     if(outputs.IER<4&&(!outputs.stopped))
     {
@@ -836,44 +723,32 @@ bool tableDialog::calc(globalparameter globalpara, QString fileName, int run)
         return true;
     }
 
-    else if(outputs.IER > 3)
+    if(outputs.IER > 3)
     {
         QMessageBox errorBox(this);
         errorBox.setWindowTitle("Warnging!");
         QString msg;
-        switch (outputs.IER)
-        {
+        switch (outputs.IER) {
         case 4:
-        {
             msg = "Convergence is not achieved within the defined iteration number limit";
             break;
-        }
         case 5:
-        {;
             msg = "Iteration couldn't reduce the residuals in last 20 steps,\ncalculation terminated.";
             break;
-        }
         case 6:
-        {
             msg = "Unsuccessful due to following possible reasons:\n* tolerance is too stringent\n* slow convergence due to Jacobian singular\n or badly scaled variables";
             break;
-        }
         case 7:
-        {
             msg = "Couldn't progress as step bound is too small\nrelative to the size of the iterates.";
             break;
-        }
         }
         errorBox.setText("Failed to converge at run #"
                           +QString::number(run+1)+"\nAnd the error is:\n"+msg);
         errorBox.exec();
         return false;
     }
-    else if(outputs.stopped)
-    {
-            globalpara.reportError("Calculation stopped due to\n"+outputs.myMsg,this);
-            return false;
-    }
+    globalpara.reportError("Calculation stopped due to\n"+outputs.myMsg,this);
+    return false;
 }
 
 void tableDialog::calcTable()
@@ -890,16 +765,13 @@ void tableDialog::calcTable()
         globalpara.reportError("Fail to open case file for table calculation.",this);
         return;
     }
-    else
+    if(!doc.setContent(&file))
     {
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document for table calculation.",this);
-            file.close();
-            return;
-        }
-
+        globalpara.reportError("Fail to load xml document for table calculation.",this);
+        file.close();
+        return;
     }
+
     QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
     QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
     auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
@@ -916,12 +788,9 @@ void tableDialog::calcTable()
     int runs = currentTable.attribute("runs").toInt();
 
     qDebug()<<"runs"<<runs;
-    for(int i = 0; i < runs; i ++){
+    for(int i = 0; i < runs; i ++)
         for(int p = 0; p < (inputEntries.count());p++)
-        {
             tableToCalculate->item(i,p)->setBackground(Qt::white);
-        }
-    }
 
     for(int i = 0; i < runs; i++)
     {
@@ -1025,7 +894,6 @@ void tableDialog::calcTable()
             }
         }//insert all the input into the system for run # i
 
-
         //calculation
         if(!calc(globalpara,"tableCalc",i))
         {
@@ -1042,10 +910,6 @@ void tableDialog::calcTable()
                 tableToCalculate->setItem(i,q,zeroItem);
             }
             tableToCalculate->setCurrentCell(i,inputEntries.count()+1);
-            file.resize(0);
-            doc.save(stream,4);
-            file.close();
-            return;
         }
         else
         {
@@ -1222,16 +1086,11 @@ void tableDialog::calcTable()
                 item->setForeground(blueBrush);
                 tableToCalculate->setItem(i,j+inputEntries.count(),item);
             }//insert all the input into the system for run # i
-
-
         }
     }
     file.resize(0);
     doc.save(stream,4);
-
     file.close();
-
-    return;
 }
 
 void tableDialog::on_calculateButton_clicked()
@@ -1246,69 +1105,67 @@ void tableDialog::updatesystem()
 {
     qDebug()<<outputs.t[1]<<outputs.t[2]<<outputs.t[3]<<outputs.t[4]<<outputs.t[5]<<outputs.t[6];
 
-    //    sp para
-        unit * iterator;
-        for(int p = 0;p<spnumber;p++)
-        {
-            if(myDummy->next!= NULL)
-            {
-                iterator = myDummy->next;
-            }
-            for(int j = 0;j<globalcount;j++)
-            {
-                for(int i = 0;i < iterator->usp;i++)
-                {
-                    if(iterator->myNodes[i]->ndum== p+1)
-                    {
-                        iterator->myNodes[i]->tTr = convert(outputs.t[p+1],temperature[3],temperature[globalpara.unitindex_temperature]);
-                        iterator->myNodes[i]->hTr = convert(outputs.h[p+1],enthalpy[2],enthalpy[globalpara.unitindex_enthalpy]);
-                        iterator->myNodes[i]->fTr = convert(outputs.f[p+1],mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
-                        iterator->myNodes[i]->cTr = outputs.c[p+1];
-                        iterator->myNodes[i]->pTr = convert(outputs.p[p+1],pressure[8],pressure[globalpara.unitindex_pressure]);
-                        iterator->myNodes[i]->wTr = outputs.w[p+1];
-                    }
-                }
-                iterator = iterator->next;
-            }
-        }
-
-    //    unit para
+    // sp para
+    unit * iterator;
+    for(int p = 0;p<spnumber;p++)
+    {
         if(myDummy->next!= NULL)
         {
             iterator = myDummy->next;
         }
-        for(int m = 0;m<globalcount;m++)
+        for(int j = 0;j<globalcount;j++)
         {
-            double conv = 10;
-            if(globalpara.unitindex_temperature==3)
+            for(int i = 0;i < iterator->usp;i++)
             {
-                conv = 1;
+                if(iterator->myNodes[i]->ndum== p+1)
+                {
+                    iterator->myNodes[i]->tTr = convert(outputs.t[p+1],temperature[3],temperature[globalpara.unitindex_temperature]);
+                    iterator->myNodes[i]->hTr = convert(outputs.h[p+1],enthalpy[2],enthalpy[globalpara.unitindex_enthalpy]);
+                    iterator->myNodes[i]->fTr = convert(outputs.f[p+1],mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
+                    iterator->myNodes[i]->cTr = outputs.c[p+1];
+                    iterator->myNodes[i]->pTr = convert(outputs.p[p+1],pressure[8],pressure[globalpara.unitindex_pressure]);
+                    iterator->myNodes[i]->wTr = outputs.w[p+1];
+                }
             }
-            else if(globalpara.unitindex_temperature ==1)
-            {
-                conv = 1.8;
-            }
-
-            iterator->uaT = convert(outputs.ua[m+1],UA[1],UA[globalpara.unitindex_UA]);
-            iterator->ntuT = outputs.ntu[m+1];
-            iterator->effT = outputs.eff[m+1];
-            iterator->catT = outputs.cat[m+1]/conv;
-            iterator->lmtdT = outputs.lmtd[m+1]/conv;
-            iterator->htTr = convert(outputs.heat[m+1],heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
-            iterator->humeffT = outputs.humeff[m+1];
-            iterator->enthalpyeffT = outputs.enthalpyeff[m+1];
-            iterator->mrateT = convert(outputs.mrate[m+1],mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
             iterator = iterator->next;
         }
+    }
 
-    //    globa para
-        if(outputs.capacity!=0)
+    // unit para
+    if(myDummy->next!= NULL)
+    {
+        iterator = myDummy->next;
+    }
+    for(int m = 0;m<globalcount;m++)
+    {
+        double conv = 10;
+        if(globalpara.unitindex_temperature==3)
         {
-            globalpara.copT = outputs.cop;
-            globalpara.capacityT = convert(outputs.capacity,heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+            conv = 1;
+        }
+        else if(globalpara.unitindex_temperature ==1)
+        {
+            conv = 1.8;
         }
 
-        return;
+        iterator->uaT = convert(outputs.ua[m+1],UA[1],UA[globalpara.unitindex_UA]);
+        iterator->ntuT = outputs.ntu[m+1];
+        iterator->effT = outputs.eff[m+1];
+        iterator->catT = outputs.cat[m+1]/conv;
+        iterator->lmtdT = outputs.lmtd[m+1]/conv;
+        iterator->htTr = convert(outputs.heat[m+1],heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+        iterator->humeffT = outputs.humeff[m+1];
+        iterator->enthalpyeffT = outputs.enthalpyeff[m+1];
+        iterator->mrateT = convert(outputs.mrate[m+1],mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
+        iterator = iterator->next;
+    }
+
+    // globaL para
+    if(outputs.capacity!=0)
+    {
+        globalpara.copT = outputs.cop;
+        globalpara.capacityT = convert(outputs.capacity,heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+    }
 }
 
 void tableDialog::on_alterRunButton_clicked()
@@ -1341,10 +1198,8 @@ bool tableDialog::add_or_delete_runs(
     QTableWidget * currentTable = dynamic_cast<QTableWidget *>(ui->tabWidget->currentWidget());
     if(adrIsInsert)
     {
-        switch(adrPosition)
-        {
-        case(1):
-        {
+        switch(adrPosition) {
+        case 1:
             for(int i = 0;i < adrNr;i++)
             {
                 currentTable->insertRow(0);
@@ -1357,9 +1212,7 @@ bool tableDialog::add_or_delete_runs(
                 }
             }
             break;
-        }
-        case(2):
-        {
+        case 2:
             for(int i = 0; i< adrNr;i++)
             {
                 currentTable->insertRow(currentTable->rowCount());
@@ -1372,9 +1225,7 @@ bool tableDialog::add_or_delete_runs(
                 }
             }
             break;
-        }
-        case(3):
-        {
+        case 3:
             for(int i = 0;i<adrNr;i++)
             {
                 currentTable->insertRow(adrIar);
@@ -1388,32 +1239,24 @@ bool tableDialog::add_or_delete_runs(
             }
             break;
         }
-        }
     }
     else
     {
         if(adrNr<currentTable->rowCount())
         {
-            switch(adrPosition)
-            {
-            case(1):
-            {
+            switch(adrPosition) {
+            case 1:
                 for(int i = 0;i < adrNr;i++)
                     currentTable->removeRow(0);
                 break;
-            }
-            case(2):
-            {
+            case 2:
                 for(int i = 0; i< adrNr;i++)
                     currentTable->removeRow(currentTable->rowCount()-1);
                 break;
-            }
-            case(3):
-            {
+            case 3:
                 for(int i = 0;i<adrNr;i++)
                     currentTable->removeRow(adrIar);
                 break;
-            }
             }
         }
         else
@@ -1448,49 +1291,40 @@ void tableDialog::on_alterVarButton_clicked()
         globalpara.reportError("Fail to open case file to alter table values.",this);
         return;
     }
-    else
+    if(!doc.setContent(&file))
     {
-        if(!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document to alter table values.",this);
-            file.close();
-            return;
-        }
-        else
-        {
-            QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-            auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-            QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
-            QDomElement thisTable = tablesByTitle.value(tableTitle);
-            // ...        tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0).toElement();
-            QStringList list = thisTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
-            inputCount = list.count();
-            int rowCount = currentTable->rowCount();
-            for(int i = 0; i < inputCount;i++)
-            {
-                QString string;
-                string.append(currentTable->item(0,i)->data(Qt::DisplayRole).toString());
-                string.append(",");
-                string.append(currentTable->item(rowCount-1,i)->data(Qt::DisplayRole).toString());
-                alvDialog.ranges.append(string);
-            }
-            for(int i = 0;i < list.count();i++)
-            {
-                list[i] = list[i].split(",")[0]+list[i].split(",")[1];
-            }
-            alvDialog.setInputs(list);
-            file.close();
-        }
-
+        globalpara.reportError("Fail to load xml document to alter table values.",this);
+        file.close();
+        return;
     }
-
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+    QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
+    QDomElement thisTable = tablesByTitle.value(tableTitle);
+    // ...        tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0).toElement();
+    QStringList list = thisTable.elementsByTagName("inputEntries").at(0).toElement().text().split(";");
+    inputCount = list.count();
+    int rowCount = currentTable->rowCount();
+    for(int i = 0; i < inputCount;i++)
+    {
+        QString string;
+        string.append(currentTable->item(0,i)->data(Qt::DisplayRole).toString());
+        string.append(",");
+        string.append(currentTable->item(rowCount-1,i)->data(Qt::DisplayRole).toString());
+        alvDialog.ranges.append(string);
+    }
+    for(int i = 0;i < list.count();i++)
+    {
+        list[i] = list[i].split(",")[0]+list[i].split(",")[1];
+    }
+    alvDialog.setInputs(list);
+    file.close();
 
     alvDialog.setWindowTitle("Alter Values");
     alvDialog.exec();
 
     if(alvAccepted)
     {
-
         if(alvIsEnter)
         {
             if(alvLastRow+1>currentTable->rowCount())
@@ -1511,59 +1345,50 @@ void tableDialog::on_alterVarButton_clicked()
                     }
                 }
             }
-            switch(alvMethod)
-            {
-            case(0)://LINEAR
-            {
-                double incre = (alvLastValue-alvFirstValue)/(alvLastRow-alvFirstRow);
+            double val;
+            switch(alvMethod) {
+            case 0://LINEAR
+                val = (alvLastValue-alvFirstValue)/(alvLastRow-alvFirstRow);
                 for(int i = 0; i < alvLastRow-alvFirstRow+1;i++)
                 {
                     QTableWidgetItem * item = new QTableWidgetItem;
-                    item->setData(Qt::DisplayRole,QString::number(i*incre+alvFirstValue,'g',4));
+                    item->setData(Qt::DisplayRole,QString::number(i*val+alvFirstValue,'g',4));
                     item->setTextAlignment(Qt::AlignCenter);
                     currentTable->setItem(alvFirstRow+i,alvCol,item);
                 }
                 break;
-            }
-            case(1)://INCREMENTAL
-            {
-                double incre = alvLastValue;
+            case 1://INCREMENTAL
+                val = alvLastValue;
                 for(int i = 0; i < alvLastRow-alvFirstRow+1;i++)
                 {
                     QTableWidgetItem * item = new QTableWidgetItem;
-                    item->setData(Qt::DisplayRole,QString::number(i*incre+alvFirstValue,'g',4));
+                    item->setData(Qt::DisplayRole,QString::number(i*val+alvFirstValue,'g',4));
                     item->setTextAlignment(Qt::AlignCenter);
                     currentTable->setItem(alvFirstRow+i,alvCol,item);
                 }
                 break;
-            }
-            case(2)://MULTIPLIER
-            {
-                qreal multi = alvLastValue;
+            case 2://MULTIPLIER
+                val = alvLastValue;
                 for(int i = 0; i < alvLastRow-alvFirstRow+1;i++)
                 {
                     QTableWidgetItem * item = new QTableWidgetItem;
-                    item->setData(Qt::DisplayRole,QString::number(alvFirstValue*qPow(multi,i),'g',4));
+                    item->setData(Qt::DisplayRole,QString::number(alvFirstValue*qPow(val,i),'g',4));
                     item->setTextAlignment(Qt::AlignCenter);
                     currentTable->setItem(alvFirstRow+i,alvCol,item);
                 }
                 break;
-            }
-            case(3)://LOG
-            {
-                double logIncre = (log10(alvLastValue)-log10(alvFirstValue))/(alvLastRow-alvFirstRow);
+            case 3://LOG
+                val = (log10(alvLastValue)-log10(alvFirstValue))/(alvLastRow-alvFirstRow);
                 for(int i = 0; i < alvLastRow-alvFirstRow+1;i++)
                 {
                     QTableWidgetItem * item = new QTableWidgetItem;
 
-                    item->setData(Qt::DisplayRole,QString::number(qPow(10,log10(alvFirstValue)+i*logIncre),'g',4));
+                    item->setData(Qt::DisplayRole,QString::number(qPow(10,log10(alvFirstValue)+i*val),'g',4));
                     item->setTextAlignment(Qt::AlignCenter);
                     currentTable->setItem(alvFirstRow+i,alvCol,item);
                 }
                 break;
             }
-            }
-
         }
         else
         {
@@ -1596,35 +1421,27 @@ void tableDialog::on_deleteTButton_clicked()
         QFile file(tableTempXML);
         if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
         {
-            return;
             globalpara.reportError("Fail to open case file to delete the selected table.",this);
+            return;
         }
-        else
+        QDomDocument doc;
+        QTextStream stream;
+        stream.setDevice(&file);
+        if(!doc.setContent(&file))
         {
-            QDomDocument doc;
-            QTextStream stream;
-            stream.setDevice(&file);
-            if(!doc.setContent(&file))
-            {
-                globalpara.reportError("Fail to load xml document to delete the selected table.",this);
-                file.close();
-                return;
-            }
-            else
-            {
-
-                QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-                QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
-                auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
-                //tableData.removeChild(tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0));
-                tableData.removeChild(tablesByTitle[tableTitle]);
-            }
-            file.resize(0);
-            doc.save(stream,4);
+            globalpara.reportError("Fail to load xml document to delete the selected table.",this);
             file.close();
-            stream.flush();
+            return;
         }
-
+        QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+        QString tableTitle = ui->tabWidget->tabText(ui->tabWidget->currentIndex());
+        auto tablesByTitle = Sorputils::mapElementsByAttribute(tableData.childNodes(), "title");
+        //tableData.removeChild(tableData.elementsByTagName(ui->tabWidget->tabText(ui->tabWidget->currentIndex())).at(0));
+        tableData.removeChild(tablesByTitle[tableTitle]);
+        file.resize(0);
+        doc.save(stream,4);
+        file.close();
+        stream.flush();
 
         if(ui->tabWidget->count()>1)
         {
@@ -1635,12 +1452,7 @@ void tableDialog::on_deleteTButton_clicked()
         {
             this->close();
         }
-
-
-
     }
-    else return;
-
 }
 
 void tableDialog::on_copyButton_clicked()
@@ -1846,7 +1658,6 @@ void tableDialog::printPreview(QPrinter *printer)
     setGeometry(rect);
     currentTable->update();
 
-
     QPainter painter;
     QPixmap pix = currentTable->grab();
     painter.begin(printer);
@@ -1863,13 +1674,10 @@ void tableDialog::printPreview(QPrinter *printer)
 //    qDebug()<<printer->width()<<pic.width()<<printer->height()<<pic.height();
 //    double scaler = fmin(printer->width()/pic.width()*0.9,printer->height()/pic.height()*0.9);
 //    QPainter painter(printer);
-////    painter.scale(scaler,scaler);
+//    painter.scale(scaler,scaler);
 //    painter.drawPicture(0,0,pic);
 //    painter.end();
-
-
     adjustTableSize(true);
-
 }
 
 void tableDialog::adjustTableSize(bool onlySize)
@@ -1957,10 +1765,8 @@ void tableDialog::closeEvent(QCloseEvent *)
 
 bool tableDialog::saveChanges()
 {
-    bool openOK = true;
     QString tableTempXML = Sorputils::sorpTempDir().absoluteFilePath("tableTemp.xml");
-    QFile ofile(globalpara.caseName),
-            file(tableTempXML);
+    QFile ofile(globalpara.caseName), file(tableTempXML);
 
     QDomDocument odoc,doc;
     QDomElement oroot;
@@ -1970,31 +1776,24 @@ bool tableDialog::saveChanges()
     {
         globalpara.reportError("Fail to open case file to update table data.",this);
         return false;
-        openOK = false;
     }
-    if(openOK)
+    if(!odoc.setContent(&ofile)||!doc.setContent(&file))
     {
-        if(!odoc.setContent(&ofile)||!doc.setContent(&file))
-        {
-            globalpara.reportError("Fail to load xml document from case file to update table data.",this);
-            return false;
-        }
-        else
-        {
-            QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-            QDomNode copiedTable = tableData.cloneNode(true);
-            oroot = odoc.elementsByTagName("root").at(0).toElement();
-            oroot.replaceChild(copiedTable,odoc.elementsByTagName("TableData").at(0));
-
-            ofile.resize(0);
-            odoc.save(stream,4);
-            file.close();
-            ofile.close();
-            stream.flush();
-            file.remove();
-            return true;
-        }
+        globalpara.reportError("Fail to load xml document from case file to update table data.",this);
+        return false;
     }
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    QDomNode copiedTable = tableData.cloneNode(true);
+    oroot = odoc.elementsByTagName("root").at(0).toElement();
+    oroot.replaceChild(copiedTable,odoc.elementsByTagName("TableData").at(0));
+
+    ofile.resize(0);
+    odoc.save(stream,4);
+    file.close();
+    ofile.close();
+    stream.flush();
+    file.remove();
+    return true;
 }
 
 void tableDialog::on_editColumnButton_clicked()

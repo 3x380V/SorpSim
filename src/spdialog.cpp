@@ -35,7 +35,6 @@ extern unit* dummy;
 extern int globalcount;
 extern MainWindow * theMainwindow;
 
-
 spDialog::spDialog(Node* sp, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::spDialog)
@@ -59,10 +58,8 @@ spDialog::spDialog(Node* sp, QWidget *parent) :
     ui->cUnit->setText(globalpara.unitname_concentration);
     ui->wUnit->setText("");
 
-    switch(myNode->myUnit->idunit)
-    {
+    switch(myNode->myUnit->idunit) {
     case 131://desiccant wheel equilibrium point
-    {
         if(myNode->localindex!=3)
         {
             ui->CGB->setTitle("Humidity Ratio");
@@ -72,16 +69,9 @@ spDialog::spDialog(Node* sp, QWidget *parent) :
             ui->cUnit->setText(globalpara.unitname_mass+"/"+globalpara.unitname_mass+" d.a.");
         }
         break;
-    }
-    case 161:
-    case 162:
-    case 163:
-    case 164:
-    case 181:
-    case 182:
-    case 183:
-    case 184://adiabatic LDS components
-    {
+    case 161 ... 164:
+    case 181 ... 184:
+        //adiabatic LDS components
         if(myNode->localindex==2||myNode->localindex==4)
         {
             ui->CGB->setTitle("Humidity Ratio");
@@ -91,26 +81,9 @@ spDialog::spDialog(Node* sp, QWidget *parent) :
             ui->cUnit->setText(globalpara.unitname_mass+"/"+globalpara.unitname_mass+" d.a.");
         }
         break;
-    }
-    case 171:
-    case 172:
-    case 173:
-    case 174:
-    case 175:
-    case 176:
-    case 177:
-    case 178:
-    case 179:
-    case 191:
-    case 192:
-    case 193:
-    case 194:
-    case 195:
-    case 196:
-    case 197:
-    case 198:
-    case 199://internally cooled/heated LDS components
-    {
+    case 171 ... 179:
+    case 191 ... 199:
+        //internally cooled/heated LDS components
         if(myNode->localindex==2||myNode->localindex==6)
         {
             ui->CGB->setTitle("Humidity Ratio");
@@ -120,7 +93,6 @@ spDialog::spDialog(Node* sp, QWidget *parent) :
             ui->cUnit->setText(globalpara.unitname_mass+"/"+globalpara.unitname_mass+" d.a.");
         }
         break;
-    }
     }
 
     setWindowTitle("State Point Parameter");
@@ -141,8 +113,6 @@ spDialog::spDialog(Node* sp, QWidget *parent) :
     oW = myNode->w;
 
     updateSetting();
-
-//    setWindowFlags(Qt::WindowTitleHint|Qt::WindowMinimizeButtonHint);
 
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -214,11 +184,9 @@ void spDialog::on_OkButton_clicked()
                     link->setColor();
                 }
             }
-
             setPoint();
             accept();
         }
-
     }
 }
 
@@ -310,7 +278,6 @@ void spDialog::updateSetting()
     }
     sysFluids<<"Not Assigned";
 
-
     for(int m = 0; m < sysFluids.count();m++)
         ui->fluidCB->insertItem(0,sysFluids.at(m).split(",").first());
 
@@ -325,7 +292,6 @@ void spDialog::updateSetting()
                     ui->fluidCB->setCurrentText(item.split(",").first());
         }
     }
-
 }
 
 void spDialog::setPoint()
@@ -335,22 +301,22 @@ void spDialog::setPoint()
     QSet<Node*>tSet = globalpara.allSet;
     if(ui->TFButton->isChecked())
     {
-            double newT = ui->TLE->text().toDouble();
-            foreach(QSet<Node*>tgSet,globalpara.tGroup)
+        double newT = ui->TLE->text().toDouble();
+        foreach(QSet<Node*>tgSet,globalpara.tGroup)
+        {
+            if(tgSet.contains(myNode))
             {
-                if(tgSet.contains(myNode))
-                {
-                    globalpara.tGroup.removeOne(tgSet);
-                    tgSet.subtract(tSet);
-                    globalpara.addGroup('t',tgSet);
-                }
+                globalpara.tGroup.removeOne(tgSet);
+                tgSet.subtract(tSet);
+                globalpara.addGroup('t',tgSet);
             }
-            foreach(Node*node,tSet)
-            {
-                node->itfix = 0;
-                node->t = newT;
-                node->passParaToMerged();
-            }
+        }
+        foreach(Node*node,tSet)
+        {
+            node->itfix = 0;
+            node->t = newT;
+            node->passParaToMerged();
+        }
     }
     else if(ui->TUButton->isChecked())
     {
@@ -375,28 +341,27 @@ void spDialog::setPoint()
     }
     globalpara.resetIfixes('t');
 
-
     globalpara.allSet.clear();
     myNode->searchAllSet("f");
     QSet<Node*>fSet = globalpara.allSet;
     if(ui->FFButton->isChecked())
     {
-            double newF = ui->FLE->text().toDouble();
-            foreach(QSet<Node*>fgSet,globalpara.fGroup)
+        double newF = ui->FLE->text().toDouble();
+        foreach(QSet<Node*>fgSet,globalpara.fGroup)
+        {
+            if(fgSet.contains(myNode))
             {
-                if(fgSet.contains(myNode))
-                {
-                    globalpara.fGroup.removeOne(fgSet);
-                    fgSet.subtract(fSet);
-                    globalpara.addGroup('f',fgSet);
-                }
+                globalpara.fGroup.removeOne(fgSet);
+                fgSet.subtract(fSet);
+                globalpara.addGroup('f',fgSet);
             }
-            foreach(Node*node,fSet)
-            {
-                node->iffix = 0;
-                node->f = newF;
-                node->passParaToMerged();
-            }
+        }
+        foreach(Node*node,fSet)
+        {
+            node->iffix = 0;
+            node->f = newF;
+            node->passParaToMerged();
+        }
     }
     else if(ui->FUButton->isChecked())
     {
@@ -427,28 +392,27 @@ void spDialog::setPoint()
     }
     globalpara.resetIfixes('f');
 
-
     globalpara.allSet.clear();
     myNode->searchAllSet("c");
     QSet<Node*>cSet = globalpara.allSet;
     if(ui->CFButton->isChecked())
     {
-            double newC = ui->CLE->text().toDouble();
-            foreach(QSet<Node*>cgSet,globalpara.cGroup)
+        double newC = ui->CLE->text().toDouble();
+        foreach(QSet<Node*>cgSet,globalpara.cGroup)
+        {
+            if(cgSet.contains(myNode))
             {
-                if(cgSet.contains(myNode))
-                {
-                    globalpara.cGroup.removeOne(cgSet);
-                    cgSet.subtract(cSet);
-                    globalpara.addGroup('c',cgSet);
-                }
+                globalpara.cGroup.removeOne(cgSet);
+                cgSet.subtract(cSet);
+                globalpara.addGroup('c',cgSet);
             }
-            foreach(Node*node,cSet)
-            {
-                node->icfix = 0;
-                node->c = newC;
-                node->passParaToMerged();
-            }
+        }
+        foreach(Node*node,cSet)
+        {
+            node->icfix = 0;
+            node->c = newC;
+            node->passParaToMerged();
+        }
     }
     else if(ui->CUButton->isChecked())
     {
@@ -473,28 +437,27 @@ void spDialog::setPoint()
     }
     globalpara.resetIfixes('c');
 
-
     globalpara.allSet.clear();
     myNode->searchAllSet("p");
     QSet<Node*>pSet = globalpara.allSet;
     if(ui->PFButton->isChecked())
     {
-            double newP = ui->PLE->text().toDouble();
-            foreach(QSet<Node*>pgSet,globalpara.pGroup)
+        double newP = ui->PLE->text().toDouble();
+        foreach(QSet<Node*>pgSet,globalpara.pGroup)
+        {
+            if(pgSet.contains(myNode))
             {
-                if(pgSet.contains(myNode))
-                {
-                    globalpara.pGroup.removeOne(pgSet);
-                    pgSet.subtract(pSet);
-                    globalpara.addGroup('p',pgSet);
-                }
+                globalpara.pGroup.removeOne(pgSet);
+                pgSet.subtract(pSet);
+                globalpara.addGroup('p',pgSet);
             }
-            foreach(Node*node,pSet)
-            {
-                node->ipfix = 0;
-                node->p = newP;
-                node->passParaToMerged();
-            }
+        }
+        foreach(Node*node,pSet)
+        {
+            node->ipfix = 0;
+            node->p = newP;
+            node->passParaToMerged();
+        }
     }
     else if(ui->PUButton->isChecked())
     {
@@ -519,29 +482,28 @@ void spDialog::setPoint()
     }
     globalpara.resetIfixes('p');
 
-
     globalpara.allSet.clear();
     myNode->searchAllSet("w");
     QSet<Node*>wSet = globalpara.allSet;
     if(ui->WFButton->isChecked())
     {
-            double newW = ui->WLE->text().toDouble();
-            foreach(QSet<Node*>wgSet,globalpara.wGroup)
+        double newW = ui->WLE->text().toDouble();
+        foreach(QSet<Node*>wgSet,globalpara.wGroup)
+        {
+            if(wgSet.contains(myNode))
             {
-                if(wgSet.contains(myNode))
-                {
 
-                    globalpara.wGroup.removeOne(wgSet);
-                    wgSet.subtract(wSet);
-                    globalpara.addGroup('w',wgSet);
-                }
+                globalpara.wGroup.removeOne(wgSet);
+                wgSet.subtract(wSet);
+                globalpara.addGroup('w',wgSet);
             }
-            foreach(Node*node,wSet)
-            {
-                node->iwfix = 0;
-                node->w = newW;
-                node->passParaToMerged();
-            }
+        }
+        foreach(Node*node,wSet)
+        {
+            node->iwfix = 0;
+            node->w = newW;
+            node->passParaToMerged();
+        }
     }
     else if(ui->WUButton->isChecked())
     {
@@ -616,7 +578,6 @@ void spDialog::on_TFButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set temperature of sp"+QString::number(myNode->ndum)+list.join("")+" as fixed input.");
         }
-
     }
     ui->TLE->setText(QString::number(myNode->t,'g',4));
 }
@@ -665,7 +626,6 @@ void spDialog::on_TUButton_clicked()
 
     }
     ui->TLE->setText("Unknown");
-
 }
 
 void spDialog::on_TLE_editingFinished()
@@ -804,7 +764,6 @@ void spDialog::on_PUButton_clicked()
 
     }
     ui->PLE->setText("Unknown");
-
 }
 
 void spDialog::on_PLE_editingFinished()
@@ -850,7 +809,6 @@ void spDialog::on_PLE_editingFinished()
                                  "This will set pressure of sp"+QString::number(myNode->ndum)+list.join("")+" to "+text+globalpara.unitname_pressure);
         }
     }
-
 }
 
 void spDialog::on_FFButton_clicked()
@@ -895,7 +853,6 @@ void spDialog::on_FFButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set mass flow rate of sp"+QString::number(myNode->ndum)+list.join("")+" as fixed input.");
         }
-
     }
     ui->FLE->setText(QString::number(myNode->f,'g',4));
 }
@@ -943,7 +900,6 @@ void spDialog::on_FUButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set mass flow rate of sp"+QString::number(myNode->ndum)+list.join("")+" as unknown variables.");
         }
-
     }
     ui->FLE->setText("Unknown");
 }
@@ -1035,7 +991,6 @@ void spDialog::on_CFButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set concentration of sp"+QString::number(myNode->ndum)+list.join("")+" as fixed input.");
         }
-
     }
     ui->CLE->setText(QString::number(myNode->c,'g',4));
 }
@@ -1083,7 +1038,6 @@ void spDialog::on_CUButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set concentration of sp"+QString::number(myNode->ndum)+list.join("")+" as unknown variables.");
         }
-
     }
     ui->CLE->setText("Unknown");
 }
@@ -1175,7 +1129,6 @@ void spDialog::on_WFButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set vapor fraction of sp"+QString::number(myNode->ndum)+list.join("")+" as fixed input.");
         }
-
     }
     ui->WLE->setText(QString::number(myNode->w,'g',4));
 }
@@ -1223,7 +1176,6 @@ void spDialog::on_WUButton_clicked()
             QMessageBox::warning(this, "Warning",
                                  "This will set vapor fraction of sp"+QString::number(myNode->ndum)+list.join("")+" as unknown variables.");
         }
-
     }
     ui->WLE->setText("Unknown");
 }

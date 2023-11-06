@@ -12,10 +12,10 @@
 
 */
 
+#include <QPainter>
+#include <QPen>
 
 #include "airarrow.h"
-#include <QPen>
-#include <QPainter>
 
 airArrow::airArrow()
 {
@@ -42,7 +42,6 @@ void airArrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     arrow.append(p7);
     arrow.append(p1);
 
-
     painter->setPen(Qt::black);
     painter->setBrush(Qt::red);
     painter->drawPolygon(arrow);
@@ -57,5 +56,3 @@ QRectF airArrow::boundingRect() const
     rect.setBottomRight(p2);
     return rect;
 }
-
-

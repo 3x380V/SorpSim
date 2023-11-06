@@ -12,10 +12,10 @@
 
 */
 
+#include <QPainter>
+#include <QPen>
 
 #include "packings.h"
-#include <QPen>
-#include <QPainter>
 #include "zigzag.h"
 
 packings::packings()
@@ -27,7 +27,6 @@ packings::packings()
         zz[i]->setParentItem(this);
         zz[i]->moveBy((i-4)*5,0);
     }
-
 }
 
 void packings::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

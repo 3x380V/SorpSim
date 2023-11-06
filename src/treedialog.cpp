@@ -13,21 +13,18 @@
 
 */
 
+#include <QAbstractItemModel>
+#include <QDebug>
+#include <QLabel>
+#include <QLayout>
+#include <QSet>
+#include <QStatusBar>
+#include <QString>
+#include <QTreeWidgetItem>
 
 #include "treedialog.h"
 #include "ui_treedialog.h"
-#include "myscene.h"
-#include "unit.h"
 #include "mainwindow.h"
-#include <QLabel>
-#include <QString>
-#include <QDebug>
-#include <QAbstractItemModel>
-#include <QSet>
-#include <QTreeWidgetItem>
-#include <QLayout>
-#include <QStatusBar>
-
 
 int localid = 0;
 int localusp = 0;
@@ -41,7 +38,6 @@ extern MainWindow*theMainwindow;
 extern unit * tempUnit;
 
 extern int sceneActionIndex;
-
 
 TreeDialog::TreeDialog(QWidget *parent) :
     QDialog(parent),
@@ -63,7 +59,6 @@ TreeDialog::TreeDialog(QWidget *parent) :
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
     setTree();
-
 }
 
 TreeDialog::~TreeDialog()
@@ -83,7 +78,6 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
         localusp = 5;
         ui->selectButton->setEnabled(true);
         displayComponent(localid);
-
     }
 
     else if ( str == QString("Condenser_top"))
@@ -100,7 +94,6 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
         localusp = 6;
         ui->selectButton->setEnabled(true);
         displayComponent(localid);
-
     }
 
     else if (  str == QString("Absorber_cross-flow") )
@@ -109,7 +102,6 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
         localusp = 6;
         ui->selectButton->setEnabled(true);
         displayComponent(localid);
-
     }
 
     else if ( str == QString("Absorber_counter-flow"))
@@ -135,7 +127,6 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
         ui->selectButton->setEnabled(true);
         displayComponent(localid);
     }
-
 
     else if ( str == QString("Analyser_heated") )
     {
@@ -498,7 +489,6 @@ void TreeDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
     /// identify the type index "localid", number of state points "localusp"
 }
 
-
 void TreeDialog::on_cancelButton_clicked()
 {
     reject();
@@ -519,14 +509,12 @@ void TreeDialog::displayComponent(int idunit)
         displayUnit->myNodes[i]->text->setText(QString::number(i+1));
     }
 
-
     scene->drawUnit(displayUnit);
 
     ui->discriptionBox->setPlainText(displayUnit->description);
     ui->discriptionBox->setReadOnly(true);
 
     ui->myView->centerOn(displayUnit);
-
 }
 
 bool TreeDialog::event(QEvent *e)
@@ -589,9 +577,7 @@ void TreeDialog::setTree()
     item = addTreeRoot("Compressor");
     item = addTreeRoot("Pump");
 
-
 //    item = addTreeRoot("Desiccant Wheel");
-
 
     item = addTreeRoot("EFF Model-Liquid Desiccant");
     addTreeChild(item,"Eff_adiabatic_dehum");
@@ -637,7 +623,6 @@ void TreeDialog::setTree()
 
     ///to add new component, either start a new root, or expand an
     /// existing root
-
 }
 
 QTreeWidgetItem* TreeDialog::addTreeRoot(QString name, QString description)
@@ -664,12 +649,10 @@ void TreeDialog::on_selectButton_clicked()
     int tempUnitInd = globalcount+1;
     int tempSpNumber = spnumber;
 
-
     tempUnit->nu = tempUnitInd;
     tempUnit->idunit = localid;
     tempUnit->usp = localusp;
     tempUnit->initialize();
-
 
     for (int spcounter = 0; spcounter < localusp; spcounter++)
     {
@@ -739,14 +722,10 @@ void TreeDialog::on_selectButton_clicked()
         tempUnit->myNodes[i]->ksub = 0;
     }
 
-
-
     sceneActionIndex = 1;
     theToolBar->setEnabled(false);
     theMenuBar->setEnabled(false);
     QApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
     theStatusBar->showMessage("Click to add the selected component into system.\nOr press ESC to cancel.");
     QDialog::accept();
-
 }
-

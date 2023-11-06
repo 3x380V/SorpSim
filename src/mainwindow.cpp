@@ -268,11 +268,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *deleteCut = new QShortcut(QKeySequence("Delete"),this);
     QObject::connect(deleteCut,SIGNAL(activated()),ui->actionDelete,SLOT(trigger()));
 
-
     showMaximized();
 
     startWindow();
-
 }
 
 MainWindow::~MainWindow()
@@ -283,46 +281,36 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionExit_triggered()
 {
     int answer = askToSave();
-    switch (answer)
-    {
+    switch (answer) {
     case 0:
         break;
     case 1:
-    {
         saveFile(globalpara.caseName,false);
-        exit(0);
-        break;
-    }
     case 2:
         exit(0);
+        break;
     }
 }
 
 void MainWindow::on_actionNew_triggered()
 {
     int askSave = askToSave();
-    switch(askSave)
-    {
+    switch(askSave) {
     case 0://cancel
         break;
     case 1://save and proceed
-    {
         //save current file
         saveFile(globalpara.caseName,true);
         newCase();
         break;
-    }
     case 2://discard and proceed
-    {
         newCase();
         break;
-    }
     }
 }
 
 void MainWindow::on_actionComponent_triggered()
 {
-
     TreeDialog* tDialog = new TreeDialog(this);
     tDialog->setModal(true);
     tDialog->exec();
@@ -480,7 +468,6 @@ void MainWindow::deleteunit(unit *delunit)
 
     while(head->next!=NULL  && !done)
     {
-
         if  (head->next==delunit)
         {
             unit* temp1 =NULL;
@@ -493,8 +480,6 @@ void MainWindow::deleteunit(unit *delunit)
                     spnumber = spnumber - diff;
                     done = true;
                     head->next = NULL;
-
-
                 }
             else
                 {
@@ -516,43 +501,38 @@ void MainWindow::deleteunit(unit *delunit)
         // so renumber all the units and nodes that follow.
         if(delflag)
         {
-            head->nu = head->nu - 1;
-
-                for(int j = 0;j < head->usp;j++)
+            head->nu--;
+            for(int j = 0;j < head->usp;j++)
+            {
+                if(head->myNodes[j]->linked&head->myNodes[j]->linklowerflag)//if larger in link, update with smaller one
                 {
-                    if(head->myNodes[j]->linked&head->myNodes[j]->linklowerflag)//if larger in link, update with smaller one
+                    Link * linktemp;
+                    linktemp = head->myNodes[j]->myLinks.values().first();
+                    Node * sp3 = linktemp->myFromNode;
+                    Node * sp4 = linktemp->myToNode;
+                    Node * Ntemp;
+                    if(sp3->unitindex > sp4->unitindex)
                     {
-                        Link * linktemp;
-                        linktemp = head->myNodes[j]->myLinks.values().first();
-                        Node * sp3 = linktemp->myFromNode;
-                        Node * sp4 = linktemp->myToNode;
-                        Node * Ntemp;
-                        if(sp3->unitindex > sp4->unitindex)
-                        {
-                            Ntemp = sp3;
-                            sp3 = sp4;
-                            sp4 = Ntemp;
-                        }
-                        head->myNodes[j]->ndum = sp3->ndum;
-                        head->myNodes[j]->passIndToMerged();
-                        head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
-                        head->myNodes[j]->unitindex = (head->myNodes[j]->unitindex-1);
+                        Ntemp = sp3;
+                        sp3 = sp4;
+                        sp4 = Ntemp;
                     }
-                    else
-                    {
-                        head->myNodes[j]->ndum = (head->myNodes[j]->ndum - diff);
-                        head->myNodes[j]->passIndToMerged();
-                        head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
-                        head->myNodes[j]->unitindex = (head->myNodes[j]->unitindex-1);
-                    }
+                    head->myNodes[j]->ndum = sp3->ndum;
+                    head->myNodes[j]->passIndToMerged();
+                    head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
+                    head->myNodes[j]->unitindex = (head->myNodes[j]->unitindex-1);
                 }
-
+                else
+                {
+                    head->myNodes[j]->ndum = (head->myNodes[j]->ndum - diff);
+                    head->myNodes[j]->passIndToMerged();
+                    head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
+                    head->myNodes[j]->unitindex = (head->myNodes[j]->unitindex-1);
+                }
+            }
             changes ++;
-
         }
-
     }
-
 }
 
 void MainWindow::deletelink(Link *dellink)
@@ -580,22 +560,18 @@ void MainWindow::deletelink(Link *dellink)
     {
         head = head->next;
 
-
         if(i < lUnitInd)
         {
             for(int j = 0;j < head->usp;j ++)
             {
-
                 if(head->myNodes[j]->ndum > lSpInd)
                     lSpInd = head->myNodes[j]->ndum;
             }
         }
-
         else if(i == lUnitInd)
         {
             for(j = 0;j < head->usp;j++)
             {
-
                 if(j < spLocalInd-1 && head->myNodes[j]->ndum > lSpInd)
                     lSpInd = head->myNodes[j]->ndum;
 
@@ -606,7 +582,6 @@ void MainWindow::deletelink(Link *dellink)
                     head->myNodes[j]->ndum = lSpInd;
                     head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
                     head->myNodes[j]->passIndToMerged();
-
                 }
                 if(j>spLocalInd-1)//for sp after the linked nodes
                 {
@@ -617,7 +592,6 @@ void MainWindow::deletelink(Link *dellink)
                         head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
                         head->myNodes[j]->passIndToMerged();
                     }
-
                 }
             }
         }
@@ -631,8 +605,6 @@ void MainWindow::deletelink(Link *dellink)
                     head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
                     head->myNodes[j]->passIndToMerged();
                 }
-
-
                 else if(head->myNodes[j]->linked &(head->myNodes[j]->linklowerflag))//linked and is the larger one, update according to the smaller one
                 {
                     Link * linktemp;
@@ -650,8 +622,7 @@ void MainWindow::deletelink(Link *dellink)
                     head->myNodes[j]->text->setText(QString::number(head->myNodes[j]->ndum));
                     head->myNodes[j]->passIndToMerged();
                     //qDebug()<<head->myNodes[j]->unitindex<<"-"<<head->myNodes[j]->localindex<<"after2"<<head->myNodes[j]->ndum;
-                 }
-
+                }
                 else if(!head->myNodes[j]->linked&&!(head->myNodes[j]->isinside&&head->myNodes[j]->insideLinked))//not linked, just update
                 {
                     head->myNodes[j]->ndum = (head->myNodes[j]->ndum+1);
@@ -660,7 +631,6 @@ void MainWindow::deletelink(Link *dellink)
                 }
             }
         }
-
     }
 
     spnumber++;
@@ -699,7 +669,6 @@ void MainWindow::zoomToFit()
         xb = xb / (globalcount+textCount);
         yb = yb / (globalcount+textCount);
 
-
         xratio = view->size().width()/((2*(xmax-xb+100)+1)*view->myScale);
         yratio = view->size().height()/((2*(ymax-yb+100)+1)*view->myScale);
         ratio = xratio;
@@ -711,7 +680,6 @@ void MainWindow::zoomToFit()
             view->myScale *= ratio;
             view->scale(ratio,ratio);
             view->setScale();
-
         }
         else
         {
@@ -721,7 +689,6 @@ void MainWindow::zoomToFit()
         }
         view->centerOn(xb,yb);
     }
-
 }
 
 void MainWindow::startWindow()
@@ -800,8 +767,6 @@ void MainWindow::startWindow()
                 startWindow();
         }
     }
-
-
     theStatusBar->showMessage("Hint: Go to \"Construct->Component\" to add components to system",30000);
 }
 
@@ -853,8 +818,8 @@ void MainWindow::newCase()
 
             if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
             {
-                return;
                 globalpara.reportError("Failed to open and load the new case file.",this);
+                return;
             }
             QDomDocument doc;
             if(!doc.setContent(&file))
@@ -901,7 +866,7 @@ void MainWindow::newCase()
 
             return;
         }
-        else goBack = true;
+        goBack = true;
     }
     else
         goBack = true;
@@ -911,13 +876,10 @@ void MainWindow::newCase()
 
 bool MainWindow::openCase()
 {
-
     QString name = QFileDialog::getOpenFileName(this,"Open an XML","./","XML files(*.xml)");
-    if(name!="")
-        return loadCase(name);
-    else
+    if(name.isEmpty())
         return false;
-
+    return loadCase(name);
 }
 
 int MainWindow::askToSave()
@@ -933,29 +895,17 @@ int MainWindow::askToSave()
         askSaveBox.setText("Save current case?");
         askSaveBox.exec();
         if(askSaveBox.result()==QMessageBox::Ok)
-        {
-            //save current and proceed
-            return 1;
-        }
-        else if(askSaveBox.result()==QMessageBox::No)
-        {
-            //discard current and proceed
-            return 2;
-        }
-        else
-        {
-            //cancel the action
-            return 0;
-        }
+            return 1;   //save current and proceed
+        if(askSaveBox.result()==QMessageBox::No)
+            return 2;   //discard current and proceed
+        return 0;       //cancel the action
     }
-    else return 2;
+    return 2;
 }
-
 
 /// \todo avoid deleting the file temp.xml if it is the current case name
 bool MainWindow::loadCase(QString name)
 {
-
     unitsetting uDialog(this);
     uDialog.setWindowTitle("Unit System");
     if(uDialog.exec()== QDialog::Accepted)
@@ -975,381 +925,361 @@ bool MainWindow::loadCase(QString name)
             globalpara.reportError("Failed to open and load the case file.",this);
             return false;
         }
-        else
+        if(!doc.setContent(&ofile))
         {
-            if(!doc.setContent(&ofile))
-            {
-                globalpara.reportError("Failed to load xml document from the case file.",this);
-                ofile.close();
-                return false;
-            }
-
-            root = doc.childNodes().at(1).toElement();
-            globalpara.resetGlobalPara();
-
-            caseData = root.elementsByTagName("CaseData").at(0).toElement();
-
-            int copX = 0, copY = 0;
-            globalData = caseData.elementsByTagName("globalData").at(0).toElement();
-            globalpara.tmax = convert(globalData.attribute("tmax").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
-            globalpara.tmin = convert(globalData.attribute("tmin").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
-            globalpara.fmax = convert(globalData.attribute("fmax").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
-            globalpara.pmax = convert(globalData.attribute("pmax").toFloat(),pressure[8],pressure[globalpara.unitindex_pressure]);
-            globalpara.ftol = globalData.attribute("ftol").toFloat();
-            globalpara.xtol = globalData.attribute("xtol").toFloat();
-            globalpara.maxfev = globalData.attribute("maxfev").toInt();
-            globalpara.cop = globalData.attribute("COP").toFloat();
-            globalpara.capacity = convert(globalData.attribute("capacity").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
-
-            globalpara.msglvl = globalpara.maxfev;
-
-            copX = globalData.attribute("COPX").toInt();
-            copY = globalData.attribute("COPY").toInt();
-
-            SimpleTextItem*textItem;
-            bool isBold, isItalic, isUnderline;
-            for(int i = 0; i < globalData.attribute("textCount").toInt();i++)
-            {
-                QFont font;
-                isBold = false;
-                isItalic = false;
-                isUnderline = false;
-                textData = globalData.elementsByTagName("textItem"+QString::number(i)).at(0).toElement();
-                textItem = new SimpleTextItem();
-                textItem->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
-                textItem->setText(textData.attribute("text"));
-                if(!globalpara.sceneText.contains(textItem))
-                    globalpara.sceneText.append(textItem);
-                scene->addItem(textItem);
-                textItem->setX(textData.attribute("xCoord").toDouble());
-                textItem->setY(textData.attribute("yCoord").toDouble());
-
-                if(textData.attribute("bold").toInt()==1)
-                    isBold = true;
-                font.setBold(isBold);
-                if(textData.attribute("italic").toInt()==1)
-                    isItalic = true;
-                font.setItalic(isItalic);
-                if(textData.attribute("underline").toInt()==1)
-                    isUnderline = true;
-                font.setUnderline(isUnderline);
-                font.setPointSize(textData.attribute("size").toInt());
-                textItem->setBrush(QBrush(QColor(textData.attribute("color"))));
-                textItem->setFont(font);
-            }
-
-            unit *loadingUnit;
-            double xOffset, yOffset,xMax,xMin,yMax,yMin;
-            QDomElement preEle = caseData.elementsByTagName("Unit1").at(0).toElement();
-            xMax = preEle.attribute("xCoord").toDouble();
-            xMin = preEle.attribute("xCoord").toDouble();
-            yMax = preEle.attribute("yCoord").toDouble();
-            yMin = preEle.attribute("yCoord").toDouble();
-
-            for(int j = 0; j < globalData.attribute("globalcount").toInt();j++)
-            {
-                unitData = caseData.elementsByTagName("Unit"+QString::number(j+1)).at(0).toElement();
-                xOffset = unitData.attribute("xCoord").toDouble();
-                yOffset = unitData.attribute("yCoord").toDouble();
-                if(xOffset>xMax)
-                    xMax = xOffset;
-                if(xOffset<xMin)
-                    xMin = xOffset;
-                if(yOffset>yMax)
-                    yMax = yOffset;
-                if(yOffset<yMin)
-                    yMin = yOffset;
-            }
-            xOffset = (xMax+xMin)/2;
-            yOffset = (yMax+yMin)/2;
-
-            for(int i = 0; i < globalData.attribute("globalcount").toInt();i++)
-            {
-                unitData = caseData.elementsByTagName("Unit"+QString::number(i+1)).at(0).toElement();
-                loadingUnit = new unit;
-
-                loadingUnit->nu = unitData.attribute("nu").toInt();
-                loadingUnit->idunit = unitData.attribute("idunit").toInt();
-                loadingUnit->usp = unitData.attribute("usp").toInt();
-                loadingUnit->iht = unitData.attribute("iht").toInt();
-                loadingUnit->ipinch = unitData.attribute("ipinch").toInt();
-                loadingUnit->icop = unitData.attribute("icop").toInt();
-                loadingUnit->ht = unitData.attribute("ht").toFloat();
-                if (loadingUnit->iht==0)
-                    loadingUnit->ht = convert(unitData.attribute("ht").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
-                else if(loadingUnit->iht==1)
-                    loadingUnit->ht = convert(unitData.attribute("ht").toFloat(),UA[1],UA[globalpara.unitindex_UA]);
-                else if(loadingUnit->iht == 4||loadingUnit->iht == 5)
-                    loadingUnit->ht = convert(unitData.attribute("ht").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
-                else loadingUnit->ht = unitData.attribute(("ht")).toFloat();
-                loadingUnit->devl = unitData.attribute("devl").toFloat();
-                loadingUnit->devg = unitData.attribute("devg").toFloat();
-
-                loadingUnit->wetness = unitData.attribute("wetness").toDouble();
-                loadingUnit->NTUm = unitData.attribute("ntum").toDouble();
-                loadingUnit->NTUa = unitData.attribute("ntua").toDouble();
-                loadingUnit->NTUt = unitData.attribute("ntut").toDouble();
-                loadingUnit->nIter = unitData.attribute("nIter").toInt();
-                loadingUnit->le = unitData.attribute("le").toDouble();
-
-
-                loadingUnit->htr = convert(unitData.attribute("htr").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
-                loadingUnit->ipinchr = unitData.attribute("ipinchr").toDouble();
-                loadingUnit->ua = convert(unitData.attribute("ua").toFloat(),UA[1],UA[globalpara.unitindex_UA]);
-                loadingUnit->ntu = unitData.attribute("ntu").toDouble();
-                loadingUnit->eff = unitData.attribute("eff").toDouble();
-                loadingUnit->cat = convert(unitData.attribute("cat").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
-
-
-                double conv = 10;
-                if(globalpara.unitindex_temperature==3)
-                {
-                    conv = 1;
-                }
-                else if(globalpara.unitindex_temperature ==1)
-                {
-                    conv = 1.8;
-                }
-                loadingUnit->lmtd = unitData.attribute("lmtd").toDouble()/conv;
-                loadingUnit->mrate = convert(unitData.attribute("mrate").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
-                loadingUnit->humeff = unitData.attribute("humeff").toDouble();
-
-
-                mousex = unitData.attribute("xCoord").toDouble()-xOffset;
-                mousey = unitData.attribute("yCoord").toDouble()-yOffset;
-
-                loadingUnit->initialize();
-
-
-                // TODO: add default case to catch bad input
-                if(unitData.attribute("insideMerged")=="T")
-                    loadingUnit->insideMerged = true;
-                else if(unitData.attribute("insideMerged")=="F")
-                    loadingUnit->insideMerged = false;
-
-                for (int h = 0; h < loadingUnit->usp; h++)
-                {
-                    loadingUnit->myNodes[h]->unitindex = loadingUnit->nu;
-                    loadingUnit->myNodes[h]->localindex = h+1;
-                    loadingUnit->myNodes[h]->ndum = spnumber+h+1;
-                    loadingUnit->myNodes[h]->text->setText(QString::number(loadingUnit->myNodes[h]->ndum));
-                }
-
-
-                scene->drawAUnit(loadingUnit);
-
-                for(int j = 0; j< loadingUnit->usp;j++)
-                {
-                    spData = unitData.elementsByTagName("StatePoint"+QString::number(loadingUnit->myNodes[j]->localindex)).at(0).toElement();
-
-                    loadingUnit->myNodes[j]->ksub = spData.attribute("ksub").toInt();
-                    if(!globalpara.fluids.contains(loadingUnit->myNodes[j]->ksub))
-                        globalpara.fluids.insert(loadingUnit->myNodes[j]->ksub);
-                    loadingUnit->myNodes[j]->itfix = spData.attribute("itfix").toInt();
-                    loadingUnit->myNodes[j]->iffix = spData.attribute("iffix").toInt();
-                    loadingUnit->myNodes[j]->icfix = spData.attribute("icfix").toInt();
-                    loadingUnit->myNodes[j]->ipfix = spData.attribute("ipfix").toInt();
-                    loadingUnit->myNodes[j]->iwfix = spData.attribute("iwfix").toInt();
-                    loadingUnit->myNodes[j]->t = convert(spData.attribute("t").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
-                    loadingUnit->myNodes[j]->f = convert(spData.attribute("f").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
-                    loadingUnit->myNodes[j]->c = spData.attribute("c").toFloat();
-                    loadingUnit->myNodes[j]->p = convert(spData.attribute("p").toFloat(),pressure[8],pressure[globalpara.unitindex_pressure]);
-                    loadingUnit->myNodes[j]->w = spData.attribute("w").toFloat();
-
-
-                    loadingUnit->myNodes[j]->tr = spData.attribute("tr").toFloat();
-                    loadingUnit->myNodes[j]->fr = spData.attribute("fr").toFloat();
-                    loadingUnit->myNodes[j]->cr = spData.attribute("cr").toFloat();
-                    loadingUnit->myNodes[j]->pr = spData.attribute("pr").toFloat();
-                    loadingUnit->myNodes[j]->wr = spData.attribute("wr").toFloat();
-                    loadingUnit->myNodes[j]->hr = spData.attribute("hr").toFloat();
-
-
-                    if(spData.attribute("link").toInt() == 1)
-                    {
-                        unit* unitfinder;
-                        unitfinder = dummy->next;
-
-                        while(unitfinder->nu != spData.attribute("otherEndUnit").toInt())
-                            unitfinder = unitfinder->next;
-
-                        QSet<Node*>tempSet;
-                        tempSet.insert(unitfinder->myNodes[spData.attribute("otherEndLocalSP").toInt()-1]);
-                        tempSet.insert(loadingUnit->myNodes[j]);
-
-                        linkList.append(tempSet);
-                    }
-
-                }
-
-
-                loadingUnit->utext->setText("<"+loadingUnit->unitName+">");
-
-
-
-                if(unitData.attributes().contains("horizontalFlip"))
-                {
-                    if(unitData.attribute("horizontalFlip").toInt()==-1)
-                        loadingUnit->horizontalFlip();
-                }
-                if(unitData.attributes().contains("verticalFlip"))
-                {
-                    if(unitData.attribute("verticalFlip").toInt()==-1)
-                        loadingUnit->verticalFlip();
-                }
-                if(unitData.attributes().contains("rotation"))
-                {
-                    for(int i = 0; i <unitData.attribute("rotation").toInt();i++)
-                        loadingUnit->rotateClockWise();
-                }
-
-
-
-                if(!unitData.elementsByTagName("ResultCoord").isEmpty())
-                {
-                    QDomElement resCord = unitData.elementsByTagName("ResultCoord").at(0).toElement();
-                    QString cord;
-                    QStringList cords;
-                    for(int j = 0; j < loadingUnit->usp;j++)
-                    {
-                        cord = resCord.attribute("res"+QString::number(j));
-                        cords = cord.split(",");
-                        qreal x = cords.first().toInt(),y = cords.last().toInt();
-                        loadingUnit->spParameter[j]->setPos(x,y);
-                    }
-                    cord = resCord.attribute("resComp");
-                    cords = cord.split(",");
-                    qreal x = cords.first().toInt(),y = cords.last().toInt();
-                    loadingUnit->unitParameter->setPos(x,y);
-
-
-                }
-            }
-
-            //restore links
-            Node*node1,*node2;
-            foreach(QSet<Node*> set,linkList)
-            {
-                node1 = set.values().first();
-                node2 = set.values().last();
-                scene->drawLink(node1,node2);
-            }
-
-            //restore inside merge
-            unit* iterator = dummy;
-            for(int i = 0;i<globalcount;i++)
-            {
-                iterator = iterator->next;
-                for(int j = 0; j < iterator->usp;j++)
-                {
-                    if(iterator->myNodes[j]->isinside&&iterator->insideMerged)
-                    {
-                        Node* insideNode = iterator->myNodes[j];
-                        Node* outNode = iterator->myNodes[iterator->mergedOutPoint-1];
-                        insideLink*iLink = new insideLink(insideNode,outNode);
-                        insideNode->addInsideLink(iLink);
-                        outNode->addInsideLink(iLink);
-                        Node::mergeInsidePoint(insideNode,outNode);
-                    }
-                }
-            }
-
-
-            unit*valveFinder = dummy;
-            for(int n = 0; n < globalcount;n++)
-            {
-                valveFinder = valveFinder->next;
-                if(valveFinder->idunit==63)
-                {
-                    Node*sensor = valveFinder->myNodes[2],*otherNode=NULL;
-                    unit* iterator = dummy;
-                    for(int i = 0;i<globalcount;i++)
-                    {
-                        iterator=iterator->next;
-                        for(int j = 0; j < iterator->usp;j++)
-                        {
-                            if(iterator->myNodes[j]->ndum==int(valveFinder->devl))
-                                otherNode = iterator->myNodes[j];
-                        }
-                    }
-                    if(otherNode!=NULL)
-                    {
-                        valveFinder->sensor = otherNode;
-                        sensor->itfix = otherNode->itfix;
-                        sensor->t = otherNode->t;
-                        sensor->iffix = 0;
-                        sensor->icfix = 0;
-                        sensor->ipfix = 0;
-                        sensor->iwfix = 0;
-                        sensor->ksub = globalpara.fluids.values().first();
-                    }
-                }
-            }
-
-            createGroupFromIfix();
-
-            //scan fluids used
-            iterator = dummy;
-            for(int i = 0;i<globalcount;i++)
-            {
-                iterator = iterator->next;
-                for(int j = 0; j<iterator->usp;j++)
-                {
-                    if(!globalpara.fluids.contains(iterator->myNodes[j]->ksub))
-                        globalpara.fluids.insert(iterator->myNodes[j]->ksub);
-
-                }
-            }
-
-            //move every unit so that all links would be updated
-            head = dummy;
-            if(head->next!=NULL)
-            {
-                do
-                {
-                    head= head->next;
-                    head->moveBy(1,0);
-                }while(head->next!=NULL);
-            }
-
-
-            QFont font("Helvetica",11);
-            scene->copRect = scene->addRect(copX,copY,200,40);
-            QPen pen(Qt::white);
-            pen.setWidth(0);
-            scene->copRect->setPen(pen);
-            scene->copcap = new QGraphicsSimpleTextItem(scene->copRect);
-            scene->copcap->moveBy(copX,copY-10);
-            scene->copcap->setFont(font);
-            scene->copcap->setBrush(Qt::magenta);
-            scene->copRect->setFlags(QGraphicsItem::ItemClipsToShape);
-
-
-            clearResultSelection();
-
-            zoomToFit();
-
-            setTPMenu();
-
-            QString tempXML = Sorputils::sorpTempDir().absoluteFilePath("temp.xml");
-            if (globalpara.caseName != tempXML)
-            {
-                saveRecentFile(globalpara.caseName);
-                setRecentFiles();
-
-                QFile file(tempXML);
-                if (file.remove())
-                    qDebug() << "remove temp.xml: ok";
-                else
-                    qDebug() << "remove temp.xml: fail";
-
-            }
-            return true;
+            globalpara.reportError("Failed to load xml document from the case file.",this);
+            ofile.close();
+            return false;
         }
 
-    }
-    else return false;
+        root = doc.childNodes().at(1).toElement();
+        globalpara.resetGlobalPara();
 
+        caseData = root.elementsByTagName("CaseData").at(0).toElement();
+
+        int copX = 0, copY = 0;
+        globalData = caseData.elementsByTagName("globalData").at(0).toElement();
+        globalpara.tmax = convert(globalData.attribute("tmax").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
+        globalpara.tmin = convert(globalData.attribute("tmin").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
+        globalpara.fmax = convert(globalData.attribute("fmax").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
+        globalpara.pmax = convert(globalData.attribute("pmax").toFloat(),pressure[8],pressure[globalpara.unitindex_pressure]);
+        globalpara.ftol = globalData.attribute("ftol").toFloat();
+        globalpara.xtol = globalData.attribute("xtol").toFloat();
+        globalpara.maxfev = globalData.attribute("maxfev").toInt();
+        globalpara.cop = globalData.attribute("COP").toFloat();
+        globalpara.capacity = convert(globalData.attribute("capacity").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+
+        globalpara.msglvl = globalpara.maxfev;
+
+        copX = globalData.attribute("COPX").toInt();
+        copY = globalData.attribute("COPY").toInt();
+
+        SimpleTextItem*textItem;
+        bool isBold, isItalic, isUnderline;
+        for(int i = 0; i < globalData.attribute("textCount").toInt();i++)
+        {
+            QFont font;
+            isBold = false;
+            isItalic = false;
+            isUnderline = false;
+            textData = globalData.elementsByTagName("textItem"+QString::number(i)).at(0).toElement();
+            textItem = new SimpleTextItem();
+            textItem->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
+            textItem->setText(textData.attribute("text"));
+            if(!globalpara.sceneText.contains(textItem))
+                globalpara.sceneText.append(textItem);
+            scene->addItem(textItem);
+            textItem->setX(textData.attribute("xCoord").toDouble());
+            textItem->setY(textData.attribute("yCoord").toDouble());
+
+            if(textData.attribute("bold").toInt()==1)
+                isBold = true;
+            font.setBold(isBold);
+            if(textData.attribute("italic").toInt()==1)
+                isItalic = true;
+            font.setItalic(isItalic);
+            if(textData.attribute("underline").toInt()==1)
+                isUnderline = true;
+            font.setUnderline(isUnderline);
+            font.setPointSize(textData.attribute("size").toInt());
+            textItem->setBrush(QBrush(QColor(textData.attribute("color"))));
+            textItem->setFont(font);
+        }
+
+        unit *loadingUnit;
+        double xOffset, yOffset,xMax,xMin,yMax,yMin;
+        QDomElement preEle = caseData.elementsByTagName("Unit1").at(0).toElement();
+        xMax = preEle.attribute("xCoord").toDouble();
+        xMin = preEle.attribute("xCoord").toDouble();
+        yMax = preEle.attribute("yCoord").toDouble();
+        yMin = preEle.attribute("yCoord").toDouble();
+
+        for(int j = 0; j < globalData.attribute("globalcount").toInt();j++)
+        {
+            unitData = caseData.elementsByTagName("Unit"+QString::number(j+1)).at(0).toElement();
+            xOffset = unitData.attribute("xCoord").toDouble();
+            yOffset = unitData.attribute("yCoord").toDouble();
+            if(xOffset>xMax)
+                xMax = xOffset;
+            if(xOffset<xMin)
+                xMin = xOffset;
+            if(yOffset>yMax)
+                yMax = yOffset;
+            if(yOffset<yMin)
+                yMin = yOffset;
+        }
+        xOffset = (xMax+xMin)/2;
+        yOffset = (yMax+yMin)/2;
+
+        for(int i = 0; i < globalData.attribute("globalcount").toInt();i++)
+        {
+            unitData = caseData.elementsByTagName("Unit"+QString::number(i+1)).at(0).toElement();
+            loadingUnit = new unit;
+
+            loadingUnit->nu = unitData.attribute("nu").toInt();
+            loadingUnit->idunit = unitData.attribute("idunit").toInt();
+            loadingUnit->usp = unitData.attribute("usp").toInt();
+            loadingUnit->iht = unitData.attribute("iht").toInt();
+            loadingUnit->ipinch = unitData.attribute("ipinch").toInt();
+            loadingUnit->icop = unitData.attribute("icop").toInt();
+            loadingUnit->ht = unitData.attribute("ht").toFloat();
+            if (loadingUnit->iht==0)
+                loadingUnit->ht = convert(unitData.attribute("ht").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+            else if(loadingUnit->iht==1)
+                loadingUnit->ht = convert(unitData.attribute("ht").toFloat(),UA[1],UA[globalpara.unitindex_UA]);
+            else if(loadingUnit->iht == 4||loadingUnit->iht == 5)
+                loadingUnit->ht = convert(unitData.attribute("ht").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
+            else loadingUnit->ht = unitData.attribute(("ht")).toFloat();
+            loadingUnit->devl = unitData.attribute("devl").toFloat();
+            loadingUnit->devg = unitData.attribute("devg").toFloat();
+
+            loadingUnit->wetness = unitData.attribute("wetness").toDouble();
+            loadingUnit->NTUm = unitData.attribute("ntum").toDouble();
+            loadingUnit->NTUa = unitData.attribute("ntua").toDouble();
+            loadingUnit->NTUt = unitData.attribute("ntut").toDouble();
+            loadingUnit->nIter = unitData.attribute("nIter").toInt();
+            loadingUnit->le = unitData.attribute("le").toDouble();
+
+
+            loadingUnit->htr = convert(unitData.attribute("htr").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+            loadingUnit->ipinchr = unitData.attribute("ipinchr").toDouble();
+            loadingUnit->ua = convert(unitData.attribute("ua").toFloat(),UA[1],UA[globalpara.unitindex_UA]);
+            loadingUnit->ntu = unitData.attribute("ntu").toDouble();
+            loadingUnit->eff = unitData.attribute("eff").toDouble();
+            loadingUnit->cat = convert(unitData.attribute("cat").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
+
+
+            double conv = 10;
+            if(globalpara.unitindex_temperature==3)
+            {
+                conv = 1;
+            }
+            else if(globalpara.unitindex_temperature ==1)
+            {
+                conv = 1.8;
+            }
+            loadingUnit->lmtd = unitData.attribute("lmtd").toDouble()/conv;
+            loadingUnit->mrate = convert(unitData.attribute("mrate").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
+            loadingUnit->humeff = unitData.attribute("humeff").toDouble();
+
+
+            mousex = unitData.attribute("xCoord").toDouble()-xOffset;
+            mousey = unitData.attribute("yCoord").toDouble()-yOffset;
+
+            loadingUnit->initialize();
+
+
+            // TODO: add default case to catch bad input
+            if(unitData.attribute("insideMerged")=="T")
+                loadingUnit->insideMerged = true;
+            else if(unitData.attribute("insideMerged")=="F")
+                loadingUnit->insideMerged = false;
+
+            for (int h = 0; h < loadingUnit->usp; h++)
+            {
+                loadingUnit->myNodes[h]->unitindex = loadingUnit->nu;
+                loadingUnit->myNodes[h]->localindex = h+1;
+                loadingUnit->myNodes[h]->ndum = spnumber+h+1;
+                loadingUnit->myNodes[h]->text->setText(QString::number(loadingUnit->myNodes[h]->ndum));
+            }
+
+            scene->drawAUnit(loadingUnit);
+
+            for(int j = 0; j< loadingUnit->usp;j++)
+            {
+                spData = unitData.elementsByTagName("StatePoint"+QString::number(loadingUnit->myNodes[j]->localindex)).at(0).toElement();
+
+                loadingUnit->myNodes[j]->ksub = spData.attribute("ksub").toInt();
+                if(!globalpara.fluids.contains(loadingUnit->myNodes[j]->ksub))
+                    globalpara.fluids.insert(loadingUnit->myNodes[j]->ksub);
+                loadingUnit->myNodes[j]->itfix = spData.attribute("itfix").toInt();
+                loadingUnit->myNodes[j]->iffix = spData.attribute("iffix").toInt();
+                loadingUnit->myNodes[j]->icfix = spData.attribute("icfix").toInt();
+                loadingUnit->myNodes[j]->ipfix = spData.attribute("ipfix").toInt();
+                loadingUnit->myNodes[j]->iwfix = spData.attribute("iwfix").toInt();
+                loadingUnit->myNodes[j]->t = convert(spData.attribute("t").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature]);
+                loadingUnit->myNodes[j]->f = convert(spData.attribute("f").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow]);
+                loadingUnit->myNodes[j]->c = spData.attribute("c").toFloat();
+                loadingUnit->myNodes[j]->p = convert(spData.attribute("p").toFloat(),pressure[8],pressure[globalpara.unitindex_pressure]);
+                loadingUnit->myNodes[j]->w = spData.attribute("w").toFloat();
+
+                loadingUnit->myNodes[j]->tr = spData.attribute("tr").toFloat();
+                loadingUnit->myNodes[j]->fr = spData.attribute("fr").toFloat();
+                loadingUnit->myNodes[j]->cr = spData.attribute("cr").toFloat();
+                loadingUnit->myNodes[j]->pr = spData.attribute("pr").toFloat();
+                loadingUnit->myNodes[j]->wr = spData.attribute("wr").toFloat();
+                loadingUnit->myNodes[j]->hr = spData.attribute("hr").toFloat();
+
+                if(spData.attribute("link").toInt() == 1)
+                {
+                    unit* unitfinder;
+                    unitfinder = dummy->next;
+
+                    while(unitfinder->nu != spData.attribute("otherEndUnit").toInt())
+                        unitfinder = unitfinder->next;
+
+                    QSet<Node*>tempSet;
+                    tempSet.insert(unitfinder->myNodes[spData.attribute("otherEndLocalSP").toInt()-1]);
+                    tempSet.insert(loadingUnit->myNodes[j]);
+
+                    linkList.append(tempSet);
+                }
+            }
+
+            loadingUnit->utext->setText("<"+loadingUnit->unitName+">");
+
+            if(unitData.attributes().contains("horizontalFlip"))
+            {
+                if(unitData.attribute("horizontalFlip").toInt()==-1)
+                    loadingUnit->horizontalFlip();
+            }
+            if(unitData.attributes().contains("verticalFlip"))
+            {
+                if(unitData.attribute("verticalFlip").toInt()==-1)
+                    loadingUnit->verticalFlip();
+            }
+            if(unitData.attributes().contains("rotation"))
+            {
+                for(int i = 0; i <unitData.attribute("rotation").toInt();i++)
+                    loadingUnit->rotateClockWise();
+            }
+
+            if(!unitData.elementsByTagName("ResultCoord").isEmpty())
+            {
+                QDomElement resCord = unitData.elementsByTagName("ResultCoord").at(0).toElement();
+                QString cord;
+                QStringList cords;
+                for(int j = 0; j < loadingUnit->usp;j++)
+                {
+                    cord = resCord.attribute("res"+QString::number(j));
+                    cords = cord.split(",");
+                    qreal x = cords.first().toInt(),y = cords.last().toInt();
+                    loadingUnit->spParameter[j]->setPos(x,y);
+                }
+                cord = resCord.attribute("resComp");
+                cords = cord.split(",");
+                qreal x = cords.first().toInt(),y = cords.last().toInt();
+                loadingUnit->unitParameter->setPos(x,y);
+            }
+        }
+
+        //restore links
+        Node*node1,*node2;
+        foreach(QSet<Node*> set,linkList)
+        {
+            node1 = set.values().first();
+            node2 = set.values().last();
+            scene->drawLink(node1,node2);
+        }
+
+        //restore inside merge
+        unit* iterator = dummy;
+        for(int i = 0;i<globalcount;i++)
+        {
+            iterator = iterator->next;
+            for(int j = 0; j < iterator->usp;j++)
+            {
+                if(iterator->myNodes[j]->isinside&&iterator->insideMerged)
+                {
+                    Node* insideNode = iterator->myNodes[j];
+                    Node* outNode = iterator->myNodes[iterator->mergedOutPoint-1];
+                    insideLink*iLink = new insideLink(insideNode,outNode);
+                    insideNode->addInsideLink(iLink);
+                    outNode->addInsideLink(iLink);
+                    Node::mergeInsidePoint(insideNode,outNode);
+                }
+            }
+        }
+
+        unit*valveFinder = dummy;
+        for(int n = 0; n < globalcount;n++)
+        {
+            valveFinder = valveFinder->next;
+            if(valveFinder->idunit==63)
+            {
+                Node*sensor = valveFinder->myNodes[2],*otherNode=NULL;
+                unit* iterator = dummy;
+                for(int i = 0;i<globalcount;i++)
+                {
+                    iterator=iterator->next;
+                    for(int j = 0; j < iterator->usp;j++)
+                    {
+                        if(iterator->myNodes[j]->ndum==int(valveFinder->devl))
+                            otherNode = iterator->myNodes[j];
+                    }
+                }
+                if(otherNode!=NULL)
+                {
+                    valveFinder->sensor = otherNode;
+                    sensor->itfix = otherNode->itfix;
+                    sensor->t = otherNode->t;
+                    sensor->iffix = 0;
+                    sensor->icfix = 0;
+                    sensor->ipfix = 0;
+                    sensor->iwfix = 0;
+                    sensor->ksub = globalpara.fluids.values().first();
+                }
+            }
+        }
+
+        createGroupFromIfix();
+
+        //scan fluids used
+        iterator = dummy;
+        for(int i = 0;i<globalcount;i++)
+        {
+            iterator = iterator->next;
+            for(int j = 0; j<iterator->usp;j++)
+            {
+                if(!globalpara.fluids.contains(iterator->myNodes[j]->ksub))
+                    globalpara.fluids.insert(iterator->myNodes[j]->ksub);
+
+            }
+        }
+
+        //move every unit so that all links would be updated
+        head = dummy;
+        if(head->next!=NULL)
+        {
+            do
+            {
+                head= head->next;
+                head->moveBy(1,0);
+            }while(head->next!=NULL);
+        }
+
+        QFont font("Helvetica",11);
+        scene->copRect = scene->addRect(copX,copY,200,40);
+        QPen pen(Qt::white);
+        pen.setWidth(0);
+        scene->copRect->setPen(pen);
+        scene->copcap = new QGraphicsSimpleTextItem(scene->copRect);
+        scene->copcap->moveBy(copX,copY-10);
+        scene->copcap->setFont(font);
+        scene->copcap->setBrush(Qt::magenta);
+        scene->copRect->setFlags(QGraphicsItem::ItemClipsToShape);
+
+        clearResultSelection();
+
+        zoomToFit();
+
+        setTPMenu();
+
+        QString tempXML = Sorputils::sorpTempDir().absoluteFilePath("temp.xml");
+        if (globalpara.caseName != tempXML)
+        {
+            saveRecentFile(globalpara.caseName);
+            setRecentFiles();
+
+            QFile file(tempXML);
+            if (file.remove())
+                qDebug() << "remove temp.xml: ok";
+            else
+                qDebug() << "remove temp.xml: fail";
+        }
+        return true;
+    }
+    return false;
 }
 
 bool MainWindow::preprocessOutFile(QString fileName)
@@ -1372,168 +1302,164 @@ bool MainWindow::preprocessOutFile(QString fileName)
                                .arg(newName),this);
         return false;
     }
-    else
+    QTextStream istream(&ifile);
+    QTextStream out(&ofile);
+    QString line;
+    QStringList list;
+    int spCount;
+    do
     {
-        QTextStream istream(&ifile);
-        QTextStream out(&ofile);
-        QString line;
-        QStringList list;
-        int spCount;
-        do
-        {
-            line = istream.readLine();
-            out<<line<<Qt::endl;
-        }while(!line.contains("NO. OF STATE"));
-        line.replace("NO. OF STATE POINTS:","");
-        spCount = line.toInt();
+        line = istream.readLine();
+        out<<line<<Qt::endl;
+    } while (!line.contains("NO. OF STATE"));
+    line.replace("NO. OF STATE POINTS:","");
+    spCount = line.toInt();
 
+    do
+    {
+        line = istream.readLine();
+        out<<line<<Qt::endl;
+    } while (!line.contains("STARTING"));
 
-        do
-        {
-            line = istream.readLine();
-            out<<line<<Qt::endl;
-        }while(!line.contains("STARTING"));
+    //load state points
+    QStringList ksub,itfix,iffix,icfix,ipfix,iwfix;
+    QStringList t,f,c,p,w;
 
-        //load state points
-        QStringList ksub,itfix,iffix,icfix,ipfix,iwfix;
-        QStringList t,f,c,p,w;
+    for(int h = 0; h < spCount; h++)//record the indexes and values from sp data
+    {
+        line = istream.readLine();
+        list = line.split(" ",Qt::SkipEmptyParts);
 
-        for(int h = 0; h < spCount; h++)//record the indexes and values from sp data
-        {
-            line = istream.readLine();
-            list = line.split(" ",Qt::SkipEmptyParts);
-
-            ksub.append(list[1]);
-            itfix.append(list[2]);
-            t.append(list[3]);
-            iffix.append(list[4]);
-            f.append(list[5]);
-            icfix.append(list[6]);
-            c.append(list[7]);
-            ipfix.append(list[8]);
-            p.append(list[9]);
-            iwfix.append(list[10]);
-            w.append(list[11]);
-        }
-        //sort in groups and re-define indexes
-        QMultiMap<QString,int> tmap,fmap,cmap,pmap,wmap;
-        QStringList tind,find,cind,pind,wind;
-        QList<int> spInds;
-        for(int h = 0; h < spCount;h++)
-        {
-            tmap.insert(itfix.at(h),h);
-            fmap.insert(iffix.at(h),h);
-            cmap.insert(icfix.at(h),h);
-            pmap.insert(ipfix.at(h),h);
-            wmap.insert(iwfix.at(h),h);
-            //if there is only one point w/ ifix >1, don't count it
-            if(itfix.at(h).toInt()>1)
-                if(!tind.contains(itfix.at(h)))
-                    tind.append(itfix.at(h));
-            if(iffix.at(h).toInt()>1)
-                if(!find.contains(iffix.at(h)))
-                    find.append(iffix.at(h));
-            if(icfix.at(h).toInt()>1)
-                if(!cind.contains(icfix.at(h)))
-                    cind.append(icfix.at(h));
-            if(ipfix.at(h).toInt()>1)
-                if(!pind.contains(ipfix.at(h)))
-                    pind.append(ipfix.at(h));
-            if(iwfix.at(h).toInt()>1)
-                if(!wind.contains(iwfix.at(h)))
-                    wind.append(iwfix.at(h));
-        }
-//        qDebug()<<tind<<endl<<find<<endl<<cind<<endl<<pind<<endl<<wind;
-        int counter ;
-        spInds.clear();
-        counter = 1;
-        foreach(QString ifix,tind)
-        {
-            counter++;
-            QString const tfix = ifix;
-            spInds = tmap.values(tfix);
-            foreach(int i,spInds)
-                itfix.replace(i,QString::number(counter));
-        }
-        spInds.clear();
-        counter = 1;
-        foreach(QString ifix,find)
-        {
-            counter++;
-            QString const ffix = ifix;
-            spInds = fmap.values(ffix);
-            foreach(int i,spInds)
-                iffix.replace(i,QString::number(counter));
-        }
-        spInds.clear();
-        counter = 1;
-        foreach(QString ifix,cind)
-        {
-            counter++;
-            QString const cfix = ifix;
-            spInds = cmap.values(cfix);
-            foreach(int i,spInds)
-                icfix.replace(i,QString::number(counter));
-        }
-        spInds.clear();
-        counter = 1;
-        foreach(QString ifix,pind)
-        {
-            counter++;
-            QString const pfix = ifix;
-            spInds = pmap.values(pfix);
-            foreach(int i,spInds)
-                ipfix.replace(i,QString::number(counter));
-        }
-        spInds.clear();
-        counter = 1;
-        foreach(QString ifix,wind)
-        {
-            counter++;
-            QString const wfix = ifix;
-            spInds = wmap.values(wfix);
-            foreach(int i,spInds)
-                iwfix.replace(i,QString::number(counter));
-        }
-
-        for(int h = 0; h < spCount; h++)//write back the modified indexes
-        {
-
-            out << qSetFieldWidth(4) << h+1;
-            out << qSetFieldWidth(4) << ksub.at(h);
-            out << qSetFieldWidth(3) << itfix.at(h);
-            out << qSetFieldWidth(11) << t.at(h);
-            out << qSetFieldWidth(3) << iffix.at(h);
-            out << qSetFieldWidth(11) << f.at(h);
-            out << qSetFieldWidth(3) << icfix.at(h);
-            out << qSetFieldWidth(11) << c.at(h);
-            out << qSetFieldWidth(3) << ipfix.at(h);
-            out << qSetFieldWidth(11) << p.at(h);
-            out << qSetFieldWidth(3) << iwfix.at(h);
-            out << qSetFieldWidth(11) << w.at(h) << Qt::endl;
-        }
-
-        do
-        {
-            line = istream.readLine();
-            out<<line<<Qt::endl;
-        }while(!istream.atEnd());
-
-        istream.flush();
-        out.flush();
-        ifile.close();
-        ofile.close();
-
-        return true;
+        ksub.append(list[1]);
+        itfix.append(list[2]);
+        t.append(list[3]);
+        iffix.append(list[4]);
+        f.append(list[5]);
+        icfix.append(list[6]);
+        c.append(list[7]);
+        ipfix.append(list[8]);
+        p.append(list[9]);
+        iwfix.append(list[10]);
+        w.append(list[11]);
     }
+    //sort in groups and re-define indexes
+    QMultiMap<QString,int> tmap,fmap,cmap,pmap,wmap;
+    QStringList tind,find,cind,pind,wind;
+    QList<int> spInds;
+    for(int h = 0; h < spCount;h++)
+    {
+        tmap.insert(itfix.at(h),h);
+        fmap.insert(iffix.at(h),h);
+        cmap.insert(icfix.at(h),h);
+        pmap.insert(ipfix.at(h),h);
+        wmap.insert(iwfix.at(h),h);
+        //if there is only one point w/ ifix >1, don't count it
+        if(itfix.at(h).toInt()>1)
+            if(!tind.contains(itfix.at(h)))
+                tind.append(itfix.at(h));
+        if(iffix.at(h).toInt()>1)
+            if(!find.contains(iffix.at(h)))
+                find.append(iffix.at(h));
+        if(icfix.at(h).toInt()>1)
+            if(!cind.contains(icfix.at(h)))
+                cind.append(icfix.at(h));
+        if(ipfix.at(h).toInt()>1)
+            if(!pind.contains(ipfix.at(h)))
+                pind.append(ipfix.at(h));
+        if(iwfix.at(h).toInt()>1)
+            if(!wind.contains(iwfix.at(h)))
+                wind.append(iwfix.at(h));
+    }
+
+    int counter ;
+    spInds.clear();
+    counter = 1;
+    foreach(QString ifix,tind)
+    {
+        counter++;
+        QString const tfix = ifix;
+        spInds = tmap.values(tfix);
+        foreach(int i,spInds)
+            itfix.replace(i,QString::number(counter));
+    }
+    spInds.clear();
+    counter = 1;
+    foreach(QString ifix,find)
+    {
+        counter++;
+        QString const ffix = ifix;
+        spInds = fmap.values(ffix);
+        foreach(int i,spInds)
+            iffix.replace(i,QString::number(counter));
+    }
+    spInds.clear();
+    counter = 1;
+    foreach(QString ifix,cind)
+    {
+        counter++;
+        QString const cfix = ifix;
+        spInds = cmap.values(cfix);
+        foreach(int i,spInds)
+            icfix.replace(i,QString::number(counter));
+    }
+    spInds.clear();
+    counter = 1;
+    foreach(QString ifix,pind)
+    {
+        counter++;
+        QString const pfix = ifix;
+        spInds = pmap.values(pfix);
+        foreach(int i,spInds)
+            ipfix.replace(i,QString::number(counter));
+    }
+    spInds.clear();
+    counter = 1;
+    foreach(QString ifix,wind)
+    {
+        counter++;
+        QString const wfix = ifix;
+        spInds = wmap.values(wfix);
+        foreach(int i,spInds)
+            iwfix.replace(i,QString::number(counter));
+    }
+
+    for(int h = 0; h < spCount; h++)//write back the modified indexes
+    {
+
+        out << qSetFieldWidth(4) << h+1;
+        out << qSetFieldWidth(4) << ksub.at(h);
+        out << qSetFieldWidth(3) << itfix.at(h);
+        out << qSetFieldWidth(11) << t.at(h);
+        out << qSetFieldWidth(3) << iffix.at(h);
+        out << qSetFieldWidth(11) << f.at(h);
+        out << qSetFieldWidth(3) << icfix.at(h);
+        out << qSetFieldWidth(11) << c.at(h);
+        out << qSetFieldWidth(3) << ipfix.at(h);
+        out << qSetFieldWidth(11) << p.at(h);
+        out << qSetFieldWidth(3) << iwfix.at(h);
+        out << qSetFieldWidth(11) << w.at(h) << Qt::endl;
+    }
+
+    do
+    {
+        line = istream.readLine();
+        out<<line<<Qt::endl;
+    } while(!istream.atEnd());
+
+    istream.flush();
+    out.flush();
+    ifile.close();
+    ofile.close();
+
+    return true;
 }
 
 bool MainWindow::loadOutFile()
 {
     QString name = QFileDialog::getOpenFileName(this,"Open a .out file","./",".out files(*.out)");
-    if(name=="")
+    if(name.isEmpty())
         return false;
-    else if(preprocessOutFile(name))
+    if(preprocessOutFile(name))
     {
         setWindowTitle("SorpSim-Imported from"+name);
 
@@ -1549,391 +1475,376 @@ bool MainWindow::loadOutFile()
             QString newName = name.replace(".out","_mod.out");
             newName = newName.replace(".OUT","_mod.out");
             QFile ofile(newName);
-//            QFile ofile(name);
             if(!ofile.open(QIODevice::ReadOnly|QIODevice::Text))
             {
                 globalpara.reportError(QString("After preprocessing, failed to re-open the new file:\n'%1'")
                                        .arg(newName),this);
                 return false;
             }
-            else
+            QTextStream stream(&ofile);
+            QString line;
+            QStringList list;
+            QStringList splitList;
+            stream.readLine();
+            line = stream.readLine();
+            line.replace(" ","");
+            globalpara.title = line;
+            do
             {
-                QTextStream stream(&ofile);
-                QString line;
-                QStringList list;
-                QStringList splitList;
-                stream.readLine();
                 line = stream.readLine();
-                line.replace(" ","");
-                globalpara.title = line;
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("TMAX"));
-                line.replace("TMAX=","");
-                line.replace("TMIN=","");
-                line.replace("FMAX=","");
-                line.replace("PMAX=","");
+            } while(!line.contains("TMAX"));
+            line.replace("TMAX=","");
+            line.replace("TMIN=","");
+            line.replace("FMAX=","");
+            line.replace("PMAX=","");
+            line.replace("D","e");
+            list = line.split(" ",Qt::SkipEmptyParts);
+            globalpara.tmax = list[0].toDouble();
+            globalpara.tmin = list[1].toDouble();
+            globalpara.fmax = list[2].toDouble();
+            globalpara.pmax = list[3].toDouble();
+
+            do
+            {
+                line = stream.readLine();
+            } while(!line.contains("INPUT AND OUTPUT"));
+            qDebug()<<"line is:"<<line;
+
+            int tId, fId, pId, hrateId, UAId, hId;
+            if(line.contains("BRITISH")){
+                tId = 3;
+                fId = 1;
+                pId = 0;
+                hrateId = 7;
+                UAId = 1;
+                hId = 2;
+            } else {
+                tId = 1;
+                fId = 0;
+                pId = 2;
+                hrateId = 2;
+                UAId = 0;
+                hId = 0;
+            }
+
+            globalpara.tmax = convert(globalpara.tmax,temperature[tId],temperature[globalpara.unitindex_temperature]);
+            globalpara.tmin = convert(globalpara.tmin,temperature[tId],temperature[globalpara.unitindex_temperature]);
+            globalpara.fmax = convert(globalpara.fmax,mass_flow_rate[fId],mass_flow_rate[globalpara.unitindex_massflow]);
+            globalpara.pmax = convert(globalpara.pmax,pressure[pId],pressure[globalpara.unitindex_pressure]);
+
+            do
+            {
+                line = stream.readLine();
+            }
+            while (!line.contains("TOLERANCES"));
+            line.replace("TOLERANCES IN F, X :","");
+            line.replace("D","e");
+            list=line.split(" ",Qt::SkipEmptyParts);
+            globalpara.ftol = list[0].toDouble();
+            globalpara.xtol = list[1].toDouble();
+
+            do
+            {
+                line = stream.readLine();
+            } while(!line.contains("NO. OF UNITS"));
+            line.replace("NO. OF UNITS:","");
+            unitCount = line.toInt();
+            std::vector<std::vector<int>> sps(unitCount, std::vector<int>(7));
+
+            do
+            {
+                line = stream.readLine();
+            } while(!line.contains("NO. OF STATE"));
+            line.replace("NO. OF STATE POINTS:","");
+            spCount = line.toInt();
+
+            do
+            {
+                line = stream.readLine();
+            } while(!line.contains("INPUT"));
+
+            // Note: Does this block ever store loadUnit? ...
+            // Yes, the code `scene->drawAUnit(loadUnit);` has a side effect of storing the pointer
+            // in a rect belonging to the scene.
+            //load components
+            for(int i = 0; i < unitCount; i ++)
+            {
+                line = stream.readLine();
                 line.replace("D","e");
                 list = line.split(" ",Qt::SkipEmptyParts);
-                globalpara.tmax = list[0].toDouble();
-                globalpara.tmin = list[1].toDouble();
-                globalpara.fmax = list[2].toDouble();
-                globalpara.pmax = list[3].toDouble();
+                line = list[2];
+                splitList = line.split(" ");
+                loadUnit = new unit;
+                loadUnit->nu = list[0].toInt();
+                loadUnit->idunit = list[1].toInt();
+                loadUnit->iht = list[2].toInt();if (loadUnit->iht==0)
+                    loadUnit->ht = convert(list[3].toDouble(),heat_trans_rate[hrateId],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
+                else if(loadUnit->iht==1)
+                    loadUnit->ht = convert(list[3].toDouble(),UA[UAId],UA[globalpara.unitindex_UA]);
+                else if(loadUnit->iht == 4||loadUnit->iht == 5)
+                    loadUnit->ht = convert(list[3].toDouble(),temperature[tId],temperature[globalpara.unitindex_temperature]);
+                else loadUnit->ht = list[3].toDouble();
+                loadUnit->ipinch = list[4].toInt();
+                loadUnit->ipinchT = list[4].toInt();
+                loadUnit->devl = list[5].toDouble();
+                loadUnit->devg = list[6].toDouble();
+                loadUnit->icop = list[7].toInt();
+                loadUnit->icopT = list[7].toInt();
 
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("INPUT AND OUTPUT"));
-                qDebug()<<"line is:"<<line;
+                mousex = -900 + i * 150;
+                mousey = 0;
 
-                int tId, fId, pId, hrateId, UAId, hId;
-                if(line.contains("BRITISH")){
-                    tId = 3;
-                    fId = 1;
-                    pId = 0;
-                    hrateId = 7;
-                    UAId = 1;
-                    hId = 2;
-                }
-                else{
-                    tId = 1;
-                    fId = 0;
-                    pId = 2;
-                    hrateId = 2;
-                    UAId = 0;
-                    hId = 0;
-                }
+                loadUnit->initialize();
 
-
-                globalpara.tmax = convert(globalpara.tmax,temperature[tId],temperature[globalpara.unitindex_temperature]);
-                globalpara.tmin = convert(globalpara.tmin,temperature[tId],temperature[globalpara.unitindex_temperature]);
-                globalpara.fmax = convert(globalpara.fmax,mass_flow_rate[fId],mass_flow_rate[globalpara.unitindex_massflow]);
-                globalpara.pmax = convert(globalpara.pmax,pressure[pId],pressure[globalpara.unitindex_pressure]);
-
-                do
-                {
-                    line = stream.readLine();
-                }
-                while(!line.contains("TOLERANCES"));
-                line.replace("TOLERANCES IN F, X :","");
-                line.replace("D","e");
-                list=line.split(" ",Qt::SkipEmptyParts);
-                globalpara.ftol = list[0].toDouble();
-                globalpara.xtol = list[1].toDouble();
-
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("NO. OF UNITS"));
-                line.replace("NO. OF UNITS:","");
-                unitCount = line.toInt();
-                std::vector<std::vector<int>> sps(unitCount, std::vector<int>(7));
-
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("NO. OF STATE"));
-                line.replace("NO. OF STATE POINTS:","");
-                spCount = line.toInt();
-
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("INPUT"));
-
-                // Note: Does this block ever store loadUnit? ...
-                // Yes, the code `scene->drawAUnit(loadUnit);` has a side effect of storing the pointer
-                // in a rect belonging to the scene.
-                //load components
-                for(int i = 0; i < unitCount; i ++)
-                {
-                    line = stream.readLine();
-                    line.replace("D","e");
-                    list = line.split(" ",Qt::SkipEmptyParts);
-                    line = list[2];
-                    splitList = line.split(" ");
-                    loadUnit = new unit;
-                    loadUnit->nu = list[0].toInt();
-                    loadUnit->idunit = list[1].toInt();
-                    loadUnit->iht = list[2].toInt();if (loadUnit->iht==0)
-                        loadUnit->ht = convert(list[3].toDouble(),heat_trans_rate[hrateId],heat_trans_rate[globalpara.unitindex_heat_trans_rate]);
-                    else if(loadUnit->iht==1)
-                        loadUnit->ht = convert(list[3].toDouble(),UA[UAId],UA[globalpara.unitindex_UA]);
-                    else if(loadUnit->iht == 4||loadUnit->iht == 5)
-                        loadUnit->ht = convert(list[3].toDouble(),temperature[tId],temperature[globalpara.unitindex_temperature]);
-                    else loadUnit->ht = list[3].toDouble();
-                    loadUnit->ipinch = list[4].toInt();
-                    loadUnit->ipinchT = list[4].toInt();
-                    loadUnit->devl = list[5].toDouble();
-                    loadUnit->devg = list[6].toDouble();
-                    loadUnit->icop = list[7].toInt();
-                    loadUnit->icopT = list[7].toInt();
-
-                    mousex = -900 + i * 150;
-                    mousey = 0;
-
-                    loadUnit->initialize();
-
-                    line = stream.readLine();
-                    list = line.split("  ",Qt::SkipEmptyParts);
-                    for(int j = 0;j<7;j++)
-                    {
-                        sps[i][j] = list[j].toInt();
-                    }
-                    for(int h = 0; h < loadUnit->usp; h++)
-                    {
-                        loadUnit->myNodes[h]->unitindex = loadUnit->nu;
-                        loadUnit->myNodes[h]->localindex = h+1;
-                        loadUnit->myNodes[h]->ndum = spnumber+h+1;
-                        loadUnit->myNodes[h]->text->setText(QString::number(loadUnit->myNodes[h]->ndum));
-                    }
-
-                    scene->drawAUnit(loadUnit);
-
-                    //restore merged points
-                    QSet<int>set;
-                    for(int h = 0;h<loadUnit->usp;h++)
-                    {
-                        if(sps[i][h]!=0)
-                        {
-                            if(!set.contains(sps[i][h]))
-                                set.insert(sps[i][h]);
-                            else if(loadUnit->myNodes[h]->isinside)
-                            {
-                                Node*insideNode = loadUnit->myNodes[h], *outNode = loadUnit->myNodes[loadUnit->mergedOutPoint-1];
-                                loadUnit->insideMerged=true;
-                                insideLink*iLink = new insideLink(insideNode,outNode);
-                                insideNode->addInsideLink(iLink);
-                                outNode->addInsideLink(iLink);
-                                Node::mergeInsidePoint(insideNode,outNode);
-//                                qDebug()<<loadUnit->nu<<loadUnit->unitName<<insideNode->ndum<<"merged";
-                            }
-
-                        }
-                    }
-                }
-
-
-                //restore state point parameters
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("STARTING"));
-
-                //load state points
-                int const spNm = spCount+1;
-                std::vector<int> ksub(spNm),itfix(spNm),iffix(spNm),icfix(spNm),ipfix(spNm),iwfix(spNm);
-                std::vector<double> t(spNm),f(spNm),c(spNm),p(spNm),w(spNm);
-
-                for(int h = 0; h < spCount; h++)
-                {
-                    line = stream.readLine();
-                    line.replace("D","e");
-                    list = line.split(" ",Qt::SkipEmptyParts);
-
-                    ksub[h] = list[1].toInt();
-                    itfix[h] = list[2].toInt();
-                    t[h] = convert(list[3].toDouble(),temperature[tId],temperature[globalpara.unitindex_temperature]);
-                    iffix[h] = list[4].toInt();
-                    f[h] = convert(list[5].toDouble(),mass_flow_rate[fId],mass_flow_rate[globalpara.unitindex_massflow]);
-                    icfix[h] = list[6].toInt();
-                    c[h] = list[7].toDouble();
-                    ipfix[h] = list[8].toInt();
-                    p[h] = convert(list[9].toDouble(),pressure[pId],pressure[globalpara.unitindex_pressure]);
-                    iwfix[h] = list[10].toInt();
-                    w[h] = list[11].toDouble();
-
-                    if(!globalpara.fluids.contains(ksub[h]))
-                        globalpara.fluids.insert(ksub[h]);
-
-
-                }
-
-                iterator=dummy;
-                int oldIndex;
-                for(int i = 0; i < globalcount;i++)
-                {
-                    iterator = iterator->next;
-                    for(int j = 0; j < iterator->usp;j++)
-                    {
-                        oldIndex = sps[iterator->nu-1][j]-1;
-                        iterator->myNodes[j]->ksub = ksub[oldIndex];
-                        iterator->myNodes[j]->itfix = itfix[oldIndex];
-                        iterator->myNodes[j]->t = t[oldIndex];
-                        iterator->myNodes[j]->iffix = iffix[oldIndex];
-                        iterator->myNodes[j]->f = f[oldIndex];
-                        iterator->myNodes[j]->icfix = icfix[oldIndex];
-                        iterator->myNodes[j]->c = c[oldIndex];
-                        iterator->myNodes[j]->ipfix = ipfix[oldIndex];
-                        iterator->myNodes[j]->p = p[oldIndex];
-                        iterator->myNodes[j]->iwfix = iwfix[oldIndex];
-                        iterator->myNodes[j]->w = w[oldIndex];
-                    }
-                }
-
-                //restore state point results
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("TEMPER."));
                 line = stream.readLine();
-
-                //load state points
-                std::vector<double> tr(spNm),fr(spNm),cr(spNm),pr(spNm),wr(spNm),hr(spNm);
-
-                for(int h = 0; h < spCount; h++)
+                list = line.split("  ",Qt::SkipEmptyParts);
+                for(int j = 0;j<7;j++)
                 {
-                    line = stream.readLine();
-                    line.replace("D","e");
-                    list = line.split(" ",Qt::SkipEmptyParts);
-
-                    tr[h] = list[1].toDouble();
-                    hr[h] = list[2].toDouble();
-                    fr[h] = list[3].toDouble();
-                    cr[h] = list[4].toDouble();
-                    pr[h] = list[5].toDouble();
-                    wr[h] = list[6].toDouble();
+                    sps[i][j] = list[j].toInt();
+                }
+                for(int h = 0; h < loadUnit->usp; h++)
+                {
+                    loadUnit->myNodes[h]->unitindex = loadUnit->nu;
+                    loadUnit->myNodes[h]->localindex = h+1;
+                    loadUnit->myNodes[h]->ndum = spnumber+h+1;
+                    loadUnit->myNodes[h]->text->setText(QString::number(loadUnit->myNodes[h]->ndum));
                 }
 
-                iterator=dummy;
-                int oldIndexr;
-                for(int i = 0; i < globalcount;i++)
+                scene->drawAUnit(loadUnit);
+
+                //restore merged points
+                QSet<int>set;
+                for(int h = 0;h<loadUnit->usp;h++)
                 {
-                    iterator = iterator->next;
-                    for(int j = 0; j < iterator->usp;j++)
+                    if(sps[i][h]!=0)
                     {
-                        oldIndexr = sps[iterator->nu-1][j]-1;
-                        iterator->myNodes[j]->tr = tr[oldIndexr];
-                        iterator->myNodes[j]->hr = hr[oldIndexr];
-                        iterator->myNodes[j]->fr = fr[oldIndexr];
-                        iterator->myNodes[j]->cr = cr[oldIndexr];
-                        iterator->myNodes[j]->pr = pr[oldIndexr];
-                        iterator->myNodes[j]->wr = wr[oldIndexr];
-                    }
-                }
-
-                //restore COP and capacity
-                do
-                {
-                    line = stream.readLine();
-                }while(!line.contains("COP"));
-                if(line.contains("COP")){
-
-                    line.replace("D","e");
-                    list = line.split(" ",Qt::SkipEmptyParts);
-                    globalpara.cop = list[2].toDouble();
-                    globalpara.capacity = list[5].toDouble();
-                }
-                else{
-                    globalpara.cop = 0;
-                    globalpara.capacity = 0;
-                }
-
-                //restore links
-                largestID = 0;
-                iterator = dummy;
-                for(int i = 0; i < globalcount;i++)
-                {
-                    iterator = iterator->next;
-                    for(int j = 0; j < iterator->usp;j++)
-                    {
-                        if(sps[i][j]>largestID)
+                        if(!set.contains(sps[i][h]))
+                            set.insert(sps[i][h]);
+                        else if(loadUnit->myNodes[h]->isinside)
                         {
-                            largestID = sps[i][j];
-                        }
-                        else
-                        {
-                            nodeFinder = dummy;
-                            for(int h = 0; h < i;h++)
-                            {
-                                nodeFinder = nodeFinder->next;
-                                for(int g = 0; g < nodeFinder->usp;g++)
-                                {
-                                    if(sps[h][g] == sps[i][j])
-                                    {
-                                        Node * node1 = iterator->myNodes[j];
-                                        Node * node2 = nodeFinder->myNodes[g];
-                                        if(node1->isinside||node2->isinside)
-                                        {
-                                        }
-                                        else if((node1->myUnit->idunit==63&&node1->localindex==3)
-                                                ||(node2->myUnit->idunit==63&&node2->localindex==3))
-                                        {
-                                        }
-                                        else
-                                        {
-                                            scene->drawLink(node1,node2);
-                                        }
-                                    }
-                                }
-                            }
+                            Node*insideNode = loadUnit->myNodes[h], *outNode = loadUnit->myNodes[loadUnit->mergedOutPoint-1];
+                            loadUnit->insideMerged=true;
+                            insideLink*iLink = new insideLink(insideNode,outNode);
+                            insideNode->addInsideLink(iLink);
+                            outNode->addInsideLink(iLink);
+                            Node::mergeInsidePoint(insideNode,outNode);
                         }
                     }
                 }
-
-                //restore valve sensor
-                largestID = 0;
-                iterator = dummy;
-                for(int i = 0; i < globalcount;i++)
-                {
-                    iterator = iterator->next;
-                    for(int j = 0; j < iterator->usp;j++)
-                    {
-                        if(sps[i][j]>largestID)
-                        {
-                            largestID = sps[i][j];
-                        }
-                        else
-                        {
-                            nodeFinder = dummy;
-                            for(int h = 0; h < i;h++)
-                            {
-                                nodeFinder = nodeFinder->next;
-                                for(int g = 0; g < nodeFinder->usp;g++)
-                                {
-                                    if(sps[h][g] == sps[i][j])
-                                    {
-                                        Node * node1 = iterator->myNodes[j];
-                                        Node * node2 = nodeFinder->myNodes[g];
-                                        if((node1->myUnit->idunit==63&&node1->localindex==3)
-                                                ||(node2->myUnit->idunit==63&&node2->localindex==3))
-                                        {
-                                            Node*sensor = node1,*otherNode = node2;
-                                            unit*tValve = node1->myUnit;
-                                            if(node2->myUnit->idunit==63)
-                                            {
-                                                sensor = node2;
-                                                otherNode=node1;
-                                                tValve = node2->myUnit;
-                                            }
-                                            if(!otherNode->isinside)
-                                            {
-                                                tValve->devl = double(otherNode->ndum);
-                                                tValve->sensor = otherNode;
-
-                                                sensor->itfix = otherNode->itfix;
-                                                sensor->t = otherNode->t;
-                                                sensor->iffix = 0;
-                                                sensor->icfix = 0;
-                                                sensor->ipfix = 0;
-                                                sensor->iwfix = 0;
-                                                sensor->ksub = globalpara.fluids.values().first();
-//                                                qDebug()<<sensor->ndum<<"sensor restored";
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                stream.flush();
-                ofile.close();
             }
+
+            //restore state point parameters
+            do
+            {
+                line = stream.readLine();
+            }while(!line.contains("STARTING"));
+
+            //load state points
+            int const spNm = spCount+1;
+            std::vector<int> ksub(spNm),itfix(spNm),iffix(spNm),icfix(spNm),ipfix(spNm),iwfix(spNm);
+            std::vector<double> t(spNm),f(spNm),c(spNm),p(spNm),w(spNm);
+
+            for(int h = 0; h < spCount; h++)
+            {
+                line = stream.readLine();
+                line.replace("D","e");
+                list = line.split(" ",Qt::SkipEmptyParts);
+
+                ksub[h] = list[1].toInt();
+                itfix[h] = list[2].toInt();
+                t[h] = convert(list[3].toDouble(),temperature[tId],temperature[globalpara.unitindex_temperature]);
+                iffix[h] = list[4].toInt();
+                f[h] = convert(list[5].toDouble(),mass_flow_rate[fId],mass_flow_rate[globalpara.unitindex_massflow]);
+                icfix[h] = list[6].toInt();
+                c[h] = list[7].toDouble();
+                ipfix[h] = list[8].toInt();
+                p[h] = convert(list[9].toDouble(),pressure[pId],pressure[globalpara.unitindex_pressure]);
+                iwfix[h] = list[10].toInt();
+                w[h] = list[11].toDouble();
+
+                if(!globalpara.fluids.contains(ksub[h]))
+                    globalpara.fluids.insert(ksub[h]);
+            }
+
+            iterator=dummy;
+            int oldIndex;
+            for(int i = 0; i < globalcount;i++)
+            {
+                iterator = iterator->next;
+                for(int j = 0; j < iterator->usp;j++)
+                {
+                    oldIndex = sps[iterator->nu-1][j]-1;
+                    iterator->myNodes[j]->ksub = ksub[oldIndex];
+                    iterator->myNodes[j]->itfix = itfix[oldIndex];
+                    iterator->myNodes[j]->t = t[oldIndex];
+                    iterator->myNodes[j]->iffix = iffix[oldIndex];
+                    iterator->myNodes[j]->f = f[oldIndex];
+                    iterator->myNodes[j]->icfix = icfix[oldIndex];
+                    iterator->myNodes[j]->c = c[oldIndex];
+                    iterator->myNodes[j]->ipfix = ipfix[oldIndex];
+                    iterator->myNodes[j]->p = p[oldIndex];
+                    iterator->myNodes[j]->iwfix = iwfix[oldIndex];
+                    iterator->myNodes[j]->w = w[oldIndex];
+                }
+            }
+
+            //restore state point results
+            do
+            {
+                line = stream.readLine();
+            } while(!line.contains("TEMPER."));
+            line = stream.readLine();
+
+            //load state points
+            std::vector<double> tr(spNm),fr(spNm),cr(spNm),pr(spNm),wr(spNm),hr(spNm);
+
+            for(int h = 0; h < spCount; h++)
+            {
+                line = stream.readLine();
+                line.replace("D","e");
+                list = line.split(" ",Qt::SkipEmptyParts);
+
+                tr[h] = list[1].toDouble();
+                hr[h] = list[2].toDouble();
+                fr[h] = list[3].toDouble();
+                cr[h] = list[4].toDouble();
+                pr[h] = list[5].toDouble();
+                wr[h] = list[6].toDouble();
+            }
+
+            iterator=dummy;
+            int oldIndexr;
+            for(int i = 0; i < globalcount;i++)
+            {
+                iterator = iterator->next;
+                for(int j = 0; j < iterator->usp;j++)
+                {
+                    oldIndexr = sps[iterator->nu-1][j]-1;
+                    iterator->myNodes[j]->tr = tr[oldIndexr];
+                    iterator->myNodes[j]->hr = hr[oldIndexr];
+                    iterator->myNodes[j]->fr = fr[oldIndexr];
+                    iterator->myNodes[j]->cr = cr[oldIndexr];
+                    iterator->myNodes[j]->pr = pr[oldIndexr];
+                    iterator->myNodes[j]->wr = wr[oldIndexr];
+                }
+            }
+
+            //restore COP and capacity
+            do
+            {
+                line = stream.readLine();
+            } while (!line.contains("COP"));
+            if(line.contains("COP")){
+
+                line.replace("D","e");
+                list = line.split(" ",Qt::SkipEmptyParts);
+                globalpara.cop = list[2].toDouble();
+                globalpara.capacity = list[5].toDouble();
+            } else {
+                globalpara.cop = 0;
+                globalpara.capacity = 0;
+            }
+
+            //restore links
+            largestID = 0;
+            iterator = dummy;
+            for(int i = 0; i < globalcount;i++)
+            {
+                iterator = iterator->next;
+                for(int j = 0; j < iterator->usp;j++)
+                {
+                    if(sps[i][j]>largestID)
+                    {
+                        largestID = sps[i][j];
+                    }
+                    else
+                    {
+                        nodeFinder = dummy;
+                        for(int h = 0; h < i;h++)
+                        {
+                            nodeFinder = nodeFinder->next;
+                            for(int g = 0; g < nodeFinder->usp;g++)
+                            {
+                                if(sps[h][g] == sps[i][j])
+                                {
+                                    Node * node1 = iterator->myNodes[j];
+                                    Node * node2 = nodeFinder->myNodes[g];
+                                    if(node1->isinside||node2->isinside)
+                                    {
+                                    }
+                                    else if((node1->myUnit->idunit==63&&node1->localindex==3)
+                                            ||(node2->myUnit->idunit==63&&node2->localindex==3))
+                                    {
+                                    }
+                                    else
+                                    {
+                                        scene->drawLink(node1,node2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            //restore valve sensor
+            largestID = 0;
+            iterator = dummy;
+            for(int i = 0; i < globalcount;i++)
+            {
+                iterator = iterator->next;
+                for(int j = 0; j < iterator->usp;j++)
+                {
+                    if(sps[i][j]>largestID)
+                    {
+                        largestID = sps[i][j];
+                    }
+                    else
+                    {
+                        nodeFinder = dummy;
+                        for(int h = 0; h < i;h++)
+                        {
+                            nodeFinder = nodeFinder->next;
+                            for(int g = 0; g < nodeFinder->usp;g++)
+                            {
+                                if(sps[h][g] == sps[i][j])
+                                {
+                                    Node * node1 = iterator->myNodes[j];
+                                    Node * node2 = nodeFinder->myNodes[g];
+                                    if((node1->myUnit->idunit==63&&node1->localindex==3)
+                                            ||(node2->myUnit->idunit==63&&node2->localindex==3))
+                                    {
+                                        Node*sensor = node1,*otherNode = node2;
+                                        unit*tValve = node1->myUnit;
+                                        if(node2->myUnit->idunit==63)
+                                        {
+                                            sensor = node2;
+                                            otherNode=node1;
+                                            tValve = node2->myUnit;
+                                        }
+                                        if(!otherNode->isinside)
+                                        {
+                                            tValve->devl = double(otherNode->ndum);
+                                            tValve->sensor = otherNode;
+
+                                            sensor->itfix = otherNode->itfix;
+                                            sensor->t = otherNode->t;
+                                            sensor->iffix = 0;
+                                            sensor->icfix = 0;
+                                            sensor->ipfix = 0;
+                                            sensor->iwfix = 0;
+                                            sensor->ksub = globalpara.fluids.values().first();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            stream.flush();
+            ofile.close();
 
             createGroupFromIfix();
 
@@ -1977,8 +1888,6 @@ bool MainWindow::loadOutFile()
                     {
                         if(iterator->myNodes[n]->ndum==i+1)
                         {
-//                            Node*tNode = iterator->myNodes[n];
-//                            qDebug()<<i+1<<tNode->itfix<<tNode->iffix<<tNode->icfix<<tNode->ipfix<<tNode->iwfix;
                             found = true;
                         }
                     }
@@ -1988,9 +1897,8 @@ bool MainWindow::loadOutFile()
             setTPMenu();
             return true;
         }
-        else return false;
     }
-    else return false;
+    return false;
 }
 
 void MainWindow::manageGroups()
@@ -2040,7 +1948,6 @@ void MainWindow::createGroupFromIfix()
                     globalpara.tGroup.append(mySet);
                 }                
             }
-
 
             if(iterator->myNodes[j]->iffix>1)
             {
@@ -2145,7 +2052,6 @@ void MainWindow::createGroupFromIfix()
                     iterator->myNodes[j]->searchAllSet("p");
                     QSet<Node*>mySet = globalpara.allSet;
                     globalpara.pGroup.append(mySet);
-//                    qDebug()<<"add new p group with sp"<<iterator->myNodes[j]->ndum<<iterator->myNodes[j]->ipfix;
                 }
             }
             if(iterator->myNodes[j]->ndum==7)
@@ -2157,14 +2063,11 @@ void MainWindow::createGroupFromIfix()
         }
     }
 
-
-
     globalpara.resetIfixes('t');
     globalpara.resetIfixes('f');
     globalpara.resetIfixes('c');
     globalpara.resetIfixes('p');
     globalpara.resetIfixes('w');
-
 }
 
 bool MainWindow::noChangeMade()
@@ -2180,221 +2083,198 @@ bool MainWindow::noChangeMade()
     QDomElement root, caseData, globalData, unitData, spData;
     if(!ofile.open(QIODevice::ReadOnly|QIODevice::Text))
     {
-        return false;
         globalpara.reportError("Failed to open and load for change check.",this);
+        return false;
     }
-    else
+    if(!doc.setContent(&ofile))
     {
-        if(!doc.setContent(&ofile))
+        globalpara.reportError("Failed to load xml document for change check.",this);
+        ofile.close();
+        return false;
+    }
+
+    root = doc.childNodes().at(1).toElement();
+    globalpara.resetGlobalPara();
+
+    caseData = root.elementsByTagName("CaseData").at(0).toElement();
+
+    globalData = caseData.elementsByTagName("globalData").at(0).toElement();
+    nChanged = nChanged&&(globalpara.ftol - globalData.attribute("ftol").toFloat()<0.1);
+    nChanged = nChanged&&(globalpara.xtol - globalData.attribute("xtol").toFloat()<0.1);
+    nChanged = nChanged&&(globalpara.maxfev - globalData.attribute("maxfev").toInt()<1);
+
+    double x = 0,y = 0;
+    unit * iterator = dummy;
+    for(int i = 0; i < globalcount;i++)
+    {
+        iterator = iterator->next;
+        x+=iterator->scenePos().x();
+        y+=iterator->scenePos().y();
+    }
+    x = x / globalcount;
+    y = y / globalcount;
+
+    SimpleTextItem*textItem;
+    QDomElement textData;
+    int isBold=0,isItalic=0,isUnderlined=0;
+    for(int i = 0; i <globalpara.sceneText.count();i++)
+    {
+        isBold = 0;
+        isItalic = 0;
+        isUnderlined = 0;
+        textItem = globalpara.sceneText.at(i);
+        textData = globalData.elementsByTagName("textItem"+QString::number(i)).at(0).toElement();
+        nChanged = nChanged&&(textData.attribute("xCoord")==QString::number(textItem->x()));
+        nChanged = nChanged&&(textData.attribute("yCoord")==QString::number(textItem->y()));
+        nChanged = nChanged&&(textData.attribute("text")==textItem->text());
+        if(textItem->font().bold())
+            isBold=1;
+        nChanged = nChanged&&(textData.attribute("bold")==QString::number(isBold));
+        if(textItem->font().italic())
+            isItalic=1;
+        nChanged = nChanged&&(textData.attribute("italic")==QString::number(isItalic));
+        if(textItem->font().underline())
+            isUnderlined=1;
+        nChanged = nChanged&&(textData.attribute("underline")==QString::number(isUnderlined));
+        nChanged = nChanged&&(textData.attribute("size")==QString::number(textItem->font().pointSize()));
+        nChanged = nChanged&&(textData.attribute("color")==textItem->brush().color().name());
+    }
+
+    unit *loadingUnit = dummy;
+    if(globalcount==globalData.attribute("globalcount").toInt()){
+        for(int i = 0; i < globalData.attribute("globalcount").toInt();i++)
         {
-            globalpara.reportError("Failed to load xml document for change check.",this);
-            ofile.close();
-            return false;
-        }
+            unitData = caseData.elementsByTagName("Unit"+QString::number(i+1)).at(0).toElement();
+            loadingUnit = loadingUnit->next;
 
-        root = doc.childNodes().at(1).toElement();
-        globalpara.resetGlobalPara();
+            nChanged = nChanged&&(loadingUnit->nu == unitData.attribute("nu").toInt());
+            nChanged = nChanged&&(loadingUnit->idunit == unitData.attribute("idunit").toInt());
 
-        caseData = root.elementsByTagName("CaseData").at(0).toElement();
+            nChanged = nChanged&&(unitData.attribute("xCoord")==QString::number(loadingUnit->getPos().x()-x));
+            nChanged = nChanged&&(unitData.attribute("yCoord")== QString::number(loadingUnit->getPos().y()-y));
+            nChanged = nChanged&&(unitData.attribute("rotation")==QString::number(loadingUnit->rotation()/90));
+            nChanged = nChanged&&(unitData.attribute("horizontalFlip")==QString::number(loadingUnit->transform().m11()));
+            nChanged = nChanged&&(unitData.attribute("verticalFlip")==QString::number(loadingUnit->transform().m22()));
 
-        globalData = caseData.elementsByTagName("globalData").at(0).toElement();
-        nChanged = nChanged&&(globalpara.ftol - globalData.attribute("ftol").toFloat()<0.1);
-        nChanged = nChanged&&(globalpara.xtol - globalData.attribute("xtol").toFloat()<0.1);
-        nChanged = nChanged&&(globalpara.maxfev - globalData.attribute("maxfev").toInt()<1);
+            nChanged = nChanged&&(loadingUnit->usp == unitData.attribute("usp").toInt());
+            nChanged = nChanged&&(loadingUnit->iht == unitData.attribute("iht").toInt());
+            nChanged = nChanged&&(loadingUnit->ipinch == unitData.attribute("ipinch").toInt());
+            nChanged = nChanged&&(loadingUnit->icop == unitData.attribute("icop").toInt());
 
-        double x = 0,y = 0;
-        unit * iterator = dummy;
-        for(int i = 0; i < globalcount;i++)
-        {
-            iterator = iterator->next;
-            x+=iterator->scenePos().x();
-            y+=iterator->scenePos().y();
-        }
-        x = x / globalcount;
-        y = y / globalcount;
-
-        SimpleTextItem*textItem;
-        QDomElement textData;
-        int isBold=0,isItalic=0,isUnderlined=0;
-        for(int i = 0; i <globalpara.sceneText.count();i++)
-        {
-            isBold = 0;
-            isItalic = 0;
-            isUnderlined = 0;
-            textItem = globalpara.sceneText.at(i);
-            textData = globalData.elementsByTagName("textItem"+QString::number(i)).at(0).toElement();
-            nChanged = nChanged&&(textData.attribute("xCoord")==QString::number(textItem->x()));
-            nChanged = nChanged&&(textData.attribute("yCoord")==QString::number(textItem->y()));
-            nChanged = nChanged&&(textData.attribute("text")==textItem->text());
-            if(textItem->font().bold())
-                isBold=1;
-            nChanged = nChanged&&(textData.attribute("bold")==QString::number(isBold));
-            if(textItem->font().italic())
-                isItalic=1;
-            nChanged = nChanged&&(textData.attribute("italic")==QString::number(isItalic));
-            if(textItem->font().underline())
-                isUnderlined=1;
-            nChanged = nChanged&&(textData.attribute("underline")==QString::number(isUnderlined));
-            nChanged = nChanged&&(textData.attribute("size")==QString::number(textItem->font().pointSize()));
-            nChanged = nChanged&&(textData.attribute("color")==textItem->brush().color().name());
-        }
-
-        unit *loadingUnit = dummy;
-        if(globalcount==globalData.attribute("globalcount").toInt()){
-            for(int i = 0; i < globalData.attribute("globalcount").toInt();i++)
+            if (loadingUnit->iht==0)
             {
-                unitData = caseData.elementsByTagName("Unit"+QString::number(i+1)).at(0).toElement();
-                loadingUnit = loadingUnit->next;
-
-                nChanged = nChanged&&(loadingUnit->nu == unitData.attribute("nu").toInt());
-                nChanged = nChanged&&(loadingUnit->idunit == unitData.attribute("idunit").toInt());
-
-
-                nChanged = nChanged&&(unitData.attribute("xCoord")==QString::number(loadingUnit->getPos().x()-x));
-                nChanged = nChanged&&(unitData.attribute("yCoord")== QString::number(loadingUnit->getPos().y()-y));
-                nChanged = nChanged&&(unitData.attribute("rotation")==QString::number(loadingUnit->rotation()/90));
-                nChanged = nChanged&&(unitData.attribute("horizontalFlip")==QString::number(loadingUnit->transform().m11()));
-                nChanged = nChanged&&(unitData.attribute("verticalFlip")==QString::number(loadingUnit->transform().m22()));
-
-
-                nChanged = nChanged&&(loadingUnit->usp == unitData.attribute("usp").toInt());
-                nChanged = nChanged&&(loadingUnit->iht == unitData.attribute("iht").toInt());
-                nChanged = nChanged&&(loadingUnit->ipinch == unitData.attribute("ipinch").toInt());
-                nChanged = nChanged&&(loadingUnit->icop == unitData.attribute("icop").toInt());
-
-
-                if (loadingUnit->iht==0)
-                {
-                    nChanged = nChanged&&(loadingUnit->ht - convert(unitData.attribute("ht").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate])<1);
-                }
-                else if(loadingUnit->iht==1)
-                {
-                    nChanged = nChanged&&(loadingUnit->ht - convert(unitData.attribute("ht").toFloat(),UA[1],UA[globalpara.unitindex_UA])<0.5);
-                }
-                else if(loadingUnit->iht == 4||loadingUnit->iht == 5)
-                {
-                    nChanged = nChanged&&(loadingUnit->ht - convert(unitData.attribute("ht").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature])<0.1);
-                }
-                else
-                {
-                    nChanged = nChanged&&(loadingUnit->ht - unitData.attribute(("ht")).toFloat()<0.01);
-                }
-
-
-                nChanged = nChanged&&(loadingUnit->devl == unitData.attribute("devl").toFloat());
-                nChanged = nChanged&&(loadingUnit->devg == unitData.attribute("devg").toFloat());
-
-
-                nChanged = nChanged&&(loadingUnit->wetness == unitData.attribute("wetness").toDouble());
-                nChanged = nChanged&&(loadingUnit->NTUm == unitData.attribute("ntum").toDouble());
-                nChanged = nChanged&&(loadingUnit->NTUa == unitData.attribute("ntua").toDouble());
-                nChanged = nChanged&&(loadingUnit->NTUt == unitData.attribute("ntut").toDouble());
-
-
-
-                nChanged = nChanged&&(loadingUnit->htr - convert(unitData.attribute("htr").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate])<1);
-                nChanged = nChanged&&(loadingUnit->ipinchr == unitData.attribute("ipinchr").toDouble());
-                nChanged = nChanged&&(loadingUnit->ua - convert(unitData.attribute("ua").toFloat(),UA[1],UA[globalpara.unitindex_UA])<0.5);
-                nChanged = nChanged&&(loadingUnit->ntu - unitData.attribute("ntu").toDouble()<0.2);
-                nChanged = nChanged&&(loadingUnit->eff - unitData.attribute("eff").toDouble()<0.01);
-                nChanged = nChanged&&(loadingUnit->cat - convert(unitData.attribute("cat").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature])<0.1);
-
-
-                double conv = 10;
-                if(globalpara.unitindex_temperature==3)
-                {
-                    conv = 1;
-                }
-                else if(globalpara.unitindex_temperature ==1)
-                {
-                    conv = 1.8;
-                }
-                nChanged = nChanged&&(loadingUnit->lmtd - unitData.attribute("lmtd").toDouble()/conv <0.5);
-                nChanged = nChanged&&(loadingUnit->mrate - convert(unitData.attribute("mrate").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow])<0.001);
-                nChanged = nChanged&&(loadingUnit->humeff - unitData.attribute("humeff").toDouble()<0.01);
-
-                nChanged = nChanged&&(loadingUnit->insideMerged == (unitData.attribute("insideMerged")=="T"));
-
-
-                if(!unitData.elementsByTagName("ResultCoord").isEmpty())
-                {
-                    QDomElement resCord = unitData.elementsByTagName("ResultCoord").at(0).toElement();
-                    for(int m = 0; m < loadingUnit->usp;m++)
-                    {
-                        nChanged = nChanged&&(resCord.attribute("res"+QString::number(m)).split(",").first().toInt()-loadingUnit->spParameter[m]->pos().x()<10);
-                        nChanged = nChanged&&(resCord.attribute("res"+QString::number(m)).split(",").last().toInt()-loadingUnit->spParameter[m]->pos().y()<10);
-                    }
-
-                }
-
-                for(int j = 0; j< loadingUnit->usp;j++)
-                {
-                    spData = unitData.elementsByTagName("StatePoint"+QString::number(loadingUnit->myNodes[j]->localindex)).at(0).toElement();
-
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->ksub == spData.attribute("ksub").toInt());
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->itfix == spData.attribute("itfix").toInt());
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->iffix == spData.attribute("iffix").toInt());
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->icfix == spData.attribute("icfix").toInt());
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->ipfix == spData.attribute("ipfix").toInt());
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->iwfix == spData.attribute("iwfix").toInt());
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->t - convert(spData.attribute("t").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature])<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->f - convert(spData.attribute("f").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow])<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->c - spData.attribute("c").toFloat()<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->p - convert(spData.attribute("p").toFloat(),pressure[8],pressure[globalpara.unitindex_pressure])<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->w - spData.attribute("w").toFloat()<0.1);
-
-
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->tr - spData.attribute("tr").toFloat()<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->fr - spData.attribute("fr").toFloat()<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->cr - spData.attribute("cr").toFloat()<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->pr - spData.attribute("pr").toFloat()<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->wr - spData.attribute("wr").toFloat()<0.1);
-                    nChanged = nChanged&&(loadingUnit->myNodes[j]->hr - spData.attribute("hr").toFloat()<0.1);
-
-
-                    Link*link;
-                    if(loadingUnit->myNodes[j]->linked)
-                    {
-                        link = loadingUnit->myNodes[j]->myLinks.values().first();
-
-                        if(loadingUnit->myNodes[j] == link->myFromNode)
-                        {
-                            if(loadingUnit->myNodes[j]->unitindex > link->myToNode->unitindex)
-                            {
-                                nChanged = nChanged&&(spData.attribute("otherEndUnit")==QString::number(link->myToNode->unitindex));
-                                nChanged = nChanged&&(spData.attribute("otherEndLocalSP")==QString::number(link->myToNode->localindex));
-                                nChanged = nChanged&&(spData.attribute("link")==QString::number(1));
-                            }
-                        }
-
-                       else if(loadingUnit->myNodes[j] == link->myToNode)
-                        {
-                            if(loadingUnit->myNodes[j]->unitindex > link->myFromNode->unitindex)
-                            {
-                                nChanged = nChanged&&(spData.attribute("otherEndUnit")==QString::number(link->myFromNode->unitindex));
-                                nChanged = nChanged&&(spData.attribute("otherEndLocalSP")==QString::number(link->myFromNode->localindex));
-                                nChanged = nChanged&&(spData.attribute("link")==QString::number(1));
-                            }
-                        }
-                        else nChanged = nChanged&&(spData.attribute("link")==QString::number(0));
-
-                    }
-                    else
-                        nChanged = nChanged&&(spData.attribute("link")==QString::number(0));
-
-
-                }
-
+                nChanged = nChanged&&(loadingUnit->ht - convert(unitData.attribute("ht").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate])<1);
+            }
+            else if(loadingUnit->iht==1)
+            {
+                nChanged = nChanged&&(loadingUnit->ht - convert(unitData.attribute("ht").toFloat(),UA[1],UA[globalpara.unitindex_UA])<0.5);
+            }
+            else if(loadingUnit->iht == 4||loadingUnit->iht == 5)
+            {
+                nChanged = nChanged&&(loadingUnit->ht - convert(unitData.attribute("ht").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature])<0.1);
+            }
+            else
+            {
+                nChanged = nChanged&&(loadingUnit->ht - unitData.attribute(("ht")).toFloat()<0.01);
             }
 
-        }
-        else{
-            nChanged=false;
+            nChanged = nChanged&&(loadingUnit->devl == unitData.attribute("devl").toFloat());
+            nChanged = nChanged&&(loadingUnit->devg == unitData.attribute("devg").toFloat());
+
+            nChanged = nChanged&&(loadingUnit->wetness == unitData.attribute("wetness").toDouble());
+            nChanged = nChanged&&(loadingUnit->NTUm == unitData.attribute("ntum").toDouble());
+            nChanged = nChanged&&(loadingUnit->NTUa == unitData.attribute("ntua").toDouble());
+            nChanged = nChanged&&(loadingUnit->NTUt == unitData.attribute("ntut").toDouble());
+
+            nChanged = nChanged&&(loadingUnit->htr - convert(unitData.attribute("htr").toFloat(),heat_trans_rate[7],heat_trans_rate[globalpara.unitindex_heat_trans_rate])<1);
+            nChanged = nChanged&&(loadingUnit->ipinchr == unitData.attribute("ipinchr").toDouble());
+            nChanged = nChanged&&(loadingUnit->ua - convert(unitData.attribute("ua").toFloat(),UA[1],UA[globalpara.unitindex_UA])<0.5);
+            nChanged = nChanged&&(loadingUnit->ntu - unitData.attribute("ntu").toDouble()<0.2);
+            nChanged = nChanged&&(loadingUnit->eff - unitData.attribute("eff").toDouble()<0.01);
+            nChanged = nChanged&&(loadingUnit->cat - convert(unitData.attribute("cat").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature])<0.1);
+
+            double conv = 10;
+            if(globalpara.unitindex_temperature==3)
+            {
+                conv = 1;
+            }
+            else if(globalpara.unitindex_temperature ==1)
+            {
+                conv = 1.8;
+            }
+            nChanged = nChanged&&(loadingUnit->lmtd - unitData.attribute("lmtd").toDouble()/conv <0.5);
+            nChanged = nChanged&&(loadingUnit->mrate - convert(unitData.attribute("mrate").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow])<0.001);
+            nChanged = nChanged&&(loadingUnit->humeff - unitData.attribute("humeff").toDouble()<0.01);
+
+            nChanged = nChanged&&(loadingUnit->insideMerged == (unitData.attribute("insideMerged")=="T"));
+
+            if(!unitData.elementsByTagName("ResultCoord").isEmpty())
+            {
+                QDomElement resCord = unitData.elementsByTagName("ResultCoord").at(0).toElement();
+                for(int m = 0; m < loadingUnit->usp;m++)
+                {
+                    nChanged = nChanged&&(resCord.attribute("res"+QString::number(m)).split(",").first().toInt()-loadingUnit->spParameter[m]->pos().x()<10);
+                    nChanged = nChanged&&(resCord.attribute("res"+QString::number(m)).split(",").last().toInt()-loadingUnit->spParameter[m]->pos().y()<10);
+                }
+            }
+
+            for(int j = 0; j< loadingUnit->usp;j++)
+            {
+                spData = unitData.elementsByTagName("StatePoint"+QString::number(loadingUnit->myNodes[j]->localindex)).at(0).toElement();
+
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->ksub == spData.attribute("ksub").toInt());
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->itfix == spData.attribute("itfix").toInt());
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->iffix == spData.attribute("iffix").toInt());
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->icfix == spData.attribute("icfix").toInt());
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->ipfix == spData.attribute("ipfix").toInt());
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->iwfix == spData.attribute("iwfix").toInt());
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->t - convert(spData.attribute("t").toFloat(),temperature[3],temperature[globalpara.unitindex_temperature])<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->f - convert(spData.attribute("f").toFloat(),mass_flow_rate[1],mass_flow_rate[globalpara.unitindex_massflow])<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->c - spData.attribute("c").toFloat()<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->p - convert(spData.attribute("p").toFloat(),pressure[8],pressure[globalpara.unitindex_pressure])<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->w - spData.attribute("w").toFloat()<0.1);
+
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->tr - spData.attribute("tr").toFloat()<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->fr - spData.attribute("fr").toFloat()<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->cr - spData.attribute("cr").toFloat()<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->pr - spData.attribute("pr").toFloat()<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->wr - spData.attribute("wr").toFloat()<0.1);
+                nChanged = nChanged&&(loadingUnit->myNodes[j]->hr - spData.attribute("hr").toFloat()<0.1);
+
+                Link*link;
+                if(loadingUnit->myNodes[j]->linked)
+                {
+                    link = loadingUnit->myNodes[j]->myLinks.values().first();
+
+                    if(loadingUnit->myNodes[j] == link->myFromNode)
+                    {
+                        if(loadingUnit->myNodes[j]->unitindex > link->myToNode->unitindex)
+                        {
+                            nChanged = nChanged&&(spData.attribute("otherEndUnit")==QString::number(link->myToNode->unitindex));
+                            nChanged = nChanged&&(spData.attribute("otherEndLocalSP")==QString::number(link->myToNode->localindex));
+                            nChanged = nChanged&&(spData.attribute("link")==QString::number(1));
+                        }
+                    }
+                   else if(loadingUnit->myNodes[j] == link->myToNode)
+                    {
+                        if(loadingUnit->myNodes[j]->unitindex > link->myFromNode->unitindex)
+                        {
+                            nChanged = nChanged&&(spData.attribute("otherEndUnit")==QString::number(link->myFromNode->unitindex));
+                            nChanged = nChanged&&(spData.attribute("otherEndLocalSP")==QString::number(link->myFromNode->localindex));
+                            nChanged = nChanged&&(spData.attribute("link")==QString::number(1));
+                        }
+                    }
+                    else nChanged = nChanged&&(spData.attribute("link")==QString::number(0));
+                }
+                else
+                    nChanged = nChanged&&(spData.attribute("link")==QString::number(0));
+            }
         }
     }
+    else
+        nChanged=false;
 
     return nChanged;
-
 }
 
 void MainWindow::switchToSelect()
@@ -2406,38 +2286,26 @@ void MainWindow::switchToSelect()
 }
 
 // TODO: implement the future!
-void MainWindow::setSceneMode(MainWindow::SceneActionIndex index,
-                              QObject * caller)
+void MainWindow::setSceneMode(MainWindow::SceneActionIndex index, QObject * caller)
 {
     theMode = index;
     if (index != SceneActionIndex::Default)
         connect(caller, SIGNAL(destroyed(QObject*)), this, SLOT(defaultMode()));
 
-    switch (index)
-    {
+    switch (index) {
     case SceneActionIndex::Default:
-    {
         QApplication::restoreOverrideCursor();
         setActionsEnabled(true);
         statusBar()->clearMessage();
         break;
-    }
     case SceneActionIndex::DrawUnit:
-    {
         break;
-    }
     case SceneActionIndex::DrawLink:
-    {
         break;
-    }
     case SceneActionIndex::PlotSelect:
-    {
         break;
-    }
     case SceneActionIndex::TableSelect:
-    {
         break;
-    }
     }
 }
 
@@ -2600,37 +2468,29 @@ bool MainWindow::setTPMenu()
                 globalpara.reportError("Fail to open case file for table data.",this);
                 return false;
             }
-            else
+            QDomDocument doc;
+            if(!doc.setContent(&file))
             {
-                QDomDocument doc;
-                if(!doc.setContent(&file))
-                {
-                    globalpara.reportError("Fail to load xml document for table data.",this);
-                    file.close();
-                    return false;
-                }
-                else
-                {
-                    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-                    int tCount = tableData.childNodes().count();
-                    for(int i = 0; i < tCount; i++)
-                    {
-                        QDomElement currentTable = tableData.childNodes().at(i).toElement();
-                        QString tableTitle = currentTable.attribute("title");
-                        //tableList << currentTable.tagName();
-                        tableList << tableTitle;
-                    }
-                }
+                globalpara.reportError("Fail to load xml document for table data.",this);
+                file.close();
+                return false;
+            }
+            QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+            int tCount = tableData.childNodes().count();
+            for(int i = 0; i < tCount; i++)
+            {
+                QDomElement currentTable = tableData.childNodes().at(i).toElement();
+                QString tableTitle = currentTable.attribute("title");
+                //tableList << currentTable.tagName();
+                tableList << tableTitle;
             }
         }
         QAction *tempAction;
         foreach(QString tableName,tableList)
         {
-//            qDebug()<<ui->menuTable_Windows->actions().count();
             tempAction = ui->menuTable_Windows->addAction(tableName);
             connect(tempAction,SIGNAL(triggered()),SLOT(openTableWindow()));
         }
-
     }
 
     ///Plots
@@ -2668,26 +2528,20 @@ bool MainWindow::setTPMenu()
                 return false;
                 globalpara.reportError("Fail to open case file for table data.",this);
             }
-            else
+            QDomDocument doc;
+            if(!doc.setContent(&file))
             {
-                QDomDocument doc;
-                if(!doc.setContent(&file))
-                {
-                    globalpara.reportError("Fail to load xml document for table data.",this);
-                    file.close();
-                    return false;
-                }
-                else
-                {
-                    // FIXED: correct reading of child nodes of <plotData> to new, valid XML
-                    QDomElement plotData = doc.elementsByTagName("plotData").at(0).toElement();
-                    int pCount = plotData.childNodes().count();
-                    for(int i = 0; i < pCount; i++)
-                    {
-                        QDomElement currentPlot = plotData.childNodes().at(i).toElement();
-                        plotList << currentPlot.attribute("title");
-                    }
-                }
+                globalpara.reportError("Fail to load xml document for table data.",this);
+                file.close();
+                return false;
+            }
+            // FIXED: correct reading of child nodes of <plotData> to new, valid XML
+            QDomElement plotData = doc.elementsByTagName("plotData").at(0).toElement();
+            int pCount = plotData.childNodes().count();
+            for(int i = 0; i < pCount; i++)
+            {
+                QDomElement currentPlot = plotData.childNodes().at(i).toElement();
+                plotList << currentPlot.attribute("title");
             }
         }
         QAction *tempAction;
@@ -2697,7 +2551,6 @@ bool MainWindow::setTPMenu()
             connect(tempAction,SIGNAL(triggered()),SLOT(openPlotWindow()));
         }
     }
-
     return true;
 }
 
@@ -2718,14 +2571,11 @@ bool MainWindow::setRecentFiles()
         globalpara.reportError("Failed to open and load recent file.",this);
         return false;
     }
-    else
+    if(!doc.setContent(&ofile))
     {
-        if(!doc.setContent(&ofile))
-        {
-            globalpara.reportError("Failed to load recent file directories from xml file.",this);
-            ofile.close();
-            return false;
-        }
+        globalpara.reportError("Failed to load recent file directories from xml file.",this);
+        ofile.close();
+        return false;
     }
 
     QDomElement recentFiles = doc.elementsByTagName("recentFiles").at(0).toElement();
@@ -2769,79 +2619,69 @@ bool MainWindow::saveRecentFile(QString fileDir)
             globalpara.reportError("Failed to open and save recent file.",this);
             return false;
         }
-        else
+        if(!doc.setContent(&ofile))
         {
-            if(!doc.setContent(&ofile))
+            globalpara.reportError("Failed to save recent file directories to xml file.",this);
+            ofile.close();
+            return false;
+        }
+        QDomElement root = doc.elementsByTagName("Root").at(0).toElement();
+        QDomElement recentFiles;
+        if(doc.elementsByTagName("recentFiles").count()==0)
+        {
+            recentFiles = doc.createElement("recentFiles");
+            root.appendChild(recentFiles);
+        }
+        else
+            recentFiles = doc.elementsByTagName("recentFiles").at(0).toElement();
+
+        int fileCount = recentFiles.childNodes().count();
+        if(fileCount<5)
+        {
+            bool exist = false;
+            for(int i = 0; i < recentFiles.childNodes().count();i++)
             {
-                globalpara.reportError("Failed to save recent file directories to xml file.",this);
-                ofile.close();
-                return false;
+                QDomNode currentFile = recentFiles.childNodes().at(i);
+                if(currentFile.toElement().attribute("fileDir")==fileDir)
+                    exist = true;
             }
-            else
+            if(!exist)
             {
-                QDomElement root = doc.elementsByTagName("Root").at(0).toElement();
-                QDomElement recentFiles;
-                if(doc.elementsByTagName("recentFiles").count()==0)
-                {
-                    recentFiles = doc.createElement("recentFiles");
-                    root.appendChild(recentFiles);
-                }
-                else
-                    recentFiles = doc.elementsByTagName("recentFiles").at(0).toElement();
-
-                int fileCount = recentFiles.childNodes().count();
-                if(fileCount<5)
-                {
-                    bool exist = false;
-                    for(int i = 0; i < recentFiles.childNodes().count();i++)
-                    {
-                        QDomNode currentFile = recentFiles.childNodes().at(i);
-                        if(currentFile.toElement().attribute("fileDir")==fileDir)
-                            exist = true;
-                    }
-                    if(!exist)
-                    {
-                        QDomElement currentFile = doc.createElement("file"+QString::number(fileCount+1));
-                        currentFile.setAttribute("fileDir",fileDir);
-                        recentFiles.appendChild(currentFile);
-
-                    }
-                }
-                else if(fileCount>=5)
-                {
-                    bool exist = false;
-                    for(int i = 0; i < recentFiles.childNodes().count();i++)
-                    {
-                        QDomNode currentFile = recentFiles.childNodes().at(i);
-                        if(currentFile.toElement().attribute("fileDir")==fileDir)
-                            exist = true;
-                    }
-                    if(!exist)
-                    {
-                        while(recentFiles.childNodes().count()>=5){
-                            recentFiles.removeChild(recentFiles.childNodes().at(0));
-                        }
-
-                        for(int i = 2; i <= 5; i++)
-                            recentFiles.childNodes().at(i-2).toElement().setTagName("file"+QString::number(i-1));
-
-                        QDomElement currentFile = doc.createElement("file"+QString::number(5));
-                        currentFile.setAttribute("fileDir",fileDir);
-                        recentFiles.appendChild(currentFile);
-
-                    }
-                }
-
-                ofile.resize(0);
-                stream.setDevice(&ofile);
-                doc.save(stream,4);
-                ofile.close();
-                return true;
-
+                QDomElement currentFile = doc.createElement("file"+QString::number(fileCount+1));
+                currentFile.setAttribute("fileDir",fileDir);
+                recentFiles.appendChild(currentFile);
             }
         }
-    }
+        else if(fileCount>=5)
+        {
+            bool exist = false;
+            for(int i = 0; i < recentFiles.childNodes().count();i++)
+            {
+                QDomNode currentFile = recentFiles.childNodes().at(i);
+                if(currentFile.toElement().attribute("fileDir")==fileDir)
+                    exist = true;
+            }
+            if(!exist)
+            {
+                while(recentFiles.childNodes().count()>=5){
+                    recentFiles.removeChild(recentFiles.childNodes().at(0));
+                }
 
+                for(int i = 2; i <= 5; i++)
+                    recentFiles.childNodes().at(i-2).toElement().setTagName("file"+QString::number(i-1));
+
+                QDomElement currentFile = doc.createElement("file"+QString::number(5));
+                currentFile.setAttribute("fileDir",fileDir);
+                recentFiles.appendChild(currentFile);
+            }
+        }
+
+        ofile.resize(0);
+        stream.setDevice(&ofile);
+        doc.save(stream,4);
+        ofile.close();
+    }
+    return true;
 }
 
 void MainWindow::disableResult()
@@ -2852,7 +2692,6 @@ void MainWindow::disableResult()
         ui->actionShow_Results->setChecked(false);
     }
 }
-
 
 void MainWindow::openRecentFile()
 {
@@ -2926,7 +2765,6 @@ QFile * MainWindow::SSGetTempFileName()
     return myTempFile;
 }
 
-
 void MainWindow::on_actionProperties_triggered()
 {
     scene->evokeProperties();
@@ -2978,7 +2816,6 @@ void MainWindow::on_actionRun_triggered()
             globalpara.pmax = fmax(globalpara.pmax,1);
         }
     }
-
 
     QStringList wfPoints;
     wfPoints.clear();
@@ -3059,9 +2896,6 @@ void MainWindow::on_actionSave_triggered()
         else
             globalpara.reportError("The case is not saved.",this);
     }
-    else return;
-
-
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -3126,7 +2960,6 @@ void MainWindow::saveFile(QString fileName, bool overwrite)
         }
         else
         {
-
             QXmlStreamWriter xmlWriter(&file);
             xmlWriter.setAutoFormatting(true);
             xmlWriter.writeStartDocument();
@@ -3141,15 +2974,14 @@ void MainWindow::saveFile(QString fileName, bool overwrite)
             xmlWriter.writeEndElement();
             xmlWriter.writeEndDocument();
             file.close();
-
         }
 
     }
 
     if(!file.open(QIODevice::ReadWrite|QIODevice::Text))
     {
-        return;
         globalpara.reportError("Failed to open the file for case saving.",this);
+        return;
     }
     if(!doc.setContent(&file))
     {
@@ -3231,7 +3063,6 @@ void MainWindow::saveFile(QString fileName, bool overwrite)
         x = x / globalcount;
         y = y / globalcount;
 
-
         for(int j = 0; j < globalcount;j++)
         {
             head=head->next;
@@ -3311,7 +3142,6 @@ void MainWindow::saveFile(QString fileName, bool overwrite)
                 cord.append(QString::number(int(head->unitParameter->pos().y())));
                 resCord.setAttribute("resComp",cord);
                 unitData.appendChild(resCord);
-
 
                 for (int i = 0; i < head->usp; i++)
                 {
@@ -3446,7 +3276,6 @@ void MainWindow::on_actionNew_Parametric_Table_triggered()
 
 void MainWindow::on_actionPrint_triggered()
 {
-
     ////directly pop up print options and print
     ///
 //    QPrinter myPrinter(QPrinter::ScreenResolution);
@@ -3520,8 +3349,7 @@ void MainWindow::chooseResults()
     resultDisplayDialog resDialog(this);
     if(resDialog.exec()==QDialog::Accepted)
     {
-        bool hasSelectedRes = globalpara.spResSelected()|globalpara.compResSelected()
-                |globalpara.resCOP|globalpara.resCAP;
+        bool hasSelectedRes = globalpara.spResSelected() || globalpara.compResSelected() || globalpara.resCOP|globalpara.resCAP;
         if(hasSelectedRes){
             if(!resultsShown)//show chosen results
             {
@@ -3565,7 +3393,6 @@ void MainWindow::chooseResults()
             resultsShown = false;
         }
     }
-
 }
 
 void MainWindow::on_actionShow_Results_triggered()
@@ -3575,9 +3402,7 @@ void MainWindow::on_actionShow_Results_triggered()
 
 void MainWindow::resultShow()
 {
-    bool hasSelectedRes = globalpara.spResSelected()|globalpara.compResSelected()
-            |globalpara.resCOP|globalpara.resCAP;
-
+    bool hasSelectedRes = globalpara.spResSelected() || globalpara.compResSelected() || globalpara.resCOP|globalpara.resCAP;
     if(!resultsShown)
     {
         if(!hasSelectedRes)//default is T/F/EFF/CAP/COP
@@ -3592,7 +3417,6 @@ void MainWindow::resultShow()
                     globalpara.resCOP = true;
                 }
             }
-
         }
         QBrush spbr(Qt::darkMagenta);
         QBrush ubr(Qt::red);
@@ -3611,7 +3435,6 @@ void MainWindow::resultShow()
                 iterator->unitParameter->setText("");
 
         }
-
 
         bool showRes;
         iterator = dummy->next;
@@ -3689,7 +3512,6 @@ void MainWindow::resultShow()
                         if(iterator->idunit>60&&iterator->idunit<90){
                             iterator->unitParameter->setText("");
                         }
-
                     }
                     else{
                         uPara.append("\nMw="+QString::number(iterator->mrate,'g',6)+globalpara.unitname_massflow);
@@ -3729,7 +3551,6 @@ void MainWindow::resultShow()
                 globalpara.resCOP = false;
                 globalpara.resCAP  = false;
             }
-
         }
         else {
             scene->copcap->setText("");
@@ -3765,11 +3586,9 @@ void MainWindow::resultShow()
             }
                 iterator->unitParameter->setText("");
                 iterator->unitParameter->setFlags(QGraphicsItem::ItemClipsToShape);
-
         }
         scene->copcap->setText("");
         scene->copRect->setFlags(QGraphicsItem::ItemClipsToShape);
-
 
         resultsShown = false;
     }
@@ -3858,7 +3677,6 @@ void MainWindow::on_actionPlot_Window_triggered()
     openPlotWindow();
 }
 
-
 void MainWindow::on_actionNew_Parametric_Plot_triggered()
 {
     disableResult();
@@ -3876,24 +3694,18 @@ void MainWindow::on_actionNew_Parametric_Plot_triggered()
         file.close();
         return;
     }
-    else
-    {
-        QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
-        if(tableData.childNodes().isEmpty())//check if there is any table
-        {
-            QMessageBox::warning(this, "Warning", "There is no table, please first create parametric tables.");
-            file.close();
-            return;
-        }
-        else
-        {
-            newParaPlotDialog pDialog(0,"","",this);
-            pDialog.setWindowTitle("Parametric Plot");
-            //pDialog.setModal(true);
-            pDialog.exec();
-        }
-    }
 
+    QDomElement tableData = doc.elementsByTagName("TableData").at(0).toElement();
+    if(tableData.childNodes().isEmpty())//check if there is any table
+    {
+        QMessageBox::warning(this, "Warning", "There is no table, please first create parametric tables.");
+        file.close();
+        return;
+    }
+    newParaPlotDialog pDialog(0,"","",this);
+    pDialog.setWindowTitle("Parametric Plot");
+    //pDialog.setModal(true);
+    pDialog.exec();
 }
 
 void MainWindow::on_actionNew_Property_Plot_triggered()
@@ -4005,7 +3817,6 @@ void MainWindow::on_actionImport_out_File_triggered()//this function needs to be
     case 2:
         loadOutFile();
     }
-
 }
 
 void MainWindow::on_actionSelect_triggered()
@@ -4039,15 +3850,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     fName = tempXML;
 
     int answer = askToSave();
-    switch (answer)
-    {
+    switch (answer) {
     case 0:
-    {
         event->ignore();
         break;
-    }
     case 1:
-    {
         saveFile(globalpara.caseName,false);
         if(globalpara.caseName == fName)
         {
@@ -4067,24 +3874,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
             {
                 event->ignore();
             }
+            break;
         }
-        else
-        {
-            QFile tempFile(fName);
-            if(tempFile.exists())
-                tempFile.remove();
-            event->accept();
-        }
-        break;
-    }
+        return;
     case 2:
-    {
-        QFile tempFile(fName);
-        if(tempFile.exists())
-            tempFile.remove();
-        event->accept();
+        break;
+    default:
+        return;
     }
-    }
+
+    QFile tempFile(fName);
+    if(tempFile.exists())
+        tempFile.remove();
+    event->accept();
 }
 
 // TODO: implementation seems unfinished.
@@ -4092,7 +3894,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::on_actionExport_to_File_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,"Export system diagram as..","./","Image(*.png);;PDF File(*.pdf)");
-    if(fileName!="")
+    if(!fileName.isEmpty())
     {
         QString suffix = QFileInfo(fileName).suffix().toLower();
 
@@ -4118,7 +3920,6 @@ void MainWindow::on_actionExport_to_File_triggered()
         double ratio,maxDim = ymax-ymin;
         if(xmax-xmin>maxDim)
             maxDim = xmax-xmin;
-    //    ratio = 1+ (1-maxDim/900);
         ratio = 1.1;
 
         QPrinter myPrinter(QPrinter::ScreenResolution);
@@ -4183,7 +3984,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         {
             theStatusBar->showMessage("Adding new component cancelled.");
             QApplication::restoreOverrideCursor();
-
         }
         else if(sceneActionIndex==2)
         {
@@ -4212,7 +4012,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::on_actionText_triggered()
 {
-
     SimpleTextItem * newTextItem=new SimpleTextItem();
     newTextItem->setBrush(Qt::black);
     newTextItem->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
@@ -4225,11 +4024,7 @@ void MainWindow::on_actionText_triggered()
         globalpara.sceneText.append(newTextItem);
         scene->addItem(newTextItem);
     }
-
-
-
 }
-
 
 void MainWindow::on_actionAdditional_equations_triggered()
 {
@@ -4239,7 +4034,6 @@ void MainWindow::on_actionAdditional_equations_triggered()
 // TODO: decide if user wants to rotate all selected, or just "first" (appears random)
 void MainWindow::on_actionRotate_Clockwise_triggered()
 {
-
     bool done = false;
     QList <QGraphicsItem *> items = scene->selectedItems();
     if (!items.isEmpty())
@@ -4323,64 +4117,61 @@ void MainWindow::loadExampleCase()
             globalpara.reportError("Failed to find/open the example file!");
             return;
         }
-        else
-        {
-            QString tempXML = Sorputils::sorpTempDir().absoluteFilePath("temp.xml");
 
-            int askSave = askToSave();
-            switch(askSave)
+        QString tempXML = Sorputils::sorpTempDir().absoluteFilePath("temp.xml");
+        int askSave = askToSave();
+        switch(askSave)
+        {
+        case 0://cancel
+            break;
+        case 1://save and proceed
+        {
+            //save current file
+            saveFile(globalpara.caseName,false);
+            QString fName;
+            fName = tempXML;
+            if(globalpara.caseName == fName)
             {
-            case 0://cancel
-                break;
-            case 1://save and proceed
-            {
-                //save current file
-                saveFile(globalpara.caseName,false);
-                QString fName;
-                fName = tempXML;
-                if(globalpara.caseName == fName)
+                QString name = QFileDialog::getSaveFileName(this,"Save current case to file:","./","XML files(*.xml)");
+                bool cancel = name.isNull();
+                if (!cancel)
                 {
-                    QString name = QFileDialog::getSaveFileName(this,"Save current case to file:","./","XML files(*.xml)");
-                    bool cancel = name.isNull();
-                    if (!cancel)
+                    globalpara.caseName = name;
+                    QFile tempFile(fName);
+                    QFile newFile(name);
+                    if (!(newFile.remove() && tempFile.copy(globalpara.caseName) && tempFile.remove()))
                     {
-                        globalpara.caseName = name;
-                        QFile tempFile(fName);
-                        QFile newFile(name);
-                        if (!(newFile.remove() && tempFile.copy(globalpara.caseName) && tempFile.remove()))
-                        {
-                            globalpara.reportError("Failed to save to file " + name, this);
-                            return;
-                        }
-                    }
-                    else
-                        return;
-                }
-                //and proceed
-            }
-            case 2: //don't save but load example
-            {
-                QFile newFile(tempXML);
-                if(newFile.exists())
-                    newFile.remove();
-                QFile tpFile;
-                tpFile.setFileName(tempFileName);
-                if(tpFile.copy(tempXML))
-                {
-                    newFile.setPermissions(newFile.permissions() | QFileDevice::WriteUser);
-                    if(!loadCase(tempXML))
-                    {
-                        globalpara.reportError("Failed to generate temp file from example case.");
+                        globalpara.reportError("Failed to save to file " + name, this);
                         return;
                     }
                 }
                 else
+                    return;
+            }
+            //and proceed
+        }
+        case 2: //don't save but load example
+        {
+            QFile newFile(tempXML);
+            if(newFile.exists())
+                newFile.remove();
+            QFile tpFile;
+            tpFile.setFileName(tempFileName);
+            if(tpFile.copy(tempXML))
+            {
+                newFile.setPermissions(newFile.permissions() | QFileDevice::WriteUser);
+                if(!loadCase(tempXML))
                 {
-                    globalpara.reportError("Failed to find/open");
+                    globalpara.reportError("Failed to generate temp file from example case.");
                     return;
                 }
             }
+            else
+            {
+                globalpara.reportError("Failed to find/open");
+                return;
             }
+        }
         }
     }
 }
@@ -4424,7 +4215,6 @@ void MainWindow::defaultTheSystem()
     spnumber = 0;
 
     globalpara.resetGlobalPara();
-
 }
 
 void MainWindow::clearResultSelection()

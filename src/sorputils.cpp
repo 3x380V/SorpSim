@@ -5,10 +5,10 @@
 //!
 //! \author Nicholas Fette (nfette)
 
-#include "sorputils.h"
-
 #include <QCoreApplication>
 #include <QFileDevice>
+
+#include "sorputils.h"
 
 #ifdef Q_OS_WIN32
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;

@@ -13,19 +13,17 @@
     \copyright 2017-2018, Nicholas Fette
 */
 
-
-#include "calculate.h"
+#include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
-#include "mainwindow.h"
-#include "globaldialog.h"
-#include <QFile>
 #include <QStringList>
+
+#include "calculate.h"
+#include "mainwindow.h"
 #include "unitconvert.h"
 #include "dataComm.h"
 #include "sorpsimEngine.h"
 #include "calcdetaildialog.h"
-#include <QStringList>
 
 extern int spnumber;
 extern int globalcount;
@@ -42,10 +40,8 @@ calculate::calculate(unit * dummy) :
 }
 
 void calculate::calc(globalparameter globalpara, QString fileName)
-
 {
     bool error = false;
-
 
     globalparameter *theGlobal = &globalpara;
     globalpara.checkMinMax(theGlobal);
@@ -62,8 +58,6 @@ void calculate::calc(globalparameter globalpara, QString fileName)
     myInputs.xtol = globalpara.xtol;
     myInputs.nunits = globalcount;
     myInputs.nsp = spnumber;
-
-
 
     double conv = 10;
     if(globalpara.unitindex_temperature==3)
@@ -136,10 +130,9 @@ void calculate::calc(globalparameter globalpara, QString fileName)
         count++;
     }
 
-
     bool notFound;
     bool iflag;
-    for ( int i = 1; i <= spnumber; i++)
+    for (int i = 1; i <= spnumber; i++)
     {
         notFound = true;
         iflag = false;
@@ -148,48 +141,45 @@ void calculate::calc(globalparameter globalpara, QString fileName)
         {
             for ( int k = 0; notFound&&k < myHead->usp; k++ )
             {
-                    if ( !iflag && myHead->myNodes[k]->ndum == i )
+                if ( !iflag && myHead->myNodes[k]->ndum == i )
+                {
+                    notFound = false;
+                    myInputs.ksub[i] = myHead->myNodes[k]->ksub;
+                    myInputs.t[i] = convert(myHead->myNodes[k]->t,temperature[globalpara.unitindex_temperature],temperature[3]);
+                    if((myInputs.ksub[i]<4||myInputs.ksub[i]>6)&&myInputs.ksub[i]<11)
                     {
-                        notFound = false;
-                        myInputs.ksub[i] = myHead->myNodes[k]->ksub;
-                        myInputs.t[i] = convert(myHead->myNodes[k]->t,temperature[globalpara.unitindex_temperature],temperature[3]);
-                        if((myInputs.ksub[i]<4||myInputs.ksub[i]>6)&&myInputs.ksub[i]<11)
+                        if(myInputs.t[i]>705)
                         {
-                            if(myInputs.t[i]>705)
-                            {
-                                QMessageBox::warning(theMainwindow,"Warning","Temperature setting of state point "+QString::number(i)+" is over H2O critical point, calculation cancelled.");
-                                error = true;
-                            }
+                            QMessageBox::warning(theMainwindow,"Warning","Temperature setting of state point "+QString::number(i)+" is over H2O critical point, calculation cancelled.");
+                            error = true;
                         }
-
-                        myInputs.f[i] = convert(myHead->myNodes[k]->f,mass_flow_rate[globalpara.unitindex_massflow],mass_flow_rate[1]);
-
-                        myInputs.c[i] = myHead->myNodes[k]->c;
-                        myInputs.p[i] = convert(myHead->myNodes[k]->p,pressure[globalpara.unitindex_pressure],pressure[8]);
-                        if((myInputs.ksub[i]<4||myInputs.ksub[i]>6)&&myInputs.ksub[i]<11)
-                        {
-                            if(myInputs.p[i]>3200)
-                            {
-                                QMessageBox::warning(theMainwindow,"Warning","Pressure setting of state point "+QString::number(i)+" is over H2O critical point, calculation cancelled.");
-                                error = true;
-                            }
-                        }
-
-                        myInputs.w[i] = myHead->myNodes[k]->w;
-                        myInputs.itfix[i] = myHead->myNodes[k]->itfix;
-                        myInputs.iffix[i] = myHead->myNodes[k]->iffix;
-                        myInputs.icfix[i] = myHead->myNodes[k]->icfix;
-                        myInputs.ipfix[i] = myHead->myNodes[k]->ipfix;
-                        myInputs.iwfix[i] = myHead->myNodes[k]->iwfix;
-                        iflag = true;
                     }
 
-            }
+                    myInputs.f[i] = convert(myHead->myNodes[k]->f,mass_flow_rate[globalpara.unitindex_massflow],mass_flow_rate[1]);
 
+                    myInputs.c[i] = myHead->myNodes[k]->c;
+                    myInputs.p[i] = convert(myHead->myNodes[k]->p,pressure[globalpara.unitindex_pressure],pressure[8]);
+                    if((myInputs.ksub[i]<4||myInputs.ksub[i]>6)&&myInputs.ksub[i]<11)
+                    {
+                        if(myInputs.p[i]>3200)
+                        {
+                            QMessageBox::warning(theMainwindow,"Warning","Pressure setting of state point "+QString::number(i)+" is over H2O critical point, calculation cancelled.");
+                            error = true;
+                        }
+                    }
+
+                    myInputs.w[i] = myHead->myNodes[k]->w;
+                    myInputs.itfix[i] = myHead->myNodes[k]->itfix;
+                    myInputs.iffix[i] = myHead->myNodes[k]->iffix;
+                    myInputs.icfix[i] = myHead->myNodes[k]->icfix;
+                    myInputs.ipfix[i] = myHead->myNodes[k]->ipfix;
+                    myInputs.iwfix[i] = myHead->myNodes[k]->iwfix;
+                    iflag = true;
+                }
+            }
             myHead = myHead->next;
         }
     }
-
 
     if(!error)
     {
@@ -201,9 +191,6 @@ void calculate::calc(globalparameter globalpara, QString fileName)
 
         absdCal(0,0,myInputs,false);
 
-//        qDebug()<<"checking";
-//        checkEV();
-
         QMessageBox calcMsg(theMainwindow);
         QString title = "Warning",msg = "not defined";
 
@@ -212,52 +199,34 @@ void calculate::calc(globalparameter globalpara, QString fileName)
         bool converged = false;
         if(!outputs.stopped)
         {
-
-            switch (outputs.IER)
-            {
+            switch (outputs.IER) {
             case 0:
-            {
                 msg = nvneq+ "Improper input parameters"+"\n"+outputs.myMsg;
                 break;
-            }
             case 1:
-            {
                 msg = nvneq+"Congratulations!\nResidual of functions is below tolerance,\ncalculation successfully converged!";
                 converged = true;
                 break;
-            }
             case 2:
-            {
                 msg = nvneq+"Congratulations!\nRelative error between iterates is below tolerance,\ncalculation successfully converged!";
                 converged = true;
                 break;
-            }
             case 3:
-            {
                 msg = nvneq+"Congratulations!\nCalculation successfully converged!";
                 converged = true;
                 break;
-            }
             case 4:
-            {
                 msg = nvneq+"Convergence is not achieved within the defined iteration number limit!\nHint:try a larger iteration number (in the \"Run\" Dialog)";
                 break;
-            }
             case 5:
-            {;
                 msg = nvneq+"Iteration couldn't reduce the residuals in last 20 steps,calculation terminated.\nHint:the case could be over-defined with too many equations,\nor it needs a better guess value set.";
                 break;
-            }
             case 6:
-            {
                 msg = nvneq+"Unsuccessful due to following possible reasons:\n* tolerance is too stringent\n* slow convergence due to Jacobian singular\n or badly scaled variables";
                 break;
-            }
             case 7:
-            {
                 msg = nvneq+"Couldn't progress as step bound is too small\nrelative to the size of the iterates.";
                 break;
-            }
             }
             switch (outputs.IER)
             {
@@ -279,8 +248,7 @@ void calculate::calc(globalparameter globalpara, QString fileName)
         if(outputs.stopped){
             calcMsg.addButton("Close",QMessageBox::YesRole);
             calcMsg.setIcon(QMessageBox::Critical);
-        }
-        else{
+        } else {
             QString showRes = "Show Last Iteration";
             calcMsg.setIcon(QMessageBox::Warning);
             if(converged){
@@ -296,7 +264,6 @@ void calculate::calc(globalparameter globalpara, QString fileName)
         calcMsg.setText(msg);
         calcMsg.exec();
 
-
         if(calcMsg.buttonRole(calcMsg.clickedButton())==QMessageBox::NoRole)
         {
             calcDetailDialog dDialog(theMainwindow);
@@ -309,15 +276,12 @@ void calculate::calc(globalparameter globalpara, QString fileName)
             }
             theMainwindow->resultShow();
         }
-
     }
 }
 
-
 bool calculate::updateSystem()
-
 {
-//    sp para
+    // sp para
     unit * iterator;
     Node* node;
     for(int p = 0;p<spnumber;p++)
@@ -339,8 +303,6 @@ bool calculate::updateSystem()
                     node->cr = outputs.c[p+1];
                     node->pr = outputs.p[p+1];//convert(outputs.p[p+1],pressure[8],pressure[globalpara.unitindex_pressure]);
                     node->wr = outputs.w[p+1];
-
-
 //                    if(globalpara.updateGuessValues)
 //                    {
 //                        if(node->itfix>0)
@@ -360,7 +322,7 @@ bool calculate::updateSystem()
         }
     }
 
-//    unit para
+    // unit para
     if(myDummy->next!= NULL)
     {
         iterator = myDummy->next;
@@ -390,7 +352,6 @@ bool calculate::updateSystem()
             iterator->enthalpyeff = outputs.enthalpyeff[m+1];
         }
         iterator = iterator->next;
-
     }
 
     //global para
@@ -402,10 +363,7 @@ bool calculate::updateSystem()
 
 void calculate::checkEV()
 {
-    int nv=0, ne=0;
-    nv = spnumber*5;
-    ne+= outputs.noEqn;
-
+    int ne = outputs.noEqn;
     bool nFound = true;
     for(int p = 1; p <= spnumber;p++)
     {
@@ -433,7 +391,6 @@ void calculate::checkEV()
                 }
             }
         }
-
     }
 
 //    qDebug()<<"ne before group"<<ne;
@@ -493,6 +450,5 @@ void calculate::checkEV()
 //        qDebug()<<"w adding"<<countList.count();
         ne+=countList.count()-1;
     }
-
 //    qDebug()<<"nv"<<nv<<"ne"<<ne;
 }

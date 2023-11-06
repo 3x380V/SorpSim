@@ -13,11 +13,11 @@
 
 */
 
+#include <QDebug>
+#include <QMessageBox>
 
 #include "masterpanelcell.h"
-#include <QDebug>
 #include "masterdialog.h"
-#include <QMessageBox>
 #include "dataComm.h"
 #include "mainwindow.h"
 
@@ -40,7 +40,6 @@ masterPanelCell::masterPanelCell(Node *node, QWidget *parent) :
     setFixedWidth(50);
 }
 
-
 void masterPanelCell::setType(int type)
 {
         myType = type;
@@ -51,23 +50,18 @@ void masterPanelCell::setType(int type)
 
 void masterPanelCell::setCell(int type)
 {
-    switch (type)
-        {
-        case 0:
-        {
-            setText(QString::number(myValue,'g',4));
-            setStyleSheet("QLineEdit{background: rgb(204, 255, 204);}");
-            setReadOnly(false);
-            break;
-        }
-        case 1:
-        {
-            setText("");
-            setStyleSheet("QLineEdit{background: white;}");
-            setReadOnly(true);
-            break;
-        }
-        }
+    switch (type) {
+    case 0:
+        setText(QString::number(myValue,'g',4));
+        setStyleSheet("QLineEdit{background: rgb(204, 255, 204);}");
+        setReadOnly(false);
+        break;
+    case 1:
+        setText("");
+        setStyleSheet("QLineEdit{background: white;}");
+        setReadOnly(true);
+        break;
+    }
 }
 
 void masterPanelCell::setValue(double value)
@@ -102,7 +96,6 @@ void masterPanelCell::focusOutEvent(QFocusEvent *e)
     if(myType==0)
         emit(focussed(false));
 }
-
 
 void masterPanelCell::textChanged()
 {

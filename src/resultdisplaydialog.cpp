@@ -13,14 +13,14 @@
 
 */
 
+#include <QComboBox>
+#include <QDebug>
+#include <QLayout>
 
 #include "resultdisplaydialog.h"
 #include "ui_resultdisplaydialog.h"
 #include "resultdialog.h"
 #include "mainwindow.h"
-#include <QLayout>
-#include <QComboBox>
-#include <QDebug>
 #include "dataComm.h"
 
 extern int globalcount;
@@ -34,7 +34,6 @@ resultDisplayDialog::resultDisplayDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::resultDisplayDialog)
 {
-
     ui->setupUi(this);
 
     setWindowFlags(Qt::Dialog);
@@ -56,17 +55,14 @@ resultDisplayDialog::resultDisplayDialog(QWidget *parent) :
     ui->COPcb->setChecked(globalpara.resCOP);
     ui->CAPAcb->setChecked(globalpara.resCAP);
 
-
     QLayout *mainLayout = layout();
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-
 }
 
 resultDisplayDialog::~resultDisplayDialog()
 {
     delete ui;
 }
-
 
 void resultDisplayDialog::on_OKButton_clicked()
 {
